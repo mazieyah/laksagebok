@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Laksa Arcade</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
+<link rel="stylesheet" href="style.css?v=31">
+</head>
+<body>
+<canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
+<div id="hitflash" aria-hidden="true"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="gebuk-svg" viewBox="0 0 64 96">
+    <g fill="#b8963f" stroke="#5a4316" stroke-width="2" stroke-linejoin="round">
+      <circle cx="32" cy="11" r="7" fill="none" stroke-width="4"/>
+      <rect x="27" y="17" width="10" height="14" rx="2"/>
+      <rect x="22" y="29" width="20" height="10" rx="2"/>
+      <rect x="9" y="33" width="8" height="26" rx="2"/>
+      <rect x="47" y="33" width="8" height="26" rx="2"/>
+      <rect x="12" y="51" width="40" height="12" rx="3"/>
+      <rect x="16" y="61" width="32" height="32" rx="4"/>
+      <rect x="16" y="66" width="32" height="3" fill="#8c7336" stroke="none"/>
+    </g>
+  </symbol>
+</svg>
+
+<button id="mute" class="icon-btn" aria-label="Toggle sound" title="Toggle sound">🔊</button>
+
+<div id="hud" hidden>
+  <div class="hud-top">
+    <div class="hud-left">
+      <div id="level-label" class="hud-label">LEVEL 1 · KAMPUNG LAKSA</div>
+      <div id="score" class="hud-big">0</div>
+      <div id="dist" class="hud-small">0 m</div>
+      <div class="hud-label hud-sub">MISI</div>
+      <ul id="missions" class="missions">
+        <li id="m-gebuk" class="mission-item"><svg class="gebuk-icon" aria-hidden="true"><use href="#gebuk-svg"/></svg><span class="m-text">Kutip gebuk</span><span id="m-gebuk-n" class="m-count">0 / 3</span></li>
+        <li id="m-laksa" class="mission-item"><span class="m-icon" aria-hidden="true">🍜</span><span class="m-text">Kutip laksa</span><span id="m-laksa-n" class="m-count">0 / 10</span></li>
+      </ul>
+      <div class="hud-label hud-sub">PENCAPAIAN</div>
+      <div id="achievements" class="achievements" aria-label="Achievements"></div>
+    </div>
+    <div class="hud-right">
+      <div id="hearts" class="hearts" aria-label="Lives"><span class="heart">♥</span><span class="heart">♥</span><span class="heart">♥</span></div>
+      <div id="timer" class="timer">2:00</div>
+      <button id="pause-btn" class="icon-btn hud-btn" type="button" aria-label="Pause">⏸</button>
+    </div>
+  </div>
+  <div class="power-row">
+    <div id="power-magnet" class="power" hidden><span>🧲 Magnet laksa</span><div class="bar"><div id="power-magnet-fill"></div></div></div>
+    <div id="power-shield" class="power" hidden><span>🛡 Tudung saji</span></div>
+    <div id="power-boost" class="power" hidden><span>🌶 Cili boost</span><div class="bar"><div id="power-boost-fill"></div></div></div>
+  </div>
+  <div id="banner" class="banner" hidden></div>
+  <div id="countdown" class="countdown" hidden></div>
+  <div id="hint" class="hint" hidden></div>
+</div>
+
+<div id="register" class="screen">
+  <div class="card">
+    <img class="register-brand" src="laksa-arcade-logo.png" alt="Laksa Arcade · Pilih Permainan · Warisan Laksa Pahang · Synexis Digital">
+    <p class="tagline">Empat permainan warisan Laksa Pahang: Laksa Gebok Run, Laksa Quest, Teka Silang Kata dan Cari Kata. Masukkan nama pemain; alamat e-mel diminta untuk kali pertama sahaja. Skor setiap permainan disimpan di bawah nama itu.</p>
+    <form id="register-form" class="form" novalidate>
+      <label class="field"><span>Nama Pemain</span><input id="username" type="text" maxlength="20" autocomplete="nickname" placeholder="cth. Along" required></label>
+      <label id="email-field" class="field" hidden><span>Alamat E-Mail</span><input id="email" type="email" maxlength="80" autocomplete="email" placeholder="anda@contoh.com"></label>
+      <p id="register-note" class="form-note" hidden></p>
+      <p id="register-error" class="form-error" hidden></p>
+      <button id="register-btn" class="btn" type="submit">TERUSKAN</button>
+    </form>
+    <p id="store-status" class="store-status">Connecting to the database…</p>
+    <a id="admin-link" class="link-btn" href="#admin" hidden>Admin: player performance</a>
+  </div>
+</div>
+
+<div id="games" class="screen hub games" hidden>
+  <div class="games-scene" aria-hidden="true"><img src="laksa-scene.jpg" alt=""></div>
+  <div class="heritage-side left" aria-hidden="true">
+    <img src="golden-gebok.png" alt="">
+  </div>
+  <div class="heritage-side right" aria-hidden="true">
+    <img src="laksa-bowl.png" alt="">
+  </div>
+  <div class="games-top">
+    <div class="welcome-sign">
+      <img src="selamat-datang.png" alt="">
+      <strong id="games-player" class="welcome-name"></strong>
+      <button id="games-switch" class="welcome-switch" type="button">Tukar</button>
+    </div>
+    <div class="sign arcade-brand">
+      <img src="laksa-arcade-logo.png" alt="Laksa Arcade · Pilih Permainan · Warisan Laksa Pahang · Synexis Digital">
+    </div>
+    <nav class="top-nav games-nav" aria-label="Arcade">
+      <button id="games-achv" class="round-btn" type="button" aria-label="Pencapaian" title="Pencapaian"><img src="nav-medal.png" alt=""></button>
+      <button id="games-lb" class="round-btn" type="button" aria-label="Papan kedudukan" title="Papan kedudukan"><img src="nav-trophy.png" alt=""></button>
+      <button id="games-settings" class="round-btn" type="button" aria-label="Tetapan" title="Tetapan"><img src="nav-gear.png" alt=""></button>
+      <button id="games-sound" class="round-btn" type="button" aria-label="Bunyi" title="Bunyi"><img src="nav-sound.png" alt=""></button>
+    </nav>
+  </div>
+  <div class="games-body">
+    <div class="game-grid" role="list">
+      <button id="game-runner" class="game-card theme-run" type="button" role="listitem" aria-label="Main Laksa Gebok Run">
+        <span class="game-art" aria-hidden="true">
+          <img class="poster-art" src="traveler-menu.png" alt="">
+          <span class="art-shine"></span>
+        </span>
+        <span class="game-name runner-name"><img src="laksa-gebok-run-banner.png" alt="Laksa Gebok Run"></span>
+        <span class="game-desc">Larian 3D: kutip laksa dan gebuk, tamatkan 3 level dalam 120 saat.</span>
+        <span class="game-best"><i aria-hidden="true">🏆</i>Terbaik: <strong id="gbest-runner">0</strong></span>
+        <span class="game-play">MAIN <i aria-hidden="true">▶</i></span>
+      </button>
+      <button id="game-platform" class="game-card theme-quest" type="button" role="listitem" aria-label="Main Laksa Quest">
+        <span class="game-art" aria-hidden="true">
+          <img class="quest-art" src="laksa-quest-bowl.png" alt="">
+        </span>
+        <span class="game-name quest-name"><img src="laksa-quest-banner.png" alt="Laksa Quest"></span>
+        <span class="game-desc">Platform lompat-lompat: kutip 5 bahan untuk siapkan semangkuk laksa. Misi beberapa mangkuk.</span>
+        <span class="game-best"><i aria-hidden="true">🏆</i>Terbaik: <strong id="gbest-platform">0</strong></span>
+        <span class="game-play">MAIN <i aria-hidden="true">▶</i></span>
+      </button>
+      <button id="game-crossword" class="game-card theme-xw" type="button" role="listitem" aria-label="Main Teka Silang Kata">
+        <span class="game-art" aria-hidden="true">
+          <img class="xw-art" src="teka-silang-art.png" alt="">
+        </span>
+        <span class="game-name xw-name"><img src="teka-silang-banner.png" alt="Teka Silang Kata"></span>
+        <span class="game-desc">15 petunjuk tentang laksa, gebuk dan warisan Pahang. Lebih pantas, lebih tinggi skor.</span>
+        <span class="game-best"><i aria-hidden="true">🏆</i>Terbaik: <strong id="gbest-crossword">0</strong></span>
+        <span class="game-play">MAIN <i aria-hidden="true">▶</i></span>
+      </button>
+      <button id="game-wordsearch" class="game-card theme-ws" type="button" role="listitem" aria-label="Main Cari Kata">
+        <span class="game-art" aria-hidden="true">
+          <img class="ws-art" src="cari-kata-art.png" alt="">
+        </span>
+        <span class="game-name ws-name"><img src="cari-kata-banner.png" alt="Cari Kata Laksa"></span>
+        <span class="game-desc">14 perkataan warisan laksa tersembunyi dalam grid huruf. Seret untuk menandakannya; grid baharu setiap kali.</span>
+        <span class="game-best"><i aria-hidden="true">🏆</i>Terbaik: <strong id="gbest-wordsearch">0</strong></span>
+        <span class="game-play">MAIN <i aria-hidden="true">▶</i></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="platform" class="screen platform" hidden>
+  <canvas id="pf-canvas" width="960" height="540" aria-label="Laksa Quest platform game"></canvas>
+  <div class="pf-hud">
+    <div class="pf-hud-left">
+      <div id="pf-level" class="pf-title">LAKSA QUEST</div>
+      <div class="pf-bowlrow"><span id="pf-bowl" class="pf-bowlslots"></span><span id="pf-bowls" class="pf-bowls">🍜 Mangkuk 0 / 2</span></div>
+    </div>
+    <div class="pf-hud-right">
+      <div id="pf-score" class="pf-score">0</div>
+      <div id="pf-lives" class="pf-lives">♥♥♥</div>
+      <div class="pf-btns"><button id="pf-pause" class="round-btn" type="button" aria-label="Pause" title="Rehat (P)">⏸</button><button id="pf-exit" class="round-btn" type="button" aria-label="Back to games" title="Permainan">✕</button></div>
+    </div>
+  </div>
+  <div id="pf-banner" class="pf-banner" hidden></div>
+  <div class="pf-touch" aria-hidden="true">
+    <div class="pf-touch-left"><button id="pf-left" class="pf-tbtn" type="button">◀</button><button id="pf-right" class="pf-tbtn" type="button">▶</button></div>
+    <button id="pf-jump" class="pf-tbtn jump" type="button">▲</button>
+  </div>
+  <div class="pf-keys">← → bergerak · ↑ / SPACE lompat · P rehat</div>
+  <div id="pf-overlay" class="pf-overlay" hidden>
+    <div class="card">
+      <h2 id="pf-title" class="title small">LEVEL SELESAI!</h2>
+      <p id="pf-text" class="tagline"></p>
+      <dl id="pf-stats" class="stats"></dl>
+      <div class="btn-row">
+        <button id="pf-primary" class="btn" type="button">LEVEL 2</button>
+        <button id="pf-secondary" class="btn secondary" type="button">PERMAINAN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="crossword" class="screen crossword" hidden>
+  <div class="card xw-card">
+    <div class="xw-head">
+      <h2 class="title small">TEKA SILANG KATA</h2>
+      <div class="xw-meta"><span id="xw-timer" class="xw-timer">0:00</span><span id="xw-progress" class="xw-progress">0 / 15</span></div>
+    </div>
+    <div class="xw-wrap">
+      <div class="xw-left">
+        <div id="xw-grid" class="xw-grid" role="grid" aria-label="Crossword grid"></div>
+        <div id="xw-keys" class="xw-keys" aria-label="On-screen keyboard"></div>
+      </div>
+      <div class="xw-clues">
+        <h3>Melintang</h3><ol id="xw-across"></ol>
+        <h3>Menurun</h3><ol id="xw-down"></ol>
+      </div>
+    </div>
+    <p id="xw-status" class="xw-status"></p>
+    <div class="btn-row">
+      <button id="xw-check" class="btn secondary" type="button">SEMAK</button>
+      <button id="xw-hint" class="btn secondary" type="button">BANTUAN (−20)</button>
+      <button id="xw-exit" class="btn" type="button">PERMAINAN</button>
+    </div>
+  </div>
+  <div id="xw-done" class="pf-overlay" hidden>
+    <div class="card">
+      <h2 class="title small">TAHNIAH!</h2>
+      <p class="tagline">Semua 15 perkataan warisan laksa Pahang berjaya diteka.</p>
+      <dl id="xw-stats" class="stats"></dl>
+      <div class="btn-row">
+        <button id="xw-again" class="btn" type="button">MAIN SEMULA</button>
+        <button id="xw-back" class="btn secondary" type="button">PERMAINAN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="wordsearch" class="screen crossword" hidden>
+  <div class="card xw-card">
+    <div class="xw-head">
+      <h2 class="title small">CARI KATA</h2>
+      <div class="xw-meta"><span id="ws-timer" class="xw-timer">0:00</span><span id="ws-progress" class="xw-progress">0 / 14</span></div>
+    </div>
+    <div class="ws-wrap">
+      <div id="ws-grid" class="ws-grid" aria-label="Word search grid"></div>
+      <div class="ws-side">
+        <h3>Cari perkataan ini</h3>
+        <ul id="ws-words" class="ws-words"></ul>
+      </div>
+    </div>
+    <p id="ws-status" class="xw-status"></p>
+    <div class="btn-row">
+      <button id="ws-hint" class="btn secondary" type="button">BANTUAN (−20)</button>
+      <button id="ws-exit" class="btn" type="button">PERMAINAN</button>
+    </div>
+  </div>
+  <div id="ws-done" class="pf-overlay" hidden>
+    <div class="card">
+      <h2 class="title small">TAHNIAH!</h2>
+      <p class="tagline">Semua perkataan warisan laksa berjaya dijumpai.</p>
+      <dl id="ws-stats" class="stats"></dl>
+      <div class="btn-row">
+        <button id="ws-again" class="btn" type="button">GRID BAHARU</button>
+        <button id="ws-back" class="btn secondary" type="button">PERMAINAN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="hub" class="screen hub" hidden>
+  <div class="hub-top">
+    <div class="logo" aria-label="Laksa Gebok Run">
+      <span class="logo-deco left" aria-hidden="true"><svg class="gebuk-icon" aria-hidden="true"><use href="#gebuk-svg"/></svg></span>
+      <h1 class="logo-title"><span class="l1">LAKSA</span><span class="l2">GEBOK RUN</span></h1>
+      <span class="logo-deco right" aria-hidden="true">🍜</span>
+      <div class="ribbon"><span>Run, Collect &amp; Discover Pahang Heritage!</span></div>
+    </div>
+    <button id="hub-games" class="back-btn" type="button">← PERMAINAN</button>
+    <div class="top-nav">
+      <button id="hub-achv" class="round-btn" type="button" aria-label="Achievements" title="Pencapaian">🏆</button>
+      <button id="hub-settings" class="round-btn" type="button" aria-label="Settings" title="Tetapan">⚙️</button>
+      <button id="hub-sound" class="round-btn" type="button" aria-label="Toggle sound" title="Bunyi">🔊</button>
+    </div>
+  </div>
+  <div class="hub-body">
+    <div class="hub-left">
+      <div class="player-chip">Pemain: <strong id="hub-player"></strong> <button id="hub-switch" class="chip-link" type="button">Tukar</button></div>
+    </div>
+    <nav class="hub-nav" aria-label="Main menu">
+      <button id="hub-start" class="play-btn" type="button"><span class="play-icon" aria-hidden="true">▶</span><span class="play-text">MULA LARIAN</span></button>
+      <button id="hub-howto" class="wood-btn" type="button"><span class="wood-icon" aria-hidden="true">🎮</span><span>CARA BERMAIN</span></button>
+      <button id="hub-story" class="wood-btn" type="button"><span class="wood-icon" aria-hidden="true">📖</span><span>KISAH WARISAN</span></button>
+      <button id="hub-lb" class="wood-btn" type="button"><span class="wood-icon" aria-hidden="true">🏅</span><span>PAPAN KEDUDUKAN</span></button>
+    </nav>
+    <aside class="level-panel">
+      <div class="panel-title"><span>✦</span> PILIH LEVEL <span>✦</span></div>
+      <div class="level-list" role="list">
+        <button class="level-card" data-level="0" type="button" role="listitem">
+          <span class="lv-head lv1">LEVEL 1</span>
+          <span class="thumb" aria-hidden="true">
+            <svg viewBox="0 0 100 64" preserveAspectRatio="none"><rect width="100" height="64" fill="#8fd3f4"/><polygon points="0,40 22,18 44,40" fill="#6fa39b"/><polygon points="30,42 60,14 92,42" fill="#5c8f88"/><rect y="40" width="100" height="24" fill="#6fa84f"/><rect x="46" y="30" width="30" height="16" fill="#f2e2c4"/><polygon points="43,30 61,18 79,30" fill="#b5432e"/><rect x="56" y="36" width="6" height="10" fill="#5a3a22"/><rect x="14" y="26" width="3" height="22" fill="#8d6a46"/><ellipse cx="15" cy="24" rx="10" ry="4" fill="#3d8c38"/><rect x="86" y="30" width="3" height="18" fill="#8d6a46"/><ellipse cx="87" cy="28" rx="9" ry="4" fill="#4ea845"/><rect y="56" width="100" height="8" fill="#50545c"/></svg>
+          </span>
+          <span class="lv-name">Kampung Laksa</span>
+          <span class="diff d1">Mudah</span>
+          <span class="lv-status"></span>
+        </button>
+        <button class="level-card" data-level="1" type="button" role="listitem">
+          <span class="lv-head lv2">LEVEL 2</span>
+          <span class="thumb" aria-hidden="true">
+            <svg viewBox="0 0 100 64" preserveAspectRatio="none"><rect width="100" height="64" fill="#6b4a2e"/><rect y="44" width="100" height="20" fill="#b07a3a"/><rect x="8" y="12" width="26" height="4" fill="#8a5a2b"/><rect x="10" y="4" width="6" height="8" fill="#d9c7a0"/><rect x="20" y="3" width="6" height="9" fill="#c8b394"/><rect x="34" y="40" width="34" height="10" fill="#8a4b2b"/><ellipse cx="51" cy="38" rx="16" ry="6" fill="#222"/><rect x="35" y="30" width="32" height="8" fill="#2a2a2a"/><rect x="46" y="44" width="10" height="4" fill="#f28c28"/><path d="M48 28 q4 -8 0 -16" stroke="#f4f4f4" stroke-width="3" fill="none" opacity=".8"/><path d="M56 26 q4 -8 0 -14" stroke="#f4f4f4" stroke-width="3" fill="none" opacity=".6"/><rect x="78" y="8" width="3" height="20" fill="#333"/><ellipse cx="79" cy="31" rx="7" ry="4" fill="#2a2a2a"/></svg>
+          </span>
+          <span class="lv-name">Dapur Warisan</span>
+          <span class="diff d2">Sederhana</span>
+          <span class="lv-status"></span>
+        </button>
+        <button class="level-card" data-level="2" type="button" role="listitem">
+          <span class="lv-head lv3">LEVEL 3</span>
+          <span class="thumb" aria-hidden="true">
+            <svg viewBox="0 0 100 64" preserveAspectRatio="none"><rect width="100" height="64" fill="#f6b26b"/><rect y="46" width="100" height="18" fill="#b8a37e"/><polygon points="8,26 50,10 92,26" fill="#d62828"/><polygon points="16,26 50,13 84,26" fill="#f4f4f4"/><polygon points="24,26 50,16 76,26" fill="#2e63b8"/><rect x="14" y="26" width="72" height="4" fill="#8a5a2b"/><rect x="18" y="30" width="4" height="18" fill="#6b4a2e"/><rect x="78" y="30" width="4" height="18" fill="#6b4a2e"/><rect x="24" y="36" width="52" height="12" fill="#a8763d"/><circle cx="34" cy="34" r="4" fill="#f28c28"/><circle cx="46" cy="34" r="4" fill="#3f8f3d"/><circle cx="58" cy="34" r="4" fill="#f2d94e"/><circle cx="68" cy="34" r="4" fill="#d62828"/><ellipse cx="92" cy="20" rx="5" ry="7" fill="#d62828"/><rect x="90" y="12" width="4" height="3" fill="#f2b63c"/></svg>
+          </span>
+          <span class="lv-name">Jejak Warisan</span>
+          <span class="diff d3">Sukar</span>
+          <span class="lv-status"></span>
+        </button>
+      </div>
+      <p id="hub-note" class="panel-note"></p>
+    </aside>
+  </div>
+</div>
+
+<div id="settings" class="screen" hidden>
+  <div class="card">
+    <h2 class="title small">TETAPAN</h2>
+    <div class="btn-row">
+      <button id="settings-sound" class="btn secondary" type="button">BUNYI: ON</button>
+      <button id="settings-switch" class="btn secondary" type="button">TUKAR PEMAIN</button>
+    </div>
+    <button id="reset" class="link-btn" type="button">Reset progress</button>
+    <a id="admin-link-hub" class="link-btn" href="#admin" hidden>Admin: player performance</a>
+    <button id="settings-back" class="btn" type="button">KEMBALI</button>
+  </div>
+</div>
+
+<div id="achv" class="screen" hidden>
+  <div class="card">
+    <h2 class="title small">PENCAPAIAN</h2>
+    <p class="tagline">Badges earned on each level, kept on your player record.</p>
+    <div id="achv-list" class="achv-list"></div>
+    <button id="achv-back" class="btn" type="button">KEMBALI</button>
+  </div>
+</div>
+
+<div id="howto" class="screen" hidden>
+  <div class="card">
+    <div class="emblem" aria-hidden="true">🍜</div>
+    <h2 class="title small">CARA BERMAIN</h2>
+    <p class="tagline">Run the roads of Pahang. Dodge the obstacles, duck the signboards, collect every bowl of <strong>Laksa Pahang</strong> and hunt the brass <strong>gebuk</strong>.</p>
+    <div class="controls" aria-label="Keyboard controls">
+      <div><kbd>◂</kbd><kbd>▸</kbd><span>Change lane</span></div>
+      <div><kbd>▴</kbd><span>Jump</span></div>
+      <div><kbd>▾</kbd><span>Slide</span></div>
+      <div><kbd>P</kbd><span>Pause</span></div>
+    </div>
+    <p class="controls-touch">On a touch screen: swipe left or right to change lane, swipe up or tap to jump, swipe down to slide. The ⏸ button pauses.</p>
+    <p class="controls-touch">One clock of 120 seconds for all three levels: complete each level's missions (the gebuk target and the laksa target) to move on, and the time left carries over. 3 ♥ for the whole run: a hit costs one and the run carries on; a game over or running out of time restarts the run from level 1. Laksa bowl +10 · gebuk +50 · gebuk target +200 · missions complete +300 · no hearts lost +100 · at the end, +10 per second left. Power-ups: 🧲 magnet laksa pulls bowls to you, 🛡 tudung saji absorbs one hit, 🌶 cili boost smashes through everything for a moment.</p>
+    <p class="best-line">Best score <strong id="best-start">0</strong></p>
+    <button id="howto-back" class="btn" type="button">PILIH LEVEL</button>
+  </div>
+</div>
+
+<div id="story" class="screen" hidden>
+  <div class="card">
+    <div class="emblem" aria-hidden="true"><svg class="gebuk-icon big" aria-hidden="true"><use href="#gebuk-svg"/></svg></div>
+    <h2 class="title small">KISAH WARISAN</h2>
+    <p class="tagline">Laksa gebuk, the hand-pressed laksa of Pahang, in three short notes.</p>
+    <div id="story-cards" class="story-cards"></div>
+    <p id="story-note" class="note"></p>
+    <button id="story-back" class="btn" type="button">KEMBALI</button>
+  </div>
+</div>
+
+<div id="leaderboard" class="screen" hidden>
+  <div class="card">
+    <h2 class="title small">PAPAN KEDUDUKAN</h2>
+    <p class="tagline">Skor tertinggi semua pemain, mengikut permainan.</p>
+    <div id="lb-tabs" class="lb-tabs" role="tablist">
+      <button class="lb-tab active" data-key="bestScore" type="button" role="tab" aria-selected="true">Gebok Run</button>
+      <button class="lb-tab" data-key="platformBest" type="button" role="tab" aria-selected="false">Laksa Quest</button>
+      <button class="lb-tab" data-key="crosswordBest" type="button" role="tab" aria-selected="false">Silang Kata</button>
+      <button class="lb-tab" data-key="wordsearchBest" type="button" role="tab" aria-selected="false">Cari Kata</button>
+    </div>
+    <p id="lb-status" class="store-status">Loading…</p>
+    <ol id="lb-list" class="lb-list"></ol>
+    <p id="lb-me" class="player-line" hidden></p>
+    <div class="btn-row">
+      <button id="lb-back" class="btn" type="button">KEMBALI</button>
+      <button id="lb-refresh" class="btn secondary" type="button">REFRESH</button>
+    </div>
+  </div>
+</div>
+
+<div id="pause" class="screen" hidden>
+  <div class="card">
+    <h2 class="title small">REHAT</h2>
+    <p class="tagline">Paused. Press P or Esc to carry on.</p>
+    <div class="btn-row">
+      <button id="resume" class="btn" type="button">SAMBUNG</button>
+      <button id="restart" class="btn secondary" type="button">MULA SEMULA LEVEL</button>
+    </div>
+    <div class="btn-row">
+      <button id="pause-menu" class="btn secondary" type="button">MENU UTAMA</button>
+      <button id="pause-sound" class="btn secondary" type="button">BUNYI: ON</button>
+    </div>
+  </div>
+</div>
+
+<div id="complete" class="screen" hidden>
+  <div class="card">
+    <div class="emblem" aria-hidden="true"><svg class="gebuk-icon big" aria-hidden="true"><use href="#gebuk-svg"/></svg></div>
+    <h2 id="complete-title" class="title small">MISI SELESAI!</h2>
+    <div id="complete-badge" class="badge">LEVEL 2 DIBUKA</div>
+    <p id="complete-level" class="tagline">Level 1 · Kampung Laksa</p>
+    <dl class="stats">
+      <div><dt>Laksa</dt><dd id="c-laksa">0</dd></div>
+      <div><dt>Gebuk</dt><dd id="c-gebuk">0</dd></div>
+      <div><dt>Hearts left</dt><dd id="c-lives" class="hearts-dd">♥♥♥</dd></div>
+      <div><dt>Time left</dt><dd id="c-timeleft">2:00</dd></div>
+      <div><dt>Level score</dt><dd id="c-score">0</dd></div>
+      <div><dt>Run total</dt><dd id="c-total">0</dd></div>
+    </dl>
+    <dl class="breakdown">
+      <dt>Laksa bowls</dt><dd id="b-laksa">0</dd>
+      <dt>Gebuk</dt><dd id="b-gebuk">0</dd>
+      <dt>Gebuk target</dt><dd id="b-mission">0</dd>
+      <dt>Missions complete</dt><dd id="b-level">0</dd>
+      <dt>No hearts lost</dt><dd id="b-flawless">0</dd>
+      <dt>Time bonus</dt><dd id="b-time">0</dd>
+      <div class="total"><dt>Total</dt><dd id="b-total">0</dd></div>
+    </dl>
+    <div id="c-ach" class="achievements big" aria-label="Achievements earned"></div>
+    <p id="complete-rank" class="player-line"></p>
+    <div class="btn-row">
+      <button id="next" class="btn" type="button">MAIN LEVEL 2</button>
+      <button id="complete-menu" class="btn secondary" type="button">PILIH LEVEL</button>
+    </div>
+    <button id="complete-lb" class="link-btn" type="button">Leaderboard</button>
+  </div>
+</div>
+
+<div id="incomplete" class="screen" hidden>
+  <div class="card">
+    <h2 class="title small">MASA TAMAT</h2>
+    <p id="i-level" class="tagline">The 120 seconds are up during level 1. Start the run again from level 1.</p>
+    <dl class="stats">
+      <div><dt>Gebuk</dt><dd><span id="i-gebuk">0</span> / <span id="i-need">3</span></dd></div>
+      <div><dt>Laksa</dt><dd><span id="i-laksa">0</span> / <span id="i-laksa-target">10</span></dd></div>
+      <div><dt>Run total</dt><dd id="i-score">0</dd></div>
+      <div><dt>Hearts left</dt><dd id="i-lives" class="hearts-dd">♥♥♥</dd></div>
+    </dl>
+    <div class="btn-row">
+      <button id="retry-inc" class="btn" type="button">MULA SEMULA</button>
+      <button id="inc-menu" class="btn secondary" type="button">PILIH LEVEL</button>
+    </div>
+  </div>
+</div>
+
+<div id="over" class="screen" hidden>
+  <div class="card">
+    <h2 class="title small">ALAMAK!</h2>
+    <p class="tagline">Game over. All three hearts are gone, but the laksa is safe. The run starts again from level 1.</p>
+    <div id="new-best" class="badge" hidden>NEW BEST!</div>
+    <dl class="stats">
+      <div><dt>Run total</dt><dd id="final-score">0</dd></div>
+      <div><dt>Laksa</dt><dd id="final-laksa">0</dd></div>
+      <div><dt>Gebuk</dt><dd id="final-gebuk">0</dd></div>
+      <div><dt>Distance</dt><dd id="final-dist">0 m</dd></div>
+    </dl>
+    <p id="final-mission" class="mission-line"></p>
+    <p id="final-rank" class="player-line"></p>
+    <div class="btn-row">
+      <button id="again" class="btn" type="button">MULA SEMULA</button>
+      <button id="over-menu" class="btn secondary" type="button">PILIH LEVEL</button>
+    </div>
+    <button id="over-lb" class="link-btn" type="button">Leaderboard</button>
+  </div>
+</div>
+
+<div id="final" class="screen" hidden>
+  <div class="card">
+    <div class="emblem" aria-hidden="true">🏆</div>
+    <h2 class="title small">TAHNIAH!</h2>
+    <div class="badge">HERITAGE MASTER</div>
+    <p class="tagline">All three levels done inside the 120 seconds. You have followed the laksa gebuk trail from the kampung to the heritage market.</p>
+    <dl class="stats">
+      <div><dt>Run total</dt><dd id="f-score">0</dd></div>
+      <div><dt>Time left</dt><dd id="f-time">0:00</dd></div>
+      <div><dt>Hearts left</dt><dd id="f-lives" class="hearts-dd">♥♥♥</dd></div>
+      <div><dt>Achievements</dt><dd id="f-ach">0 / 15</dd></div>
+      <div><dt>Laksa collected</dt><dd id="f-laksa">0</dd></div>
+      <div><dt>Gebuk collected</dt><dd id="f-gebuk">0</dd></div>
+    </dl>
+    <div class="btn-row">
+      <button id="final-replay" class="btn" type="button">MAIN SEMULA</button>
+      <button id="final-story" class="btn secondary" type="button">KISAH WARISAN</button>
+    </div>
+    <button id="final-lb" class="link-btn" type="button">Leaderboard</button>
+  </div>
+</div>
+
+<div id="admin" class="screen admin" hidden>
+  <div class="card wide">
+    <div class="admin-head">
+      <div>
+        <h2 class="title small">ADMIN</h2>
+        <p class="tagline">Player performance · <span id="admin-mode"></span></p>
+      </div>
+      <div class="btn-row">
+        <button id="admin-refresh" class="btn secondary small" type="button">Refresh</button>
+        <button id="admin-export-players" class="btn secondary small" type="button">Players CSV</button>
+        <button id="admin-export-runs" class="btn secondary small" type="button">Runs CSV</button>
+        <button id="admin-clear" class="btn secondary small danger" type="button">Clear all data</button>
+        <a id="admin-back" class="btn small" href="#game">Back to game</a>
+      </div>
+    </div>
+    <p id="admin-denied" class="tagline" hidden>This page is for the artifact's owner and editors.</p>
+    <form id="admin-key-form" class="form admin-key" hidden>
+      <label class="field"><span>Admin key</span><input id="admin-key" type="password" autocomplete="off" placeholder="the admin_key set in Supabase"></label>
+      <p id="admin-key-error" class="form-error" hidden></p>
+      <button id="admin-key-btn" class="btn small" type="submit">Open admin</button>
+    </form>
+    <div id="admin-body" class="admin-body">
+      <p id="admin-status" class="store-status"></p>
+      <div id="admin-tiles" class="tiles"></div>
+      <div class="table-wrap"><table id="admin-table" class="admin-table"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<div id="nolib" class="screen" hidden>
+  <div class="card">
+    <h2 class="title small">OFFLINE?</h2>
+    <p class="tagline">The 3D engine (three.js) did not load. Check your connection and reload the page.</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="config.js"></script>
+<script src="store.js"></script>
+<script src="admin.js"></script>
+<script src="platform.js"></script>
+<script src="platformer.js"></script>
+<script src="crossword.js"></script>
+<script src="wordsearch.js"></script>
+<script src="game.js?v=29"></script>
+</body>
+</html>

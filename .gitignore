@@ -1,0 +1,10 @@
+# macOS / editors
+.DS_Store
+Thumbs.db
+*.swp
+
+# Claude desktop app session config (local dev server definition)
+.claude/
+
+# logs
+*.log
