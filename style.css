@@ -1666,3 +1666,25 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
   .done-again { font-size: 20px; }
   .done-home { font-size: 18px; }
 }
+
+/* ---- Cari Kata Laksa: 12x12 grid, clue list, rules card, countdown ---- */
+.ws-card { width: min(1000px, 100%); }
+.ws-wrap { grid-template-columns: minmax(0, 1.05fr) minmax(240px, .95fr); }
+.ws-grid { gap: 3px; padding: 4px; }
+.ws-cell { font-size: clamp(11px, 2vw, 19px); }
+.ws-words { grid-template-columns: 1fr; gap: 4px; list-style: none; padding: 0; margin: 0; max-height: min(58vh, 520px); overflow: auto; }
+.ws-words li { display: flex; gap: 8px; align-items: flex-start; font-family: var(--font-body); font-weight: 700; font-size: 13.5px; letter-spacing: 0; line-height: 1.3; padding: 5px 8px; border-radius: 8px; background: var(--panel-line); }
+.ws-words li b { font-family: var(--font-display); font-weight: 800; color: var(--accent); flex: none; min-width: 1.6em; }
+.ws-words li.found { text-decoration: none; color: var(--muted); background: rgba(47, 125, 74, .15); }
+.ws-words li.found span { color: #2f7d4a; font-weight: 800; }
+.xw-timer.low { background: #c8201a; color: #fff; animation: pop .6s ease-in-out infinite alternate; }
+@media (max-width: 860px) { .ws-wrap { grid-template-columns: 1fr; } .ws-words { max-height: none; grid-template-columns: 1fr; } .ws-cell { font-size: clamp(12px, 5vw, 20px); } }
+@media (max-width: 480px) { .ws-words li { font-size: 12.5px; } }
+.ws-rules-card { width: min(520px, 100%); }
+.ws-rules-parch { padding: 14px 14px 16px; display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+.ws-rules-parch::after { display: none; }
+.ws-rules-title { margin: 0; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: clamp(24px, 6vw, 32px); color: #8f1d0f; text-shadow: 0 2px 0 #ffe27a; }
+.ws-rules-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; text-align: left; }
+.ws-rules-list li { display: flex; gap: 8px; align-items: flex-start; font-weight: 700; font-size: 14px; line-height: 1.35; color: #5a2c0c; }
+.ws-rules-list li::before { content: '\2713'; flex: none; width: 20px; height: 20px; border-radius: 50%; background: #2f7d4a; color: #fff; font-size: 13px; font-weight: 800; display: grid; place-items: center; margin-top: 1px; }
+@media (max-width: 480px) { .ws-rules-list li { font-size: 13px; } }

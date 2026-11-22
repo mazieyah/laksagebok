@@ -246,7 +246,7 @@
     return { username: p.username || '', bestScore: st.bestScore || 0, levels: (p.completed || []).filter(Boolean).length,
       platformBest: (g.platform || {}).best || 0, platformPlays: (g.platform || {}).plays || 0,
       crosswordBest: (g.crossword || {}).best || 0, crosswordPlays: (g.crossword || {}).plays || 0, crosswordTime: (g.crossword || {}).bestTime || 0,
-      wordsearchBest: (g.wordsearch || {}).best || 0, wordsearchPlays: (g.wordsearch || {}).plays || 0,
+      wordsearchBest: (g.wordsearch || {}).best || 0, wordsearchPlays: (g.wordsearch || {}).plays || 0, wordsearchTime: (g.wordsearch || {}).bestTime || 0,
       gebuk: st.totalGebuk || 0, runs: st.runs || 0, updatedAt: p.lastPlayedAt || p.updatedAt || '' };
   }
   // Rewrites this account's leaderboard document when any entry changed.

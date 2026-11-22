@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=37">
+<link rel="stylesheet" href="style.css?v=41">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -185,7 +185,7 @@
           <img class="ws-art" src="cari-kata-art.png" alt="">
         </span>
         <span class="game-name ws-name"><img src="cari-kata-banner.png" alt="Cari Kata Laksa"></span>
-        <span class="game-desc">Cari 14 perkataan daripada Maklumat Laksa Gebok yang tersembunyi dalam grid 12×12.</span>
+        <span class="game-desc">10 panel, 100 perkataan warisan Pahang: cari mengikut petunjuk dalam grid 12×12, 5 minit setiap panel.</span>
         <span class="game-best"><i aria-hidden="true">🏆</i>Terbaik: <strong id="gbest-wordsearch">0</strong></span>
         <span class="game-play">MAIN <i aria-hidden="true">▶</i></span>
       </button>
@@ -290,16 +290,16 @@
 </div>
 
 <div id="wordsearch" class="screen crossword" hidden>
-  <div class="card xw-card">
+  <div class="card xw-card ws-card">
     <div class="xw-head">
       <h2 class="title small">CARI KATA LAKSA</h2>
-      <div class="xw-meta"><span id="ws-score" class="xw-score">SKOR 0</span><span id="ws-timer" class="xw-timer">0:00</span><span id="ws-progress" class="xw-progress">0 / 14</span></div>
+      <div class="xw-meta"><span id="ws-score" class="xw-score">SKOR 0</span><span id="ws-timer" class="xw-timer">05:00</span><span id="ws-progress" class="xw-progress">0/10</span></div>
     </div>
     <div class="ws-wrap">
       <div id="ws-grid" class="ws-grid" aria-label="Word search grid"></div>
       <div class="ws-side">
-        <h3>Cari perkataan ini</h3>
-        <ul id="ws-words" class="ws-words"></ul>
+        <h3>Petunjuk</h3>
+        <ol id="ws-words" class="ws-words"></ol>
       </div>
     </div>
     <p id="ws-status" class="xw-status"></p>
@@ -308,14 +308,47 @@
       <button id="ws-exit" class="btn" type="button">PERMAINAN</button>
     </div>
   </div>
-  <div id="ws-done" class="pf-overlay" hidden>
-    <div class="card">
-      <h2 class="title small">TAHNIAH!</h2>
-      <p class="tagline">Semua perkataan warisan laksa berjaya dijumpai.</p>
-      <dl id="ws-stats" class="stats"></dl>
-      <div class="btn-row">
-        <button id="ws-again" class="btn" type="button">GRID BAHARU</button>
-        <button id="ws-back" class="btn secondary" type="button">PERMAINAN</button>
+  <div id="ws-rules" class="pf-overlay xw-done" hidden>
+    <div class="done-card ws-rules-card">
+      <div class="done-head">
+        <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
+        <span class="done-ribbon">Cari Kata Laksa</span>
+      </div>
+      <div class="done-parchment ws-rules-parch">
+        <h2 class="ws-rules-title">Syarat Permainan</h2>
+        <ul class="ws-rules-list">
+          <li>Cari 10 perkataan tersembunyi dalam grid 12×12 mengikut petunjuk yang diberi.</li>
+          <li>Perkataan boleh mendatar, menegak atau menyerong, ke hadapan atau ke belakang.</li>
+          <li>Seret merentasi huruf, atau ketik huruf pertama kemudian huruf terakhir.</li>
+          <li>Had masa 5 minit. Masa yang diambil direkodkan.</li>
+          <li>Setiap perkataan 40 mata. BANTUAN menunjukkan huruf pertama satu perkataan: tolak 20 mata, dan perkataan itu hanya dapat 20 mata.</li>
+          <li>Skor akhir ialah mata perkataan ditolak bantuan.</li>
+        </ul>
+      </div>
+      <div class="done-btns">
+        <button id="ws-rules-ok" class="done-again" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+  <div id="ws-done" class="pf-overlay xw-done" hidden>
+    <div class="done-card">
+      <span class="done-leaf left" aria-hidden="true"></span>
+      <span class="done-leaf right" aria-hidden="true"></span>
+      <div class="done-head">
+        <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
+        <span class="done-ribbon">Cari Kata Laksa</span>
+      </div>
+      <div class="done-parchment">
+        <h2 class="done-title"><span class="done-star" aria-hidden="true">★</span><span id="ws-done-title">Tahniah!</span><span class="done-star" aria-hidden="true">★</span></h2>
+        <p id="ws-done-text" class="done-text">Semua perkataan berjaya dijumpai.</p>
+        <div class="done-stats">
+          <div class="done-stat"><svg class="done-stat-ico" viewBox="0 0 64 64" aria-hidden="true"><path fill="#f6c445" d="M18 10h28l-3 16a14 14 0 0 1-22 0z"/><path fill="#e39a16" d="M20 12h24l-2.4 12.6A12 12 0 0 1 22.4 24.6z"/><path fill="#ffe27a" d="M30 14h4v10h-4z"/><circle cx="32" cy="14" r="4" fill="#fff3c4"/><path fill="#c98412" d="M26 40h12v4H26zM22 46h20v5H22z"/><path fill="#f0b429" d="M24 36h16l2 8H22z"/><path fill="#fff0b0" d="M29 18l2 6 2-6z"/></svg><span class="done-stat-text"><span class="done-stat-label">Skor</span><strong id="ws-done-score">0</strong></span></div>
+          <div class="done-stat"><svg class="done-stat-ico" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="36" r="18" fill="#f4b22a"/><circle cx="32" cy="36" r="14" fill="#fff8ea"/><circle cx="32" cy="36" r="2.2" fill="#6a1a0b"/><path d="M32 36V26" stroke="#6a1a0b" stroke-width="2.4" stroke-linecap="round"/><path d="M32 36l7 4" stroke="#c45a12" stroke-width="2.2" stroke-linecap="round"/><rect x="27" y="12" width="10" height="6" rx="2" fill="#e23b2f"/><path d="M24 16h16" stroke="#f6c445" stroke-width="3" stroke-linecap="round"/></svg><span class="done-stat-text"><span class="done-stat-label">Masa</span><strong id="ws-done-time">0:00</strong></span></div>
+        </div>
+      </div>
+      <div class="done-btns">
+        <button id="ws-again" class="done-again" type="button"><span class="done-play" aria-hidden="true"></span>MAIN SEMULA</button>
+        <button id="ws-back" class="done-home" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-5.2v-6.2H10.2V21H5a1 1 0 0 1-1-1z"/></svg>PERMAINAN</button>
       </div>
     </div>
   </div>
@@ -655,12 +688,12 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="config.js"></script>
-<script src="store.js?v=2"></script>
+<script src="store.js?v=3"></script>
 <script src="admin.js"></script>
 <script src="platform.js"></script>
 <script src="platformer.js"></script>
 <script src="crossword.js?v=2"></script>
-<script src="wordsearch.js"></script>
-<script src="game.js?v=30"></script>
+<script src="wordsearch.js?v=5"></script>
+<script src="game.js?v=31"></script>
 </body>
 </html>

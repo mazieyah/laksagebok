@@ -13,8 +13,8 @@ the player lands on the games screen ("PILIH PERMAINAN") and picks:
    the end only accepts the player once the mission is done.
 3. **Teka Silang Laksa** – a 12×12 crossword: 15 clues from a 100-question bank (Pahang heritage, the laksa kitchen, laksa gebok), laid out at random every play
    about laksa, gebuk and Pahang.
-4. **Cari Kata Laksa** – a word search: 14 words from the Maklumat Laksa Gebok pages hidden in a 12×12
-   letter grid that is generated fresh every play.
+4. **Cari Kata Laksa** – a word search: 10 panels of 10 Pahang heritage words (100 in all), found from
+   Malay clues in a 12×12 letter grid that is arranged fresh every play, 5 minutes per panel.
 
 Each game writes its own records; the leaderboard has a tab per game and the
 admin page shows the best score of every game per player.
@@ -66,19 +66,36 @@ out, and an answer with several clues appears once per layout with one of them.
 
 ## Cari Kata Laksa (word search)
 
-- The 14 words (LAKSA, GEBUK, KUAH, IKAN, KESUM, KANTAN, SAMBAL, TIMUN, TAUGE,
-  LIMAU, TEPUNG, PAHANG, MUZIUM, REBUS) are placed in any of the 8 directions
-  (mostly forward) and the rest of the grid is filled with Malay-leaning letters.
+- `PANELS` in `wordsearch.js` holds 10 panels × 10 words = 100 unique words
+  about Pahang, each with a Malay clue: food and laksa gebok, history and
+  heritage (MATKILAU in panel 9, TOKGAJAH in panel 6, DATOBAHAMAN in panel 10),
+  places and tourism, kitchen tools and preparation, nature. Multi-word answers
+  are written without spaces (SUNGAIPAHANG, DARULMAKMUR); nothing is longer than 12 letters. Every panel mixes
+  the categories. The bank was dealt and checked by `wsbank.py` (scratch
+  script): heroes in different panels, every panel placeable on 12×12.
+- A panel is drawn at random every play (`nextPanel()`: each of the 10 once,
+  in random order, before any repeats, and never the same panel twice in a
+  row); the panel number is not shown to the player. The panel's words are fixed; their
+  positions and directions (8 directions, `r0,c0 → r1,c1`) are generated every
+  play. MAIN SEMULA draws the next panel.
+- Opening the game from the hub first shows "Syarat Permainan" (`#ws-rules`,
+  same card design as the done card): the rules in six lines and an OK button.
+  The grid is already drawn behind it, but nothing can be selected and the
+  clock starts only on OK (`rulesOk()`). MAIN SEMULA skips the rules.
+- The player sees the clues, not the words: "n. clue (length)". A found word
+  is coloured in and its clue line turns green showing the word.
 - Drag across the letters of a word (mouse or touch), or tap its first letter
-  and then its last. The selection snaps to a straight line. A correct word is
-  coloured in and struck off the list; hovering a word shows its meaning.
-- BANTUAN blinks the first letter of a random unfound word for −20.
-- Score: 14 words × 40 + a time bonus (600 − seconds, not below 0) − 20 per hint.
-
-A found word chimes and adds 40 points to the "SKOR" pill (20 if its first
-letter was shown by a hint); a selection that
-is not a listed word buzzes and flashes red. BANTUAN (−20) is greyed out while
-the score is below 20; the final score adds the time bonus.
+  and then its last. A wrong selection buzzes and flashes red.
+- 5 minutes per panel (`LIMIT`), counting down in the HUD (red and pulsing in
+  the last 30 s). The time actually used is recorded; the best winning time
+  shows on the leaderboard tab and in Keputusan Pemain (`terpantas`).
+- Score = 40 per word, 20 for a word whose first letter was shown by BANTUAN
+  (−20 per hint). No time bonus. BANTUAN is greyed out below 20 points.
+- Done card (same design as the crossword): Tahniah! with Skor and Masa, or
+  Masa Tamat (stars hidden, found/total in the text) when the clock runs out.
+  Buttons: MAIN SEMULA, PERMAINAN.
+- Records: `GebokStore.recordGame('wordsearch', { level: panel, panel, result,
+  score, time, hints, words, found })`.
 
 ## Laksa Gebok Run (3D runner)
 

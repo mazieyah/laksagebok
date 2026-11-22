@@ -1622,7 +1622,7 @@
     const plays = (n) => (n || 0) + ' kali main';
     if (lbKey === 'platformBest') return 'Laksa Quest | ' + plays(r.platformPlays);
     if (lbKey === 'crosswordBest') return 'Teka Silang Laksa | ' + plays(r.crosswordPlays) + (r.crosswordTime ? ' | ' + fmtClock(r.crosswordTime) : '');
-    if (lbKey === 'wordsearchBest') return 'Cari Kata Laksa | ' + plays(r.wordsearchPlays);
+    if (lbKey === 'wordsearchBest') return 'Cari Kata Laksa | ' + plays(r.wordsearchPlays) + (r.wordsearchTime ? ' | ' + fmtClock(r.wordsearchTime) : '');
     return (r.levels || 0) + '/3 level | ' + (r.gebuk || 0) + ' gebuk | ' + (r.runs || 0) + ' run';
   }
   const hueOf = (t) => { let h = 7; for (const ch of t) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };   // one avatar colour per name
@@ -1705,7 +1705,7 @@
         const gg = games[g.key] || {};
         best = gg.best || 0; plays = gg.plays || 0;
         extra = gg.last ? 'Terakhir ' + whenText(gg.last) : 'Belum dimainkan';
-        if (g.key === 'crossword' && gg.bestTime) extra += ' · terpantas ' + fmtClock(gg.bestTime);
+        if ((g.key === 'crossword' || g.key === 'wordsearch') && gg.bestTime) extra += ' · terpantas ' + fmtClock(gg.bestTime);
       }
       const bestEl = el('div', 'rs-best'); bestEl.append(el('small', '', 'Skor terbaik'), document.createTextNode(best.toLocaleString()));
       const meta = el('div', 'rs-meta'); meta.append(document.createTextNode(plays + ' kali main · ' + extra));
