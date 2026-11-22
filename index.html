@@ -72,8 +72,8 @@
       <span>Jom Main &amp; Terokai<br>Warisan Laksa Pahang!</span>
       <svg class="spark right" viewBox="0 0 28 28" aria-hidden="true"><path d="M24 23 L17 15 M16 26 L12 18 M26 13 L18 11"/></svg>
     </p>
-    <p class="login-sub">Nikmati 4 permainan menarik:</p>
-    <ul class="login-games" aria-label="Permainan"><li>Laksa Gebok Run</li><li>Laksa Quest</li><li>Teka Silang Kata</li><li>Cari Kata</li></ul>
+    <p class="login-sub">Setiap Warisan Mempunyai Cerita</p>
+    <ul class="login-games" aria-label="Permainan"><li>Laksa Gebok Run</li><li>Laksa Quest</li><li>Teka Silang Laksa</li><li>Cari Kata Laksa</li></ul>
     <form id="register-form" class="form login-form" novalidate>
       <label class="field login-field"><span><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.2"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z"/></svg>Nama Pemain</span><input id="username" type="text" maxlength="20" autocomplete="nickname" placeholder="cth. Along" required></label>
       <label id="email-field" class="field login-field" hidden><span><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5h18v12H3z"/><path d="M3 7l9 6 9-6" fill="none" stroke="#7a2a0c" stroke-width="2"/></svg>Alamat E-Mel</span><input id="email" type="email" maxlength="80" autocomplete="email" placeholder="anda@contoh.com"></label>
@@ -139,16 +139,16 @@
         <span class="game-best"><i aria-hidden="true">🏆</i>Terbaik: <strong id="gbest-platform">0</strong></span>
         <span class="game-play">MAIN <i aria-hidden="true">▶</i></span>
       </button>
-      <button id="game-crossword" class="game-card theme-xw" type="button" role="listitem" aria-label="Main Teka Silang Kata">
+      <button id="game-crossword" class="game-card theme-xw" type="button" role="listitem" aria-label="Main Teka Silang Laksa">
         <span class="game-art" aria-hidden="true">
           <img class="xw-art" src="teka-silang-art.png" alt="">
         </span>
-        <span class="game-name xw-name"><img src="teka-silang-banner.png" alt="Teka Silang Kata"></span>
+        <span class="game-name xw-name"><img src="teka-silang-banner.png" alt="Teka Silang Laksa"></span>
         <span class="game-desc">15 petunjuk tentang laksa, gebuk dan warisan Pahang. Lebih pantas, lebih tinggi skor.</span>
         <span class="game-best"><i aria-hidden="true">🏆</i>Terbaik: <strong id="gbest-crossword">0</strong></span>
         <span class="game-play">MAIN <i aria-hidden="true">▶</i></span>
       </button>
-      <button id="game-wordsearch" class="game-card theme-ws" type="button" role="listitem" aria-label="Main Cari Kata">
+      <button id="game-wordsearch" class="game-card theme-ws" type="button" role="listitem" aria-label="Main Cari Kata Laksa">
         <span class="game-art" aria-hidden="true">
           <img class="ws-art" src="cari-kata-art.png" alt="">
         </span>
@@ -196,7 +196,7 @@
 <div id="crossword" class="screen crossword" hidden>
   <div class="card xw-card">
     <div class="xw-head">
-      <h2 class="title small">TEKA SILANG KATA</h2>
+      <h2 class="title small">TEKA SILANG LAKSA</h2>
       <div class="xw-meta"><span id="xw-timer" class="xw-timer">0:00</span><span id="xw-progress" class="xw-progress">0 / 15</span></div>
     </div>
     <div class="xw-wrap">
@@ -232,7 +232,7 @@
 <div id="wordsearch" class="screen crossword" hidden>
   <div class="card xw-card">
     <div class="xw-head">
-      <h2 class="title small">CARI KATA</h2>
+      <h2 class="title small">CARI KATA LAKSA</h2>
       <div class="xw-meta"><span id="ws-timer" class="xw-timer">0:00</span><span id="ws-progress" class="xw-progress">0 / 14</span></div>
     </div>
     <div class="ws-wrap">
@@ -380,8 +380,8 @@
     <div id="lb-tabs" class="lb-tabs" role="tablist">
       <button class="lb-tab active" data-key="bestScore" type="button" role="tab" aria-selected="true">Gebok Run</button>
       <button class="lb-tab" data-key="platformBest" type="button" role="tab" aria-selected="false">Laksa Quest</button>
-      <button class="lb-tab" data-key="crosswordBest" type="button" role="tab" aria-selected="false">Silang Kata</button>
-      <button class="lb-tab" data-key="wordsearchBest" type="button" role="tab" aria-selected="false">Cari Kata</button>
+      <button class="lb-tab" data-key="crosswordBest" type="button" role="tab" aria-selected="false">Teka Silang Laksa</button>
+      <button class="lb-tab" data-key="wordsearchBest" type="button" role="tab" aria-selected="false">Cari Kata Laksa</button>
     </div>
     <p id="lb-status" class="store-status">Loading…</p>
     <ol id="lb-list" class="lb-list"></ol>

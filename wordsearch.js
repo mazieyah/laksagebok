@@ -1,5 +1,5 @@
 /* ======================================================================
-   LaksaWordSearch — Cari Kata: find 14 laksa-heritage words hidden in a
+   LaksaWordSearch — Cari Kata Laksa: find 14 laksa-heritage words hidden in a
    12×12 letter grid. A new grid is generated every play. Select a word by
    dragging across its letters (or tap its first letter, then its last).
    ====================================================================== */

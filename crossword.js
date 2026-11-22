@@ -1,5 +1,5 @@
 /* ======================================================================
-   LaksaCrossword — Teka Silang Kata: 15 clues about laksa gebuk and Pahang.
+   LaksaCrossword — Teka Silang Laksa: 15 clues about laksa gebuk and Pahang.
    Grid generated offline and validated: every crossing letter agrees and no
    stray adjacent letters.
    ====================================================================== */

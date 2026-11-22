@@ -11,9 +11,9 @@ the player lands on the games screen ("PILIH PERMAINAN") and picks:
    daun kesum, bunga kantan, sambal). Five different ingredients complete one
    bowl; each level has a bowl mission (2 / 3 / 4 bowls) and the laksa stall at
    the end only accepts the player once the mission is done.
-3. **Teka Silang Kata** – a 12×12 crossword with 15 clues (6 across, 9 down)
+3. **Teka Silang Laksa** – a 12×12 crossword with 15 clues (6 across, 9 down)
    about laksa, gebuk and Pahang.
-4. **Cari Kata** – a word search: 14 laksa-heritage words hidden in a 12×12
+4. **Cari Kata Laksa** – a word search: 14 laksa-heritage words hidden in a 12×12
    letter grid that is generated fresh every play.
 
 Each game writes its own records; the leaderboard has a tab per game and the
@@ -33,7 +33,7 @@ admin page shows the best score of every game per player.
 - 3 hearts for the whole game; a hit respawns at the start or the checkpoint,
   losing all three ends the game at that level.
 
-## Teka Silang Kata (crossword)
+## Teka Silang Laksa (crossword)
 
 - Click a cell or a clue, then type (physical or on-screen keyboard); click the
   selected cell again to switch between across and down; arrows move.
@@ -41,7 +41,7 @@ admin page shows the best score of every game per player.
 - Score: 15 words × 50 + a time bonus (600 − seconds, not below 0) − 20 per hint.
   The timer starts when the puzzle opens.
 
-## Cari Kata (word search)
+## Cari Kata Laksa (word search)
 
 - The 14 words (LAKSA, GEBUK, KUAH, IKAN, KESUM, KANTAN, SAMBAL, TIMUN, TAUGE,
   LIMAU, TEPUNG, PAHANG, MUZIUM, REBUS) are placed in any of the 8 directions
@@ -238,8 +238,8 @@ load needs a connection.
 - `game.js` – the 3D runner: world, environments, models, obstacles, spawning, levels, collisions, power-ups, audio, screens; it also exposes `window.GebokRun` (open / menu / leaderboard / settings / pauseRender / sfx) for the other games
 - `platform.js` – the games hub screen (`window.LaksaArcade`)
 - `platformer.js` – Laksa Quest, the platformer (`window.LaksaQuest`)
-- `crossword.js` – Teka Silang Kata (`window.LaksaCrossword`)
-- `wordsearch.js` – Cari Kata, the word search (`window.LaksaWordSearch`)
+- `crossword.js` – Teka Silang Laksa (`window.LaksaCrossword`)
+- `wordsearch.js` – Cari Kata Laksa, the word search (`window.LaksaWordSearch`)
 - `audio/menu-theme.mp4` – the menu music (AAC in an MP4 container, 23 s; `music` in `config.js` sets the loop point)
 - `supabase.sql` – the online database: tables, functions and grants to run once in the Supabase SQL editor
 

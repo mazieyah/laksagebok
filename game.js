@@ -1580,11 +1580,11 @@
     }).catch(() => { /* no rank shown */ });
   }
   let lbTimer = 0, lbKey = 'bestScore';
-  const LB_EMPTY = { bestScore: 'No scores yet. Finish a run to appear here.', platformBest: 'Belum ada skor Laksa Quest. Tamatkan satu level untuk muncul di sini.', crosswordBest: 'Belum ada skor Silang Kata. Lengkapkan teka silang kata untuk muncul di sini.', wordsearchBest: 'Belum ada skor Cari Kata. Jumpai semua perkataan untuk muncul di sini.' };
+  const LB_EMPTY = { bestScore: 'No scores yet. Finish a run to appear here.', platformBest: 'Belum ada skor Laksa Quest. Tamatkan satu level untuk muncul di sini.', crosswordBest: 'Belum ada skor Teka Silang Laksa. Lengkapkan teka silang kata untuk muncul di sini.', wordsearchBest: 'Belum ada skor Cari Kata Laksa. Jumpai semua perkataan untuk muncul di sini.' };
   function lbSub(r) {
     if (lbKey === 'platformBest') return 'Laksa Quest · ' + (r.platformPlays || 0) + ' play' + (r.platformPlays === 1 ? '' : 's');
-    if (lbKey === 'crosswordBest') return 'Silang Kata · ' + (r.crosswordPlays || 0) + ' play' + (r.crosswordPlays === 1 ? '' : 's');
-    if (lbKey === 'wordsearchBest') return 'Cari Kata · ' + (r.wordsearchPlays || 0) + ' play' + (r.wordsearchPlays === 1 ? '' : 's');
+    if (lbKey === 'crosswordBest') return 'Teka Silang Laksa · ' + (r.crosswordPlays || 0) + ' play' + (r.crosswordPlays === 1 ? '' : 's');
+    if (lbKey === 'wordsearchBest') return 'Cari Kata Laksa · ' + (r.wordsearchPlays || 0) + ' play' + (r.wordsearchPlays === 1 ? '' : 's');
     return r.levels + '/3 levels · ' + (r.gebuk || 0) + ' gebuk · ' + (r.runs || 0) + ' run' + (r.runs === 1 ? '' : 's');
   }
   function renderLeaderboard(lb) {

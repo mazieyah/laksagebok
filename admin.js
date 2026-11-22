@@ -95,7 +95,7 @@
         hist.forEach((r, i) => {
           const rr = el('tr', r.result === 'won' ? 'won' : '');
           const label = r.result === 'won' ? 'Level done' : r.result === 'incomplete' ? 'Time up' : 'Game over';
-          const gameName = r.game === 'platform' ? 'Laksa Quest' : r.game === 'crossword' ? 'Silang Kata' : r.game === 'wordsearch' ? 'Cari Kata' : 'Gebok Run';
+          const gameName = r.game === 'platform' ? 'Laksa Quest' : r.game === 'crossword' ? 'Teka Silang Laksa' : r.game === 'wordsearch' ? 'Cari Kata Laksa' : 'Gebok Run';
           rr.append(el('td', 'n', String(p.history.length - i)), el('td', '', fmtDate(r.at)), el('td', '', gameName), el('td', '', r.game && r.game !== 'runner' ? String(r.level) : (LEVEL[r.level] || String(r.level))),
             el('td', '', label), el('td', 'n', num(r.score)), el('td', 'n', r.campaignScore == null ? '–' : num(r.campaignScore)),
             el('td', 'n', r.game === 'platform' ? (r.bowls + '/' + r.bowlsNeeded + ' bowls') : (r.game === 'crossword' || r.game === 'wordsearch') ? (r.hints + ' hints') : (r.need ? r.gebuk + '/' + r.need : String(r.gebuk))), el('td', 'n', r.laksa == null ? '–' : num(r.laksa)), el('td', 'n', r.distance == null ? '–' : num(r.distance) + ' m'),
