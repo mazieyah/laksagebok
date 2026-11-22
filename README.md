@@ -6,11 +6,10 @@ the player lands on the games screen ("PILIH PERMAINAN") and picks:
 
 1. **Laksa Gebok Run** – the 3D runner (three.js, procedural models): collect
    laksa bowls and gebuk, finish three levels in one 120-second run.
-2. **Laksa Quest** – a side-scrolling platformer (canvas 2D): jump through the
-   kampung, river and market, collect the five laksa ingredients (mi, ikan,
-   daun kesum, bunga kantan, sambal). Five different ingredients complete one
-   bowl; each level has a bowl mission (2 / 3 / 4 bowls) and the laksa stall at
-   the end only accepts the player once the mission is done.
+2. **Laksa Quest** – a side-scrolling platformer (canvas 2D) in the spirit of
+   Super Mario: one 3-minute run through a generated kampung world, collecting
+   the six components of a bowl of laksa gebok while jumping logs, streams,
+   falling rocks, bamboo traps, wild boars and monkeys.
 3. **Teka Silang Laksa** – a 12×12 crossword: 15 clues from a 100-question bank (Pahang heritage, the laksa kitchen, laksa gebok), laid out at random every play
    about laksa, gebuk and Pahang.
 4. **Cari Kata Laksa** – a word search: 10 panels of 10 Pahang heritage words (100 in all), found from
@@ -21,17 +20,69 @@ admin page shows the best score of every game per player.
 
 ## Laksa Quest (platformer)
 
-- Controls: ← → or A/D move, ↑ / W / SPACE jump (release early for a short hop),
-  P or Esc pauses; on touch screens the on-screen buttons appear.
-- Levels: Kampung (2 bowls), Sungai (3 bowls), Pasar (4 bowls). Levels are
-  ASCII maps in `platformer.js` (`#` earth, `=` plank, `E` chicken, `^` hot pot,
-  `C` checkpoint flag, `F` laksa stall, `h` heart, `n i k b s` ingredients).
-  They were generated and validated so that nothing floats and every gap is
-  jumpable; a chicken turns at ledges and walls and can be stomped.
-- Scoring: ingredient 10 (a duplicate for the current bowl 5), bowl 100,
-  chicken stomp 20, level 300 + 50 per heart left, heart item 50.
-- 3 hearts for the whole game; a hit respawns at the start or the checkpoint,
-  losing all three ends the game at that level.
+Graphics come from the asset pack sheet sliced into `laksa-quest-atlas.webp`
+(110 named frames, table `FR` in platformer.js, built by the scratch scripts
+slice.py / slice2.py): player animations (idle, run, jump, hurt, celebrate,
+game over), the 18 ingredients, coin, heart, gebok, mortar, basket, spoon,
+four bowl states, boars, monkeys, bees, rock, log, crate, bamboo trap, tiles
+(grass, stone, floating platform, table, water) and the scenery (house, hut,
+stall, palm, tree, bamboo, banana, bushes, bridge, waterfall, fence). Until
+the atlas loads, shapes and emoji stand in.
+
+A 3-minute run (`LIMIT` in platformer.js) on one clock, 3 hearts. The world
+is generated as the player advances from hand-made chunks (`CHUNKS`, 11 rows
+of ASCII, 16–22 columns each: safe, gap, hazard, enemy, rock, log, stairs,
+power, mixed), picked with weights that grow harder after each minute and
+never two of a kind in a row. Every chunk has flat ground at both ends, gaps
+are at most 4 columns (a jump clears 5.4) and every falling rock is announced
+by a sign and a shake. Six chunks make a zone; the zones cycle through
+Kampung Melayu, Hutan Tropika, Sungai (gaps are water), Dapur Tradisional
+(indoor, plank walls) and Lanskap Kampung, each with its own sky, ground and
+decorations.
+
+- Opening the game shows "Syarat Permainan" (`#pf-rules`, OK button); the
+  world is drawn behind it and the clock starts on OK. MAIN SEMULA skips it.
+- Controls: ← → (or A/D) run, ↑ / W / SPACE jump (coyote time, jump buffer,
+  short hop on release), P / Escape pause; on touch screens three buttons.
+- Ingredients: a bowl needs the six components `NEED` (mi laksa, ikan,
+  santan, rempah, daun kesum, ulam) in any order; each is 10 points and the
+  almari (`inv`) holds up to 3 copies of each component (6 with Bakul) so
+  spares carry into the next bowls; a copy with no room is 5 points. The
+  Almari Bahan panel (🧺 Almari button, the slot row, or the I key) lists all
+  18 ingredients with their counts and pauses the clock while open. When all six are
+  in, `completeBowl()`: +100, bowl counter, a bowl animation over the player,
+  a chime, and one of each is taken out (spares stay). The twelve extras
+  `EXTRA` (cili kering, bawang merah, bawang putih, halia, serai, bunga
+  kantan, timun, tauge, kacang panjang, limau kasturi, sambal belacan,
+  kerisik) are 10 points each and count as ingredients. Pickups marked `*` in
+  a chunk are dealt 55% components (taking turns so every bowl can be
+  finished), 23% extras, 22% coins.
+- Collectibles: gold coins (spinning) +5; the rare find `$` Lesung Batu
+  (mortar and pestle) +20; power-ups `?`: Alat Gebok 🏺 (8 s: ingredient
+  points ×2 and triple pickup reach), Senduk Sakti 🥄 (8 s shield: the next
+  hit is absorbed), Bakul 🧺 (12 s: 3 spare copies per component), Hati ❤️
+  (+1 life, up to 3); each power-up is +25.
+- Obstacles: bamboo traps `^` and logs `L` (static, jump over them), crates
+  `X` (solid blocks to climb), falling rocks `O` (a ⚠ sign on the ground, a
+  shake, then the drop; the rock rests 1.6 s), wild boars `W` (patrol, turn at
+  edges and walls), monkeys `M` (hop along their plank) and bees `Z` (fly to
+  and fro in the air). Enemies die when jumped on (+20). Any other contact, a
+  trap, a log or a rock costs a heart and 1.5 s of invincibility; falling into
+  a stream or pit costs a heart and returns the player to the last safe
+  ground. At 0 hearts the run ends.
+- HUD: zone name, six component slots (spare count badges), bowls, active
+  power-ups with seconds, countdown (red in the last 30 s), score, hearts,
+  coins; smaller on phones. Floating "+n" texts and sparks on every pickup.
+- End card (`.done-card`): "Syabas!" at 3 minutes ("Berapa banyak mangkuk
+  Laksa Gebok berjaya anda hasilkan?") or "Alamak!" at 0 hearts, four stats
+  (Skor, Mangkuk, Bahan, Syiling), achievement badges (Mangkuk Pertama, Tukang
+  Masak 3, Pakar Laksa Gebok 5, Pemungut Bahan 30, Kaya Syiling 25, Tanpa
+  Cedera, Pemburu Jarang 3, Pelompat Handal 5 stomps), MAIN SEMULA, PERMAINAN.
+- Records: `GebokStore.recordGame('platform', { result: 'timeout' | 'crashed',
+  score, bowls, lives, time, coins, ingredients, rares, hits, stomps })`.
+- Test hooks: `LaksaQuest.{start, rulesOk, update(dt), draw, keys, debug(),
+  live()}`; `live()` exposes the player, the object lists, `collect(item)`,
+  `hurt()`, `setLives(n)` and `setTime(seconds)`.
 
 ## Teka Silang Laksa (crossword)
 

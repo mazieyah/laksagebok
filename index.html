@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=43">
+<link rel="stylesheet" href="style.css?v=45">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -167,7 +167,7 @@
           <img class="quest-art" src="laksa-quest-bowl.png" alt="">
         </span>
         <span class="game-name quest-name"><img src="laksa-quest-banner.png" alt="Laksa Quest"></span>
-        <span class="game-desc">Platform lompat-lompat: kutip 5 bahan untuk siapkan semangkuk laksa. Misi beberapa mangkuk.</span>
+        <span class="game-desc">Lari, lompat dan kutip bahan: siapkan seberapa banyak mangkuk Laksa Gebok dalam 3 minit!</span>
         <span class="game-best"><i aria-hidden="true">🏆</i>Terbaik: <strong id="gbest-platform">0</strong></span>
         <span class="game-play">MAIN <i aria-hidden="true">▶</i></span>
       </button>
@@ -197,12 +197,14 @@
   <canvas id="pf-canvas" width="960" height="540" aria-label="Laksa Quest platform game"></canvas>
   <div class="pf-hud">
     <div class="pf-hud-left">
-      <div id="pf-level" class="pf-title">LAKSA QUEST</div>
-      <div class="pf-bowlrow"><span id="pf-bowl" class="pf-bowlslots"></span><span id="pf-bowls" class="pf-bowls">🍜 Mangkuk 0 / 2</span></div>
+      <div id="pf-level" class="pf-title">LAKSA QUEST · 🏡 KAMPUNG MELAYU</div>
+      <div class="pf-bowlrow"><span id="pf-bowl" class="pf-bowlslots" role="button" tabindex="0" title="Almari Bahan (I)"></span><span id="pf-bowls" class="pf-bowls">🍜 Mangkuk 0</span><button id="pf-almari-btn" class="pf-bowls pf-almari-btn" type="button" title="Almari Bahan (I)">🧺 Almari</button></div>
+      <div id="pf-power" class="pf-power"></div>
     </div>
     <div class="pf-hud-right">
+      <div id="pf-timer" class="pf-timer">03:00</div>
       <div id="pf-score" class="pf-score">0</div>
-      <div id="pf-lives" class="pf-lives">♥♥♥</div>
+      <div class="pf-subrow"><span id="pf-lives" class="pf-lives">♥♥♥</span><span id="pf-coins" class="pf-coins"><i class="pf-coin-ico" aria-hidden="true"></i> 0</span></div>
       <div class="pf-btns"><button id="pf-pause" class="round-btn" type="button" aria-label="Pause" title="Rehat (P)">⏸</button><button id="pf-exit" class="round-btn" type="button" aria-label="Back to games" title="Permainan">✕</button></div>
     </div>
   </div>
@@ -212,14 +214,64 @@
     <button id="pf-jump" class="pf-tbtn jump" type="button">▲</button>
   </div>
   <div class="pf-keys">← → bergerak · ↑ / SPACE lompat · P rehat</div>
-  <div id="pf-overlay" class="pf-overlay" hidden>
-    <div class="card">
-      <h2 id="pf-title" class="title small">LEVEL SELESAI!</h2>
-      <p id="pf-text" class="tagline"></p>
-      <dl id="pf-stats" class="stats"></dl>
-      <div class="btn-row">
-        <button id="pf-primary" class="btn" type="button">LEVEL 2</button>
-        <button id="pf-secondary" class="btn secondary" type="button">PERMAINAN</button>
+  <div id="pf-rules" class="pf-overlay xw-done" hidden>
+    <div class="done-card rules-card">
+      <div class="done-head">
+        <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
+        <span class="done-ribbon">Laksa Quest</span>
+      </div>
+      <div class="done-parchment rules-parch">
+        <h2 class="rules-title">Syarat Permainan</h2>
+        <ul class="rules-list">
+          <li>Lari ke kanan dan lompat atasi halangan: kayu balak, sungai, batu jatuh, perangkap buluh, babi hutan, monyet dan lebah. Lompat ke atas musuh untuk menewaskannya.</li>
+          <li>Kutip 6 bahan untuk semangkuk Laksa Gebok: mi laksa, ikan, santan, rempah, daun kesum dan ulam, dalam apa-apa susunan. Setiap mangkuk siap 100 mata.</li>
+          <li>Bahan tambahan 10 mata, syiling emas 5 mata, Lesung Batu (jarang) 20 mata. Almari simpan hingga 3 salinan setiap bahan: tekan 🧺 Almari atau I untuk melihatnya.</li>
+          <li>Kuasa: Alat Gebok (bahan ×2), Senduk Sakti (perlindungan), Bakul (simpan bahan lebihan) dan Hati (+1 nyawa).</li>
+          <li>Had masa 3 minit dengan 3 nyawa. Terlanggar musuh atau halangan tolak 1 nyawa.</li>
+          <li>Kawalan: ← → bergerak, ↑ atau SPACE lompat, P rehat. Di telefon gunakan butang pada skrin.</li>
+        </ul>
+      </div>
+      <div class="done-btns">
+        <button id="pf-rules-ok" class="done-again" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+  <div id="pf-almari" class="pf-overlay xw-done" hidden>
+    <div class="done-card rules-card pf-almari-card">
+      <div class="done-head">
+        <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
+        <span class="done-ribbon">Laksa Quest</span>
+      </div>
+      <div class="done-parchment rules-parch">
+        <h2 class="rules-title">Almari Bahan</h2>
+        <p id="pf-almari-sub" class="pf-almari-sub"></p>
+        <div id="pf-almari-need" class="pf-almari-grid"></div>
+        <h3 class="pf-almari-h">Bahan tambahan</h3>
+        <div id="pf-almari-extra" class="pf-almari-grid"></div>
+        <p id="pf-almari-foot" class="pf-almari-sub"></p>
+      </div>
+      <div class="done-btns">
+        <button id="pf-almari-close" class="done-again" type="button">TUTUP</button>
+      </div>
+    </div>
+  </div>
+  <div id="pf-overlay" class="pf-overlay xw-done" hidden>
+    <div class="done-card pf-done">
+      <span class="done-leaf left" aria-hidden="true"></span>
+      <span class="done-leaf right" aria-hidden="true"></span>
+      <div class="done-head">
+        <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
+        <span class="done-ribbon">Laksa Quest</span>
+      </div>
+      <div class="done-parchment">
+        <h2 class="done-title"><span class="done-star" aria-hidden="true">★</span><span id="pf-title">Syabas!</span><span class="done-star" aria-hidden="true">★</span></h2>
+        <p id="pf-text" class="done-text">Berapa banyak mangkuk Laksa Gebok berjaya anda hasilkan?</p>
+        <div id="pf-stats" class="done-stats four"></div>
+        <div id="pf-achv" class="pf-achv"></div>
+      </div>
+      <div class="done-btns">
+        <button id="pf-primary" class="done-again" type="button"><span class="done-play" aria-hidden="true"></span>MAIN SEMULA</button>
+        <button id="pf-secondary" class="done-home" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-5.2v-6.2H10.2V21H5a1 1 0 0 1-1-1z"/></svg>PERMAINAN</button>
       </div>
     </div>
   </div>
@@ -719,7 +771,7 @@
 <script src="store.js?v=3"></script>
 <script src="admin.js"></script>
 <script src="platform.js"></script>
-<script src="platformer.js"></script>
+<script src="platformer.js?v=3"></script>
 <script src="crossword.js?v=3"></script>
 <script src="wordsearch.js?v=5"></script>
 <script src="game.js?v=32"></script>

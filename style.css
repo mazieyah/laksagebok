@@ -1695,3 +1695,43 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .st-label small { display: block; font-size: 12.5px; font-weight: 700; color: #7a5a30; }
 .lb .st-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 @media (max-width: 480px) { .lb .st-tabs { gap: 6px; } .lb .st-tabs .lb-tab { font-size: 12px; padding: 8px 4px; } }
+
+/* ---- Laksa Quest: 3-minute run HUD, rules and result cards ---- */
+.pf-timer { font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: 1; background: rgba(0,0,0,.45); border: 2px solid rgba(255,255,255,.35); border-radius: 999px; padding: 6px 12px; font-variant-numeric: tabular-nums; }
+.pf-timer.low { background: #c8201a; border-color: #ffb4a8; animation: pop .6s ease-in-out infinite alternate; }
+.pf-subrow { display: flex; gap: 10px; align-items: center; }
+.pf-coins { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-display); font-weight: 800; font-size: 18px; background: rgba(0,0,0,.4); border-radius: 999px; padding: 4px 10px; }
+.pf-coin-ico { width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff2a8, #f2b63c 55%, #b8780f); box-shadow: inset 0 0 0 2px #7a4e0a; display: inline-block; }
+.pf-slot { position: relative; }
+.pf-slot .pf-x { position: absolute; right: -7px; top: -7px; font-style: normal; font-family: var(--font-display); font-weight: 800; font-size: 10px; line-height: 1; background: #f2b63c; color: #3a2208; border-radius: 999px; padding: 2px 4px; filter: none; }
+.pf-power { min-height: 16px; font-weight: 800; font-size: 13px; color: #ffe9bd; text-shadow: 0 1px 0 rgba(0,0,0,.6); }
+.pf-done { width: min(540px, 100%); }
+.pf-done .done-stats.four { grid-template-columns: 1fr 1fr; gap: 8px; }
+.done-stat-emoji { font-size: 26px; line-height: 1; }
+.pf-achv { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
+.pf-badge { font-size: 12.5px; font-weight: 800; color: #4a1d06; background: #ffe9a8; border: 2px solid #e0a52a; border-radius: 999px; padding: 4px 9px; }
+.pf-achv-none { font-size: 13px; color: #7a5a30; font-weight: 700; }
+@media (max-width: 640px) {
+  .pf-title { font-size: 11px; } .pf-score { font-size: 22px; } .pf-timer { font-size: 18px; padding: 4px 9px; }
+  .pf-slot { width: 24px; height: 24px; font-size: 14px; } .pf-bowls { font-size: 13px; padding: 4px 9px; } .pf-lives { font-size: 17px; } .pf-coins { font-size: 14px; padding: 3px 8px; }
+  .pf-power { font-size: 11px; } .pf-btns .round-btn { width: 34px; height: 34px; font-size: 14px; }
+}
+.pf-spr { display: block; image-rendering: auto; }
+.pf-slot .pf-spr { width: 26px; height: 26px; }
+.pf-slot { filter: grayscale(1) opacity(.55); }
+.pf-slot.lit { filter: none; }
+.pf-bowlslots { cursor: pointer; pointer-events: auto; }
+.pf-bowls { display: inline-flex; align-items: center; gap: 6px; }
+.pf-coins .pf-spr { width: 18px; height: 18px; }
+.pf-almari-btn { border: 2px solid rgba(255,255,255,.35); color: #ffe9bd; cursor: pointer; pointer-events: auto; font: inherit; font-family: var(--font-display); font-weight: 800; }
+.pf-almari-btn:hover { background: rgba(0,0,0,.6); }
+.pf-almari-card { width: min(600px, 100%); }
+.pf-almari-sub { margin: 0; text-align: center; font-size: 12.5px; font-weight: 700; color: #7a5a30; }
+.pf-almari-h { margin: 6px 0 0; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: #8f1d0f; }
+.pf-almari-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.pf-alm { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 2px 4px; border-radius: 10px; background: rgba(255, 255, 255, .45); border: 2px solid rgba(138, 78, 24, .25); font-size: 10.5px; font-weight: 800; color: #4a1d06; text-align: center; line-height: 1.15; }
+.pf-alm .pf-spr { width: 40px; height: 40px; }
+.pf-alm-emoji { font-size: 28px; line-height: 40px; }
+.pf-alm b { font-family: var(--font-display); font-size: 14px; color: #8f1d0f; }
+.pf-alm.none { opacity: .45; }
+@media (max-width: 480px) { .pf-almari-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } .pf-alm .pf-spr { width: 32px; height: 32px; } .pf-almari-btn { font-size: 12px; padding: 4px 8px; } }
