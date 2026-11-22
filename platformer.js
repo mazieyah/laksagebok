@@ -5,7 +5,9 @@
    fish, santan, spices, kesum, ulam, in any order; up to three spare copies
    of each are kept in the "almari" for the next bowls). The run ends when
    the clock or the hearts run out. The world is generated from hand-made
-   chunks as the player advances and cycles through five Pahang settings.
+   chunks as the player advances through four painted Pahang settings
+   (kampung, sungai, hutan, dapur laksa). Each photo is scenery only:
+   platforms, gaps and hazards stay on their own collision tiles.
    Graphics come from laksa-quest-atlas.webp (sliced from the asset pack,
    frames in FR); until it loads, simple shapes and emoji stand in.
    Canvas 2D, tile physics. Records go to GebokStore.
@@ -13,7 +15,7 @@
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
-  const T = 48, W = 960, H = 540, ROWS = 11;
+  const T = 48, W = 960, H = 540, ROWS = 11, GROUND = 9;   // the path sits on row 9, one tile lower than the old row 8
   const GRAV = 2000, JUMP = -860, RUN = 300, MAXFALL = 1000;   // airtime ≈ 0.86 s ≈ 5.4 tiles of travel, 4 tiles of height
   const REACH = 12;                                              // pickup padding around the player box (coins feel generous)
   const LIMIT = 180;                                             // seconds for the whole run
@@ -29,13 +31,12 @@
   const SC = { item: 10, extra: 10, dup: 5, bowl: 100, coin: 5, rare: 20, power: 25, stomp: 20, life: 50 };
   const CAP = 3, CAP_BAKUL = 6;                                  // copies of a component the almari holds (one in use + spares)
   const ZONES = [
-    { name: 'Kampung Melayu', icon: '🏡', sign: ['KAMPUNG', 'MELAYU', 'PAHANG'], mount: '#5e7fa8', sky: ['#5fb5ef', '#bfe6f8', '#f8d79a'], hill1: '#7fb59c', hill2: '#5f9a7a', earth: '#8a5a2b', grass: '#6fa84f', blade: '#4ea845', ground: 'grass1', plank: 'platform', deco: [['house', 1.5], ['stall', 1.4], ['palm', 1.5], ['bushflower', 1.1], ['fence', 1.2]] },
-    { name: 'Hutan Tropika', icon: '🌳', sign: ['HUTAN', 'TROPIKA', 'PAHANG'], mount: '#3f6a7a', sky: ['#2f7a5a', '#8fcfae', '#dff0c8'], hill1: '#3f7a52', hill2: '#2f5f3e', earth: '#6b4a2e', grass: '#3f9a3f', blade: '#2f7a2f', ground: 'grass2', plank: 'platform', deco: [['tree', 1.6], ['bamboo', 1.6], ['banana', 1.4], ['bushrock', 1.2], ['bushflower', 1.1]] },
-    { name: 'Sungai', icon: '🌊', sign: ['SUNGAI', 'PAHANG'], mount: '#5a86b8', sky: ['#4aa3df', '#bfe3f7', '#e2f3f9'], hill1: '#8bbfa0', hill2: '#6aa585', earth: '#b9955a', grass: '#8fcf6a', blade: '#6ab04a', ground: 'grass1', plank: 'platform', deco: [['waterfall', 1.6], ['bushrock', 1.2], ['palm', 1.5], ['bridge', 1.3]], water: true },
-    { name: 'Dapur Tradisional', icon: '🍳', sign: ['DAPUR', 'TRADISIONAL'], mount: '#7a4a24', sky: ['#6b4a2e', '#b98a5a', '#e8cfa0'], hill1: '#a97b4a', hill2: '#8a5a2b', earth: '#7a4a24', grass: '#c08a4a', blade: '#8a5a2b', ground: 'stone', plank: 'table', deco: [['hut', 1.6], ['crate', 1.0], ['basket', 1.0]], indoor: true },
-    { name: 'Lanskap Kampung', icon: '🌾', sign: ['LANSKAP', 'KAMPUNG', 'PAHANG'], mount: '#8a6a9a', sky: ['#ff9a5a', '#ffd39a', '#fff0c8'], hill1: '#a8c47a', hill2: '#7fa85a', earth: '#8a5a2b', grass: '#9ac85a', blade: '#6fa84f', ground: 'grass1', plank: 'platform', deco: [['house', 1.5], ['tree', 1.6], ['fence', 1.2], ['bushflower', 1.1], ['stall', 1.4]] },
+    { name: 'Kampung Pahang', icon: '🏡', sign: ['KAMPUNG', 'PAHANG'], img: 'quest-bg-village.jpg', mount: '#5e7fa8', sky: ['#5fb5ef', '#bfe6f8', '#f8d79a'], hill1: '#7fb59c', hill2: '#5f9a7a', earth: '#8a5a2b', grass: '#6fa84f', blade: '#4ea845', ground: 'grass1', plank: 'platform', bias: { safe: 3, gap: 2, hazard: 1, enemy: 1, rock: 0, log: 1, stairs: 4, power: 2, mixed: 1 } },
+    { name: 'Sungai & Jambatan', icon: '🌉', sign: ['SUNGAI', 'JAMBATAN'], img: 'quest-bg-river.jpg', water: true, movers: true, mount: '#5a86b8', sky: ['#4aa3df', '#bfe3f7', '#e2f3f9'], hill1: '#8bbfa0', hill2: '#6aa585', earth: '#b9955a', grass: '#8fcf6a', blade: '#6ab04a', ground: 'grass1', plank: 'platform', bias: { safe: 1, gap: 4, hazard: 1, enemy: 1, rock: 0, log: 2, stairs: 3, power: 1, mixed: 1 } },
+    { name: 'Hutan Tropika', icon: '🌴', sign: ['HUTAN', 'TROPIKA'], img: 'quest-bg-jungle.jpg', jungle: true, movers: true, mount: '#3f6a7a', sky: ['#2f7a5a', '#8fcfae', '#dff0c8'], hill1: '#3f7a52', hill2: '#2f5f3e', earth: '#6b4a2e', grass: '#3f9a3f', blade: '#2f7a2f', ground: 'grass2', plank: 'platform', bias: { safe: 1, gap: 2, hazard: 2, enemy: 1, rock: 1, log: 1, stairs: 4, power: 1, mixed: 1 } },
+    { name: 'Kampung Laksa Gebok', icon: '🍜', sign: ['KAMPUNG', 'LAKSA', 'GEBOK'], img: 'quest-bg-laksa.jpg', mount: '#7a4a24', sky: ['#6b4a2e', '#b98a5a', '#e8cfa0'], hill1: '#a97b4a', hill2: '#8a5a2b', earth: '#8a5a2b', grass: '#6fa84f', blade: '#4ea845', ground: 'grass1', plank: 'platform', bias: { safe: 3, gap: 1, hazard: 1, enemy: 1, rock: 0, log: 1, stairs: 4, power: 2, mixed: 1 } },
   ];
-  const ZONE_CHUNKS = 6;                                         // chunks per setting before the next one
+  const ZONE_CHUNKS = 2;                                         // one photo wide, then the next setting
   // Chunks. Legend: # earth, = plank, X crate (solid), P start, * a pickup (component / extra / coin), c coin, $ rare,
   // ? power-up, Q question block (hit it from below), ^ bamboo trap, L log (jump it), W wild boar, M monkey (on a plank), Z bee (in the air), O falling rock (row 0).
   // Ground is rows 8-10; a gap is a stream (river) or a pit. Jumps clear 4 columns and 3 rows.
@@ -302,11 +303,38 @@
   let atlasOk = false;
   ATLAS.onload = () => { atlasOk = true; if (open) hud(); };
   ATLAS.src = 'laksa-quest-atlas.webp';
+  const BOAR = new Image();
+  let boarOk = false;
+  BOAR.onload = () => { boarOk = true; };
+  BOAR.src = 'boar-sheet.png?v=1';
+  const TRAP = new Image();
+  let trapOk = false;
+  TRAP.onload = () => { trapOk = true; };
+  TRAP.src = 'bamboo-traps.png?v=1';
+  const TRAP_FR = { hang: [0, 0, 503, 450], fence: [512, 0, 418, 292], log: [512, 304, 193, 51], stake: [720, 304, 36, 151] };
+  const BOAR_W = 169, BOAR_H = 116;                         // six frames a row: idle, then five walk poses. Row 0 faces right, row 1 faces left.
   function drawSpr(g, name, x, y, w, h, flip) {                 // a frame scaled into the box x, y, w, h
     const f = FR[name];
     if (!f || !atlasOk) return false;
     if (flip) { g.save(); g.translate(x + w / 2, 0); g.scale(-1, 1); g.drawImage(ATLAS, f[0], f[1], f[2], f[3], -w / 2, y, w, h); g.restore(); }
     else g.drawImage(ATLAS, f[0], f[1], f[2], f[3], x, y, w, h);
+    return true;
+  }
+  function drawTrap(g, name, cx, bottom, width) {               // keep the picture's shape, feet or spike tips on the ground
+    const f = TRAP_FR[name];
+    if (!f || !trapOk) return false;
+    const h = width * f[3] / f[2];
+    g.drawImage(TRAP, f[0], f[1], f[2], f[3], cx - width / 2, bottom - h, width, h);
+    return true;
+  }
+  function drawBoar(g, e) {                                     // the new sheet already has both directions, so it is not flipped
+    if (!boarOk) return false;
+    const frame = 1 + (Math.floor(time * 8 + e.x * 0.03) % 5);  // walk 1 … walk loop; idle is frame 0
+    const row = e.dir > 0 ? 0 : 1;
+    const hgt = 48;
+    const w = BOAR_W * hgt / BOAR_H;
+    const bottom = e.y + e.h;
+    g.drawImage(BOAR, frame * BOAR_W, row * BOAR_H, BOAR_W, BOAR_H, e.x + e.w / 2 - w / 2, bottom - hgt, w, hgt);
     return true;
   }
   function drawFit(g, name, cx, bottom, hgt, flip) {            // keep the aspect, anchor at the bottom centre
@@ -327,7 +355,7 @@
   let open = false, raf = 0, last = 0, started = false;
   let map = [], cols = 0, solids = new Set(), colZone = [], zoneMarks = [], zoneIdx = 0, chunkN = 0, lastChunk = null, needIdx = 0;
   let player, items = [], enemies = [], hazards = [], rocks = [], deco = [], parts = [], floats = [], spawn = { x: 2 * T, y: 6 * T }, lastSafe;
-  let lives, score, bowls, inv = {}, extraInv = {}, coins, ingredients, extras, rares, hits, stomps, powerT = { G: 0, S: 0, B: 0 }, bowlAnimT = 0, hurtT = 0;
+  let lives, score, bowls, inv = {}, extraInv = {}, coins, ingredients, extras, rares, hits, stomps, powerT = { G: 0, S: 0, B: 0 }, bowlAnimT = 0, hurtT = 0, movers = [];
   let camX, time, runTime, invT, banner = '', bannerT = 0, over = false, paused = false, almariOpen = false, lastSec = -1, curZone = -1, pruneN = 0, bumps = [];
   const keys = { left: false, right: false, jump: false }, held = { jump: false };
   let coyote = 0, jumpBuf = 0, doubleOk = true;              // one extra jump in the air, back on landing
@@ -349,6 +377,7 @@
     const standing = [];
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < ch.w; c++) {
       let t = ch.rows[r][c] || '.';
+      if (r === GROUND - 1 && t === '#') t = '.';             // drop the old top soil so the path sits one tile lower
       const x = (base + c) * T, y = r * T;
       let keep = '.';
       if (t === '#' || t === '=' || t === 'X' || t === 'Q') { keep = t; solids.add((base + c) * 16 + r); }
@@ -358,9 +387,7 @@
       if (t === 'c') items.push(item(x, y, 'c'));
       else if (t === '$') items.push(item(x, y, '$'));
       else if (NEED[t] || EXTRA[t] || POWER[t]) items.push(item(x, y, t));
-      else if (t === 'W') { const e = { kind: 'W', x: x + 2, y, w: 44, h: 34, vx: -90, dir: -1, alive: true }; enemies.push(e); standing.push(e); }
-      else if (t === 'M') { const e = { kind: 'M', x: x + 6, y, w: 36, h: 36, vx: 70, dir: 1, alive: true, t: Math.random() * 3, x0: x - 2 * T, x1: x + 2 * T + T - 36 }; enemies.push(e); standing.push(e); }
-      else if (t === 'Z') enemies.push({ kind: 'Z', x: x + 6, y: y + 8, w: 36, h: 28, vx: -80, dir: -1, alive: true, t: Math.random() * 3, x0: x - 3 * T, x1: x + 3 * T, baseY: y + 8 });
+      else if (t === 'W' || t === 'M' || t === 'Z') { const e = { kind: 'W', x: x + 2, y, w: 44, h: 34, vx: -60, dir: -1, alive: true }; enemies.push(e); standing.push(e); }
       else if (t === '^') { const hz = { kind: '^', x: x + 3, y, w: T - 6, h: T * 0.6 }; hazards.push(hz); standing.push(hz); }
       else if (t === 'L') { const hz = { kind: 'L', x: x - 8, y, w: T + 16, h: 30 }; hazards.push(hz); standing.push(hz); }
       else if (t === 'O') rocks.push({ cx: x + T / 2, x: x + 6, y: -44, w: 36, h: 36, vy: 0, state: 'wait', t: 0 });
@@ -368,14 +395,46 @@
     }
     for (let c = 0; c < ch.w; c++) colZone.push(zoneIdx);
     cols += ch.w;
-    for (const o of standing) { const g = groundBelow(o.x + o.w / 2, o.y); if (g > 0) o.y = g * T - o.h; if (o.kind === 'M') o.baseY = o.y; }
-    if (ch !== START) { const d = zone.deco[Math.floor(Math.random() * zone.deco.length)]; deco.push({ x: (base + 2 + Math.random() * (ch.w - 5)) * T, name: d[0], scale: d[1] }); }
+    if (ch !== START && zone.deco && zone.deco.length && !(zone.bg && zone.bg.complete)) { const d = zone.deco[Math.floor(Math.random() * zone.deco.length)]; deco.push({ x: (base + 2 + Math.random() * (ch.w - 5)) * T, name: d[0], scale: d[1] }); }
+    if (ch !== START) addJumpPlanks(base, ch.w);
+    detachMover(base, ch.w, zone);
+    for (const o of standing) { const g = groundBelow(o.x + o.w / 2, o.y); if (g > 0) o.y = g * T - o.h; }
     chunkN += 1;
     if (chunkN % ZONE_CHUNKS === 0) { zoneIdx = (zoneIdx + 1) % ZONES.length; zoneMarks.push({ x: cols * T, zone: zoneIdx }); }
   }
+  function addJumpPlanks(base, w) {                          // a plank within one jump of the path, plus a higher one on long chunks
+    const place = (r, c0, n) => {
+      if (r < 1 || c0 < 1 || c0 + n >= w) return false;
+      for (let k = 0; k < n; k++) if ((map[r][base + c0 + k] || '.') !== '.') return false;
+      for (let k = 0; k < n; k++) { map[r][base + c0 + k] = '='; solids.add((base + c0 + k) * 16 + r); }
+      return true;
+    };
+    let has = false;
+    for (let r = 0; r < GROUND; r++) for (let c = 0; c < w; c++) if (map[r][base + c] === '=') has = true;
+    const mid = Math.max(2, Math.floor(w / 2) - 1);
+    if (!has) place(GROUND - 3, mid, 3) || place(GROUND - 3, 2, 3) || place(GROUND - 2, mid, 3);
+    if (w >= 14) place(GROUND - 3, w - 5, 3) || place(GROUND - 4, w - 5, 3);
+  }
+  function detachMover(base, w, zone) {                         // one floating plank per river or jungle chunk, with its own box
+    if (!zone.movers) return;
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < w; c++) {
+        if (map[r][base + c] !== '=') continue;
+        let n = 0;
+        while (c + n < w && map[r][base + c + n] === '=') n++;
+        if (n >= 3) {
+          const x = (base + c) * T, y = r * T;
+          for (let k = 0; k < n; k++) { map[r][base + c + k] = '.'; solids.delete((base + c + k) * 16 + r); }
+          movers.push({ x, y, w: n * T, h: Math.round(T * 0.55), originX: x, originY: y, prevX: x, prevY: y, axis: zone.water ? 'y' : 'x', amp: zone.water ? 26 : 52, speed: 0.85, phase: Math.random() * Math.PI * 2 });
+          return;
+        }
+        c += n - 1;
+      }
+    }
+  }
   function pickChunk() {
     const diff = Math.min(2, Math.floor(runTime / 60));            // a little harder after each minute
-    const weights = { safe: 3 - diff, gap: 3, hazard: 2 + diff, enemy: 2 + diff, rock: 2 + diff, log: 2 + diff, stairs: 2, power: 2, mixed: diff };
+    const weights = Object.assign({ safe: 3 - diff, gap: 3, hazard: 1 + diff, enemy: 1, rock: 1, log: 1 + diff, stairs: 4, power: 2, mixed: diff }, ZONES[zoneIdx].bias || {});
     const pool = [];
     for (const ch of CHUNKS) for (let k = 0; k < (weights[ch.tag] || 0); k++) pool.push(ch);
     let ch, tries = 0;
@@ -396,7 +455,7 @@
   }
   function startRun() {
     map = Array.from({ length: ROWS }, () => []); cols = 0; solids = new Set(); colZone = []; zoneMarks = [{ x: 0, zone: 0 }]; zoneIdx = 0; chunkN = 0; lastChunk = null; needIdx = 0;
-    items = []; enemies = []; hazards = []; rocks = []; deco = []; parts = []; floats = []; bumps = [];
+    items = []; enemies = []; hazards = []; rocks = []; movers = []; deco = []; parts = []; floats = []; bumps = [];
     score = 0; lives = 3; bowls = 0; inv = {}; extraInv = {}; coins = 0; ingredients = 0; extras = 0; rares = 0; hits = 0; stomps = 0; powerT = { G: 0, S: 0, B: 0 }; bowlAnimT = 0; hurtT = 0;
     camX = 0; time = 0; runTime = 0; lastSec = -1; over = false; paused = false; almariOpen = false; curZone = -1; pruneN = 0;
     appendChunk(START);
@@ -418,7 +477,15 @@
     say('Kutip 6 bahan untuk semangkuk Laksa Gebok. 3 minit bermula!', 2.5);
   }
   const filledCount = () => TYPES.filter((k) => (inv[k] || 0) > 0).length;
-  const bowlFrame = () => { const n = filledCount(); return bowlAnimT > 0 ? 'bowl3' : n >= 4 ? 'bowl2' : n >= 2 ? 'bowl1' : 'bowl0'; };
+  function bowlImg(w, h) {
+    const img = document.createElement('img');
+    img.className = 'pf-bowlpic';
+    img.src = 'laksa-bowl.png';
+    img.alt = '';
+    img.width = w;
+    img.height = h;
+    return img;
+  }
   function hud() {
     const z = ZONES[Math.max(0, curZone)];
     $('pf-level').textContent = 'LAKSA QUEST · ' + z.icon + ' ' + z.name.toUpperCase();
@@ -426,7 +493,6 @@
     const lv = $('pf-lives');
     lv.replaceChildren();
     for (let i = 0; i < 3; i++) { const hh = atlasOk ? sprCanvas('heart', 22) : Object.assign(document.createElement('span'), { textContent: '♥' }); if (i >= lives) hh.classList.add('lost'); lv.append(hh); }
-    $('pf-coins').replaceChildren(atlasOk ? sprCanvas('coin', 18) : Object.assign(document.createElement('i'), { className: 'pf-coin-ico' }), document.createTextNode(' ' + coins));
     const slots = $('pf-bowl');
     slots.replaceChildren();
     for (const t of TYPES) {
@@ -438,13 +504,26 @@
       if (n > 1) { const x = document.createElement('i'); x.className = 'pf-x'; x.textContent = '×' + n; sl.append(x); }
       slots.append(sl);
     }
-    const filled = filledCount(), full = bowlAnimT > 0;
+    const extras = $('pf-extras');
+    extras.replaceChildren();
+    for (const k of EXTRAS) {
+      const n = extraInv[k] || 0;
+      const sl = document.createElement('span'); sl.className = 'pf-xitem' + (n ? ' lit' : ''); sl.title = EXTRA[k][1] + (n ? ' ×' + n : '');
+      if (atlasOk) sl.append(sprCanvas(EXTRA[k][2], 22)); else sl.append(document.createTextNode(EXTRA[k][0]));
+      const lab = document.createElement('small'); lab.textContent = EXTRA[k][1].replace('Bawang merah', 'B. merah').replace('Bawang putih', 'B. putih').replace('Bunga kantan', 'Kantan').replace('Kacang panjang', 'Kacang').replace('Limau kasturi', 'Limau').replace('Sambal belacan', 'Sambal').replace('Cili kering', 'Cili'); sl.append(lab);
+      if (n > 1) { const x = document.createElement('i'); x.textContent = '×' + n; sl.append(x); }
+      extras.append(sl);
+    }
+    const filled = filledCount(), full = bowlAnimT > 0, ready = full || filled === TYPES.length;
     const ico = $('pf-bowlico');
-    ico.replaceChildren(atlasOk ? sprCanvas(bowlFrame(), 46) : document.createTextNode('🍜'));
+    ico.replaceChildren(bowlImg(56, 48));
+    ico.classList.toggle('ready', ready);
     ico.classList.toggle('full', full);
+    $('pf-stat-bowl').classList.toggle('ready', bowls > 0);
+    $('pf-stat-bowl').replaceChildren(bowlImg(40, 34));
     $('pf-bowlstate').textContent = full ? 'Mangkuk Lengkap!' : filled + '/6';
     $('pf-bowls').textContent = String(bowls);
-    if (atlasOk) { $('pf-stat-bowl').replaceChildren(sprCanvas('bowl3', 26)); $('pf-stat-coin').replaceChildren(sprCanvas('coin', 26)); }
+    if (atlasOk) $('pf-stat-coin').replaceChildren(sprCanvas('coin', 26));
     const pw = [];
     for (const k of ['G', 'S', 'B']) if (powerT[k] > 0) pw.push(POWER[k][0] + ' ' + Math.ceil(powerT[k]) + 's');
     $('pf-power').textContent = pw.join('  ');
@@ -497,10 +576,10 @@
     lives -= 1; hits += 1; hurtT = 0.5;
     sfx().crash();
     spark(p.x + 17, p.y + 28, '#ff5a5a', 14);
-    floater(p.x + 17, p.y - 6, '−1 ♥', '#ff8a8a');
     if (lives <= 0) { over = true; hud(); endRun('crashed'); return; }
-    if (from === 'fall') resetPlayer(lastSafe); else { invT = 1.5; p.vy = -380; p.ground = false; }
-    say('♥ ' + lives + ' lagi', 1.2);
+    resetPlayer(spawn);                                         // back to the start, but the 3-minute clock keeps running
+    camX = 0; lastSafe = { x: spawn.x, y: spawn.y }; invT = 1.4;
+    say('−1 ♥  Mula dari awal!  ' + lives + ' lagi', 2);
     hud();
   }
   function collect(it) {
@@ -587,6 +666,11 @@
     for (const k of ['G', 'S', 'B']) if (powerT[k] > 0) { const before = Math.ceil(powerT[k]); powerT[k] = Math.max(0, powerT[k] - dt); if (Math.ceil(powerT[k]) !== before) pwChanged = true; if (powerT[k] === 0) say(POWER[k][0] + ' ' + POWER[k][1] + ' tamat', 1); }
     if (pwChanged) hud();
     ensure(Math.floor((camX + W) / T) + 24);
+    for (const m of movers) {
+      m.prevX = m.x; m.prevY = m.y; m.phase += dt * m.speed;
+      const s = Math.sin(m.phase);
+      if (m.axis === 'y') m.y = m.originY + s * m.amp; else m.x = m.originX + s * m.amp;
+    }
     const p = player;
     const ax = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
     p.vx = ax * RUN;
@@ -615,6 +699,7 @@
       else if (p.vy < 0) { p.y = r * T + T; p.vy = 0; if (map[r][c] === 'Q') bumpBlock(c, r); }
     }
     if (p.y > ROWS * T + 60) { hurt('fall'); return; }
+    rideMovers();
     for (let i = bumps.length - 1; i >= 0; i--) { bumps[i].t -= dt; if (bumps[i].t <= 0) bumps.splice(i, 1); }
     for (const it of items) if (it.pop > 0) it.pop -= dt;
     if (p.ground) {                                             // remember solid ground under both feet, for the way back from a stream
@@ -642,7 +727,7 @@
         if (p.vy > 60 && p.y + p.h - e.y < 24) {
           e.alive = false; p.vy = -450; stomps += 1; score += SC.stomp;
           spark(e.x + 20, e.y + 10, '#f4f4f4', 10); floater(e.x + 20, e.y - 6, '+' + SC.stomp, '#fff'); sfx().smash();
-          say((e.kind === 'W' ? 'Babi hutan' : e.kind === 'M' ? 'Monyet' : 'Lebah') + ' lari! +' + SC.stomp, 1); hud();
+          say('Babi hutan lari! +' + SC.stomp, 1); hud();
         } else hurt();
       }
     }
@@ -672,9 +757,22 @@
     if (++pruneN % 120 === 0) {                                 // forget what is far behind
       const lim = camX - 600;
       items = items.filter((it) => !it.got && it.x > lim); enemies = enemies.filter((e) => e.alive && e.x > lim); deco = deco.filter((d) => d.x > lim);
-      rocks = rocks.filter((R) => R.state !== 'done'); hazards = hazards.filter((hz) => hz.x > lim);
+      rocks = rocks.filter((R) => R.state !== 'done'); hazards = hazards.filter((hz) => hz.x > lim); movers = movers.filter((m) => m.x + m.w > lim);
     }
     $('pf-score').textContent = String(score).padStart(6, '0');
+  }
+  function rideMovers() {
+    const p = player;
+    for (const m of movers) {
+      const across = p.x + p.w > m.prevX + 6 && p.x < m.prevX + m.w - 6;
+      const on = across && p.vy >= 0 && p.y + p.h <= m.prevY + 12 && p.y + p.h >= m.prevY - 10;
+      if (on) { p.x += m.x - m.prevX; p.y = m.y - p.h; p.vy = 0; p.ground = true; continue; }
+      if (!overlaps(p, m)) continue;
+      if (p.vy >= 0 && p.y + p.h - m.y < p.h * 0.65) { p.y = m.y - p.h; p.vy = 0; p.ground = true; p.x += m.x - m.prevX; }
+      else if (p.vy < 0 && p.y < m.y + m.h) { p.y = m.y + m.h; p.vy = 0; }
+      else if (p.x + p.w / 2 < m.x + m.w / 2) p.x = m.x - p.w;
+      else p.x = m.x + m.w;
+    }
   }
   function tilesAround(b) {
     const out = [];
@@ -687,6 +785,9 @@
     const g = ctx;
     const z = ZONES[Math.max(0, curZone)];
     g.setTransform(1, 0, 0, 1, 0, 0);
+    const photo = drawBackgrounds(g);
+    if (photo) { /* the four painted settings fill the sky; tiles stay in front */ }
+    else {
     const sky = g.createLinearGradient(0, 0, 0, H);
     sky.addColorStop(0, z.sky[0]); sky.addColorStop(0.65, z.sky[1]); sky.addColorStop(1, z.sky[2]);
     g.fillStyle = sky; g.fillRect(0, 0, W, H);
@@ -723,25 +824,30 @@
       // a row of trees between the hills and the path
       for (let i = 0; i < 6; i++) {
         const x = ((i * 380 + 90 - camX * 0.55) % (W + 760) + W + 760) % (W + 760) - 380;
-        if (!drawFit(g, ['tree', 'palm', 'banana', 'tree', 'palm', 'bamboo'][i], x, 8 * T + 6, 120 + (i % 2) * 30)) { g.fillStyle = z.hill2; g.beginPath(); g.ellipse(x, 8 * T - 60, 50, 60, 0, 0, Math.PI * 2); g.fill(); }
+        if (!drawFit(g, ['tree', 'palm', 'banana', 'tree', 'palm', 'bamboo'][i], x, GROUND * T + 6, 120 + (i % 2) * 30)) { g.fillStyle = z.hill2; g.beginPath(); g.ellipse(x, GROUND * T - 60, 50, 60, 0, 0, Math.PI * 2); g.fill(); }
       }
+    }
     }
     g.save();
     g.translate(-Math.round(camX), 0);
     const c0 = Math.max(0, Math.floor(camX / T) - 1), c1 = Math.min(cols - 1, Math.ceil((camX + W) / T) + 1);
     g.textAlign = 'center'; g.textBaseline = 'alphabetic';
-    for (const d of deco) if (d.x > camX - 200 && d.x < camX + W + 200) {        // scenery behind the action
+    for (const d of deco) if (!photo && d.x > camX - 200 && d.x < camX + W + 200) {        // scenery behind the action
       const f = FR[d.name];
-      if (!drawFit(g, d.name, d.x, 8 * T + 2, (f ? f[3] : 60) * d.scale)) { g.font = '48px serif'; g.fillText('🌴', d.x, 8 * T - 2); }
+      if (!drawFit(g, d.name, d.x, GROUND * T + 2, (f ? f[3] : 60) * d.scale)) { g.font = '48px serif'; g.fillText('🌴', d.x, GROUND * T - 2); }
     }
     for (let c = c0; c <= c1; c++) {
       const zc = ZONES[colZone[c] || 0];
-      if ((map[8][c] || '.') !== '#') {                         // a gap: a stream or a pit
-        if (zc.water) {
-          if (!drawSpr(g, 'water', c * T, 8 * T + 10, T, T)) { g.fillStyle = '#3f9fe0'; g.fillRect(c * T, 8 * T + 14, T, T); }
+      if ((map[GROUND][c] || '.') !== '#') {                         // a gap: a stream or a pit, never part of the photo
+        if (photo) {
+          g.fillStyle = zc.water ? 'rgba(20, 110, 190, .38)' : 'rgba(12, 8, 4, .45)';
+          g.fillRect(c * T, GROUND * T + 8, T, H - GROUND * T);
+          if (zc.water) { g.fillStyle = 'rgba(255,255,255,.45)'; g.fillRect(c * T + 6 + Math.sin(time * 3 + c) * 4, GROUND * T + 22, 18, 3); }
+        } else if (zc.water) {
+          if (!drawSpr(g, 'water', c * T, GROUND * T + 10, T, T)) { g.fillStyle = '#3f9fe0'; g.fillRect(c * T, GROUND * T + 14, T, T); }
           g.fillStyle = '#2f86c8'; g.fillRect(c * T, 9 * T + 10, T, H - 9 * T);
-          g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(c * T + 6 + Math.sin(time * 3 + c) * 4, 8 * T + 22, 18, 3);
-        } else { const pit = g.createLinearGradient(0, 8 * T, 0, H); pit.addColorStop(0, 'rgba(0,0,0,.35)'); pit.addColorStop(1, '#1a120a'); g.fillStyle = pit; g.fillRect(c * T, 8 * T + 10, T, H - 8 * T); }
+          g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(c * T + 6 + Math.sin(time * 3 + c) * 4, GROUND * T + 22, 18, 3);
+        } else { const pit = g.createLinearGradient(0, GROUND * T, 0, H); pit.addColorStop(0, 'rgba(0,0,0,.35)'); pit.addColorStop(1, '#1a120a'); g.fillStyle = pit; g.fillRect(c * T, GROUND * T + 10, T, H - GROUND * T); }
       }
       for (let r = 0; r < ROWS; r++) {
         const ch = map[r][c] || '.';
@@ -771,17 +877,17 @@
         }
       }
     }
-    for (const m of zoneMarks) if (m.x + 60 > camX - 160 && m.x + 60 < camX + W + 160) drawSignboard(g, m.x + 60, ZONES[m.zone]);
+    for (const m of zoneMarks) if (!photo && m.x + 60 > camX - 160 && m.x + 60 < camX + W + 160) drawSignboard(g, m.x + 60, ZONES[m.zone]);
     if (ZONES[Math.max(0, curZone)].water || colZone.slice(c0, c1 + 1).some((zi) => ZONES[zi].water)) {   // logs and fish in the streams
       let run = null;
       for (let c = c0; c <= c1 + 1; c++) {
-        const water = c <= c1 && (map[8][c] || '.') !== '#' && ZONES[colZone[c] || 0].water;
+        const water = c <= c1 && (map[GROUND][c] || '.') !== '#' && ZONES[colZone[c] || 0].water;
         if (water && !run) run = { a: c };
         if (!water && run) {
           run.b = c; const cx = (run.a + run.b) / 2 * T, wdt = (run.b - run.a) * T;
-          if (!drawFit(g, 'log', cx, 8 * T + 34 + Math.sin(time * 2 + cx) * 3, 26)) { g.fillStyle = '#8a5a2b'; g.fillRect(cx - 30, 8 * T + 18, 60, 14); }
+          if (!drawFit(g, 'log', cx, GROUND * T + 34 + Math.sin(time * 2 + cx) * 3, 26)) { g.fillStyle = '#8a5a2b'; g.fillRect(cx - 30, GROUND * T + 18, 60, 14); }
           const ph = (time * 0.45 + run.a * 0.37) % 1;
-          if (ph < 0.5) { const k = ph * 2, fy = 8 * T + 24 - Math.sin(k * Math.PI) * 70, fx = cx - wdt / 4 + k * wdt / 2; g.save(); g.translate(fx, fy); g.rotate((k - 0.5) * 1.2); if (!drawFit(g, 'fish', 0, 14, 26)) { g.font = '22px serif'; g.fillText('🐟', 0, 0); } g.restore(); }
+          if (ph < 0.5) { const k = ph * 2, fy = GROUND * T + 24 - Math.sin(k * Math.PI) * 70, fx = cx - wdt / 4 + k * wdt / 2; g.save(); g.translate(fx, fy); g.rotate((k - 0.5) * 1.2); if (!drawFit(g, 'fish', 0, 14, 26)) { g.font = '22px serif'; g.fillText('🐟', 0, 0); } g.restore(); }
           run = null;
         }
       }
@@ -798,11 +904,36 @@
         g.fillStyle = '#c08a4a'; g.fillRect(x, y, n * T, T * 0.55); g.fillStyle = '#8a5a2b'; g.fillRect(x, y, n * T, 5); g.fillRect(x, y + T * 0.55 - 5, n * T, 5);
       }
     }
-    for (const hz of hazards) if (hz.x > camX - 120 && hz.x < camX + W + 120) {
-      if (hz.kind === 'L') { if (!drawSpr(g, 'log', hz.x - 2, hz.y - 4, hz.w + 4, hz.h + 6)) { g.fillStyle = '#8a5a2b'; g.fillRect(hz.x, hz.y, hz.w, hz.h); } continue; }
-      if (!drawSpr(g, 'bamboo', hz.x - 3, hz.y - 2, hz.w + 6, hz.h + 4)) {
-        for (let k = 0; k < 4; k++) { const sx = hz.x + 4 + k * 10; g.fillStyle = '#9ccc5a'; g.fillRect(sx, hz.y + 8, 5, hz.h - 8); g.fillStyle = '#e9f5c8'; g.beginPath(); g.moveTo(sx - 1, hz.y + 9); g.lineTo(sx + 2.5, hz.y); g.lineTo(sx + 6, hz.y + 9); g.fill(); }
+    for (const m of movers) if (m.x + m.w > camX - 80 && m.x < camX + W + 80) {
+      g.strokeStyle = '#c9a070'; g.lineWidth = 3;
+      g.beginPath(); g.moveTo(m.x + 12, m.y + 4); g.lineTo(m.x + 12, m.y - 48); g.moveTo(m.x + m.w - 12, m.y + 4); g.lineTo(m.x + m.w - 12, m.y - 48); g.stroke();
+      g.fillStyle = '#8a5a2b'; g.fillRect(m.x - 4, m.y - 54, m.w + 8, 8); g.fillStyle = '#c08a4a'; g.fillRect(m.x - 4, m.y - 54, m.w + 8, 3);
+      if (!drawSpr(g, 'platform', m.x - 4, m.y - 2, m.w + 8, m.h + 6)) {
+        g.fillStyle = '#c08a4a'; g.fillRect(m.x, m.y, m.w, m.h); g.fillStyle = '#8a5a2b'; g.fillRect(m.x, m.y, m.w, 5); g.fillRect(m.x, m.y + m.h - 5, m.w, 5);
       }
+    }
+    const logs = [], spikes = [];
+    for (const hz of hazards) if (hz.x > camX - 240 && hz.x < camX + W + 240) (hz.kind === 'L' ? logs : spikes).push(hz);
+    for (const hz of logs) {
+      if (!drawTrap(g, 'log', hz.x + hz.w / 2, hz.y + hz.h + 4, Math.max(128, hz.w + 40))) {
+        if (!drawSpr(g, 'log', hz.x - 2, hz.y - 4, hz.w + 4, hz.h + 6)) { g.fillStyle = '#8a5a2b'; g.fillRect(hz.x, hz.y, hz.w, hz.h); }
+      }
+    }
+    spikes.sort((a, b) => a.x - b.x);
+    const runs = [];
+    for (const hz of spikes) {
+      const prev = runs[runs.length - 1];
+      const bottom = hz.y + hz.h;
+      if (prev && Math.abs(bottom - prev.bottom) < 10 && hz.x <= prev.x + prev.w + 14) { prev.w = hz.x + hz.w - prev.x; prev.n++; }
+      else runs.push({ x: hz.x, w: hz.w, bottom, n: 1 });
+    }
+    for (const run of runs) {
+      if (run.n === 1) {
+        if (drawTrap(g, 'stake', run.x + run.w / 2, run.bottom, 22)) continue;
+      } else if (run.n >= 4) {
+        if (drawTrap(g, 'hang', run.x + run.w / 2, run.bottom, Math.min(run.w + 12, 168))) continue;
+      } else if (drawTrap(g, 'fence', run.x + run.w / 2, run.bottom, Math.max(run.w + 18, 118))) continue;
+      g.fillStyle = '#9ccc5a'; g.fillRect(run.x, run.bottom - 28, run.w, 28);
     }
     g.textBaseline = 'middle';
     for (const it of items) if (!it.got && it.x > camX - 60 && it.x < camX + W + 60) {
@@ -826,13 +957,14 @@
     for (const R of rocks) if (R.state !== 'done' && R.cx > camX - 80 && R.cx < camX + W + 80) {
       if (R.state === 'wait' || R.state === 'shake') {
         const jit = R.state === 'shake' ? (Math.random() - 0.5) * 6 : 0;
-        g.font = '22px serif'; g.fillText('⚠️', R.cx, 8 * T - 16);
+        g.font = '22px serif'; g.fillText('⚠️', R.cx, GROUND * T - 16);
         drawRock(g, R.cx - 18 + jit, 6 + jit);
       } else drawRock(g, R.x, R.y);
     }
     g.font = '34px serif';
-    for (const e of enemies) if (e.alive && e.x > camX - 80 && e.x < camX + W + 80) {
-      const flip = e.dir > 0;                                   // the sprites face left
+    for (const e of enemies) if (e.alive && e.x > camX - 120 && e.x < camX + W + 120) {
+      if (e.kind === 'W' && drawBoar(g, e)) continue;
+      const flip = e.dir > 0;                                   // the old sprites face left
       let frame;
       if (e.kind === 'W') frame = 'boar' + (Math.floor(time * 8 + e.x) % 3);
       else if (e.kind === 'M') frame = 'monkey' + (Math.floor(e.t * 6) % 4);
@@ -854,7 +986,35 @@
     for (const f of floats) { g.globalAlpha = Math.max(0, Math.min(1, f.t / f.t0 * 1.5)); g.fillStyle = 'rgba(0,0,0,.5)'; g.fillText(f.text, f.x + 1, f.y + 1); g.fillStyle = f.color; g.fillText(f.text, f.x, f.y); }
     g.globalAlpha = 1;
     g.restore();
-    if (!z.indoor) drawVines(g);
+    if (!photo && z.jungle) drawVines(g);
+  }
+  function bgReady(zone) { const img = zone && zone.bg; return !!(img && img.complete && img.naturalWidth); }
+  function zoneSpan(i) {
+    const end = Math.max(cols * T, camX + W + 2);
+    return [zoneMarks[i].x, zoneMarks[i + 1] ? zoneMarks[i + 1].x : end];
+  }
+  function drawBackgrounds(g) {                               // one photo per section, nothing drawn over it
+    if (!ZONES.some(bgReady)) return false;
+    g.fillStyle = '#7ec8ef'; g.fillRect(0, 0, W, H);
+    for (let i = 0; i < zoneMarks.length; i++) {
+      const [x0, x1] = zoneSpan(i);
+      if (x1 < camX - 2 || x0 > camX + W + 2) continue;
+      const zone = ZONES[zoneMarks[i].zone];
+      if (!bgReady(zone)) continue;
+      drawCover(g, zone.bg, x0, x1);
+    }
+    return true;
+  }
+  function drawCover(g, img, x0, x1) {                        // uniform scale, bottom-aligned, clipped to the section
+    const zoneW = Math.max(1, x1 - x0), sl = x0 - camX, sr = x1 - camX;
+    const cl = Math.max(0, sl), cr = Math.min(W, sr);
+    if (cr - cl < 1) return;
+    const scale = Math.max(zoneW / img.width, H / img.height);
+    const dw = img.width * scale, dh = img.height * scale;
+    g.save();
+    g.beginPath(); g.rect(cl, 0, cr - cl, H); g.clip();
+    g.drawImage(img, sl - (dw - zoneW) * 0.5, H - dh, dw, dh);
+    g.restore();
   }
   function drawVines(g) {                                     // jungle vines hanging into the top corners
     g.save();
@@ -868,7 +1028,7 @@
     g.restore();
   }
   function drawSignboard(g, x, zone) {                        // the zone's wooden sign at its first chunk
-    const gy = 8 * T;
+    const gy = GROUND * T;
     g.fillStyle = '#6b4a2e'; g.fillRect(x - 5, gy - 112, 10, 112);
     g.fillStyle = '#4e2a0e'; g.fillRect(x - 60, gy - 150, 120, 72);
     g.fillStyle = '#c08a4a'; g.fillRect(x - 56, gy - 146, 112, 64);
@@ -979,7 +1139,6 @@
       el.addEventListener('pointerdown', on); el.addEventListener('pointerup', off); el.addEventListener('pointercancel', off); el.addEventListener('pointerleave', off);
     };
     touch('pf-left', 'left'); touch('pf-right', 'right'); touch('pf-jump', 'jump');
-    $('pf-pause').addEventListener('click', () => { if (!started || over) return; paused = !paused; say(paused ? 'REHAT' : 'Sambung!', paused ? 999 : 1); });
     $('pf-exit').addEventListener('click', close);
     $('pf-rules-ok').addEventListener('click', rulesOk);
     $('pf-primary').addEventListener('click', () => { startRun(); last = performance.now(); });
@@ -989,6 +1148,7 @@
     $('pf-bowl').addEventListener('click', openAlmari);
     $('pf-almari-close').addEventListener('click', closeAlmari);
   }
+  for (const zone of ZONES) { const img = new Image(); img.src = zone.img + '?v=2'; zone.bg = img; }
   window.LaksaQuest = {
     open: openGame, close, wire, start: startRun, rulesOk, openAlmari, closeAlmari, update, draw, keys, LIMIT, NEED, EXTRA, RARE, POWER, ZONES, CHUNKS, SC, FR,
     get atlasReady() { return atlasOk; },

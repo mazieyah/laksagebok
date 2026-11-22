@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=46">
+<link rel="stylesheet" href="style.css?v=56">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -198,30 +198,35 @@
   <div class="pf-hud">
     <div class="pf-hud-left">
       <img class="pf-logo" src="laksa-quest-banner.png" alt="Laksa Quest">
-      <div id="pf-lives" class="pf-lives" aria-label="Nyawa"></div>
+      <div class="pf-quest">
+        <div class="pf-sign">Kumpul 6 bahan lengkap untuk 1 mangkuk laksa!</div>
+        <div class="pf-bowlrow">
+          <div id="pf-bowl" class="pf-slots" role="button" tabindex="0" title="Almari Bahan (I)"></div>
+          <span class="pf-arrow" aria-hidden="true">➜</span>
+          <div class="pf-bowlbox"><span id="pf-bowlico" class="pf-bowlico"></span><span id="pf-bowlstate" class="pf-bowlstate">0/6</span></div>
+        </div>
+      </div>
+      <div class="pf-extra-wrap">
+        <span class="pf-extra-label">Boleh dikutip</span>
+        <div id="pf-extras" class="pf-extras" aria-label="Bahan tambahan yang boleh dikutip"></div>
+      </div>
       <div id="pf-level" class="pf-zone" hidden></div>
     </div>
-    <div class="pf-hud-mid">
-      <div class="pf-sign">Kumpul 6 bahan lengkap untuk 1 mangkuk laksa!</div>
-      <div class="pf-bowlrow">
-        <div id="pf-bowl" class="pf-slots" role="button" tabindex="0" title="Almari Bahan (I)"></div>
-        <span class="pf-arrow" aria-hidden="true">➜</span>
-        <div class="pf-bowlbox"><span id="pf-bowlico" class="pf-bowlico"></span><span id="pf-bowlstate" class="pf-bowlstate">0/6</span></div>
-      </div>
+    <div class="pf-clock" aria-label="Masa">
+      <small>Masa</small>
+      <b id="pf-timer" class="pf-timer">03:00</b>
       <div id="pf-power" class="pf-power"></div>
     </div>
     <div class="pf-hud-right">
+      <div class="pf-btns">
+        <div id="pf-lives" class="pf-lives" aria-label="Nyawa"></div>
+        <button id="pf-almari-btn" class="pf-rbtn" type="button" aria-label="Almari Bahan" title="Almari Bahan (I)">🧺</button>
+        <button id="pf-sound" class="pf-rbtn" type="button" aria-label="Bunyi" title="Bunyi">🔊</button>
+        <button id="pf-exit" class="pf-rbtn" type="button" aria-label="Back to games" title="Permainan">✕</button>
+      </div>
       <div class="pf-stats">
         <div class="pf-stat"><span id="pf-stat-bowl" class="pf-stat-ico">🍜</span><span class="pf-stat-text"><small>Mangkuk Laksa</small><b id="pf-bowls">0</b></span></div>
         <div class="pf-stat"><span id="pf-stat-coin" class="pf-stat-ico">🪙</span><span class="pf-stat-text"><small>Skor</small><b id="pf-score">000000</b></span></div>
-        <div class="pf-stat"><span class="pf-stat-ico">⏱️</span><span class="pf-stat-text"><small>Masa</small><b id="pf-timer">03:00</b></span></div>
-      </div>
-      <div class="pf-btns">
-        <span id="pf-coins" class="pf-coins"><i class="pf-coin-ico" aria-hidden="true"></i> 0</span>
-        <button id="pf-almari-btn" class="pf-rbtn" type="button" aria-label="Almari Bahan" title="Almari Bahan (I)">🧺</button>
-        <button id="pf-sound" class="pf-rbtn" type="button" aria-label="Bunyi" title="Bunyi">🔊</button>
-        <button id="pf-pause" class="pf-rbtn" type="button" aria-label="Pause" title="Rehat (P)">⏸</button>
-        <button id="pf-exit" class="pf-rbtn" type="button" aria-label="Back to games" title="Permainan">✕</button>
       </div>
     </div>
   </div>
@@ -240,11 +245,11 @@
       <div class="done-parchment rules-parch">
         <h2 class="rules-title">Syarat Permainan</h2>
         <ul class="rules-list">
-          <li>Lari ke kanan dan lompat atasi halangan: kayu balak, sungai, batu jatuh, perangkap buluh, babi hutan, monyet dan lebah. Lompat ke atas musuh untuk menewaskannya.</li>
+          <li>Lari ke kanan dan lompat atasi halangan: kayu balak, sungai, batu jatuh, perangkap buluh dan babi hutan. Lompat ke atas babi hutan untuk menewaskannya.</li>
           <li>Kutip 6 bahan untuk semangkuk Laksa Gebok: mi laksa, ikan, santan, rempah, daun kesum dan ulam, dalam apa-apa susunan. Setiap mangkuk siap 100 mata.</li>
           <li>Bahan tambahan 10 mata, syiling emas 5 mata, Lesung Batu (jarang) 20 mata. Almari simpan hingga 3 salinan setiap bahan: tekan 🧺 Almari atau I untuk melihatnya.</li>
           <li>Kuasa: Alat Gebok (bahan ×2), Senduk Sakti (perlindungan), Bakul (simpan bahan lebihan) dan Hati (+1 nyawa).</li>
-          <li>Had masa 3 minit dengan 3 nyawa. Terlanggar musuh atau halangan tolak 1 nyawa.</li>
+          <li>Had masa 3 minit dengan 3 nyawa. Hilang 1 nyawa, kembali ke permulaan. Masa tetap berjalan.</li>
           <li>Kawalan: ← → bergerak, ↑ atau SPACE lompat (tekan dua kali untuk lompat berganda), P rehat. Di telefon gunakan butang pada skrin.</li>
         </ul>
       </div>
@@ -602,10 +607,21 @@
       <img class="lb-trophy" src="nav-medal.png" alt="">
       <h2 class="lb-title">Keputusan Pemain</h2>
     </div>
-    <p id="rs-player" class="lb-tagline"></p>
+    <p id="rs-player" class="lb-tagline">Keputusan markah bagi setiap permainan.</p>
     <div id="rs-cards" class="rs-cards"></div>
-    <h3 class="rs-sub">Sejarah terkini</h3>
-    <ol id="rs-history" class="rs-history"></ol>
+    <section class="rs-log">
+      <h3 class="rs-sub"><span aria-hidden="true">⏱</span> Sejarah Terkini</h3>
+      <div id="rs-filters" class="rs-filters" role="tablist" aria-label="Sejarah mengikut permainan"></div>
+      <div class="rs-table">
+        <div class="rs-thead">
+          <span>🎮 Permainan</span>
+          <span>📅 Tarikh &amp; Masa</span>
+          <span>🏆 Skor</span>
+          <span>⏱ Masa</span>
+        </div>
+        <ol id="rs-history" class="rs-history"></ol>
+      </div>
+    </section>
     <div class="lb-btns">
       <button id="rs-back" class="btn play-btn lb-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 3 12l8 7v-4.5h4c3 0 5 1.5 6 4.5.3-5-2-9-8-9h-2z"/></svg>KEMBALI</button>
     </div>
@@ -788,9 +804,9 @@
 <script src="store.js?v=3"></script>
 <script src="admin.js"></script>
 <script src="platform.js"></script>
-<script src="platformer.js?v=5"></script>
+<script src="platformer.js?v=19"></script>
 <script src="crossword.js?v=3"></script>
 <script src="wordsearch.js?v=5"></script>
-<script src="game.js?v=32"></script>
+<script src="game.js?v=36"></script>
 </body>
 </html>

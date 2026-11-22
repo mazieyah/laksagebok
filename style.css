@@ -1509,35 +1509,58 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
   .play-btn.xw-btn-red { font-size: 17px; }
 }
 
-/* ---- Keputusan Pemain: the current player's results per game ---- */
-.rs-panel { width: min(860px, 100%); }
-.rs-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%; }
+/* ---- Keputusan Pemain: cream score cards and a recent-play table on the wooden board ---- */
+.rs-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
 .rs-card {
-  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; align-items: center; text-align: left;
-  padding: 10px 14px; border-radius: 16px; border: 3px solid var(--login-gold);
+  display: grid; grid-template-columns: 72px minmax(0, 1fr); grid-template-areas: 'art body' 'foot foot'; gap: 6px 8px; align-items: center;
+  padding: 8px; border-radius: 16px; border: 3px solid var(--login-gold); text-align: left; cursor: pointer;
   background: linear-gradient(#fffaf0, #f6ead2); box-shadow: 0 0 0 2px var(--login-wood-dark), 0 4px 0 rgba(0, 0, 0, .25);
 }
-.rs-ico {
-  grid-row: 1 / 4; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: 24px; line-height: 1;
-  background: radial-gradient(circle at 35% 30%, #c08a4a, #5a3a1c); border: 3px solid var(--login-gold); box-shadow: 0 2px 0 rgba(0, 0, 0, .25);
+.rs-art { grid-area: art; width: 72px; height: 62px; object-fit: contain; padding: 3px; border-radius: 12px; background: linear-gradient(#eef8e6, #d9f0c8); border: 2px solid #e7c27a; }
+.rs-body { grid-area: body; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.rs-name { display: flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 800; font-size: 15px; line-height: 1.1; color: #4a1d06; }
+.rs-badge { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none; font-size: 14px; background: radial-gradient(circle at 35% 30%, #fff, #f3d48a); border: 2px solid #e0b15a; }
+.rs-kicker { font-size: 12px; font-weight: 800; color: #8a6230; }
+.rs-best { display: flex; align-items: center; gap: 6px; font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1; color: #8f1d0f; font-variant-numeric: tabular-nums; }
+.rs-cup { font-size: 22px; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .15)); }
+.rs-foot { grid-area: foot; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.rs-plays, .rs-rank {
+  display: flex; align-items: center; gap: 6px; min-width: 0; padding: 5px 8px; border-radius: 12px;
+  background: #fff8e8; border: 2px solid #f0d7a0; font-size: 11px; font-weight: 800; line-height: 1.25; color: #6a4a22;
 }
-.rs-name { font-family: var(--font-display); font-weight: 800; font-size: 17px; line-height: 1.1; color: #4a1d06; }
-.rs-best { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.1; color: #8f1d0f; font-variant-numeric: tabular-nums; }
-.rs-best small { font-size: 12px; color: #7a5a30; font-family: var(--font-body); font-weight: 800; margin-right: 6px; }
-.rs-meta { font-size: 12.5px; font-weight: 700; color: #7a5a30; line-height: 1.35; }
-.rs-meta .rs-rank { color: #1f8f36; }
-.rs-sub { margin: 4px 0 -4px; align-self: flex-start; font-family: var(--font-display); font-weight: 800; font-size: 16px; color: #ffe27a; text-shadow: 0 2px 0 #3d1704; }
-.rs-history { list-style: none; margin: 0; padding: 2px; width: 100%; display: flex; flex-direction: column; gap: 6px; max-height: 24vh; overflow: auto; }
-.rs-history li { display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-radius: 10px; background: rgba(0, 0, 0, .28); color: #ffe9bd; font-size: 13px; font-weight: 700; }
-.rs-history .rs-h-game { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.rs-history .rs-h-when { color: rgba(255, 233, 189, .75); font-size: 12px; white-space: nowrap; }
-.rs-history .rs-h-score { font-family: var(--font-display); font-weight: 800; font-size: 16px; color: #ffe27a; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.rs-history .rs-h-time { font-variant-numeric: tabular-nums; white-space: nowrap; color: #fff; }
-.rs-history .rs-h-won { color: #8df09a; } .rs-history .rs-h-lost { color: #ffb3a7; }
-.rs-empty { color: rgba(255, 233, 189, .8); font-size: 13px; font-weight: 700; padding: 6px 0; text-align: center; }
-@media (max-width: 640px) {
+.rs-rank { color: #1c8a34; flex: none; }
+.rs-pill-ico { flex: none; font-size: 14px; }
+.rs-card:hover { filter: brightness(1.03); }
+.rs-card.on { border-color: #ffd86a; box-shadow: 0 0 0 2px var(--login-wood-dark), 0 0 0 6px rgba(255, 216, 106, .45), 0 4px 0 rgba(0, 0, 0, .25); }
+.rs-log { width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.rs-filters { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.rs .rs-filter { font-size: 13px; padding: 8px 4px; }
+.rs-sub {
+  align-self: center; display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 6px 28px 7px;
+  border: 0; border-radius: 0; background: linear-gradient(180deg, #ff5a44, #d9261a 55%, #b31a10);
+  clip-path: polygon(0 0, 100% 0, 97% 50%, 100% 100%, 0 100%, 3% 50%);
+  box-shadow: none; font-family: var(--font-display); font-weight: 800; font-size: 16px; color: #fff; text-shadow: 0 2px 0 #7a1d0b;
+}
+.rs-table { width: 100%; border-radius: 14px; overflow: hidden; border: 3px solid #e7c27a; background: #fffaf0; }
+.rs-thead, .rs-history li { display: grid; grid-template-columns: 1.35fr 1.15fr .7fr .55fr; gap: 8px; align-items: center; padding: 7px 12px; text-align: left; }
+.rs-thead { background: linear-gradient(#fff4d4, #f3ddb0); font-size: 12px; font-weight: 800; color: #8a6230; }
+.rs-history { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 0; max-height: 22vh; overflow: auto; }
+.rs-history li { background: #fff; color: #4a3018; border-radius: 0; font-size: 13px; font-weight: 800; }
+.rs-history li:nth-child(odd) { background: #fff6d8; }
+.rs-h-game, .rs-h-score, .rs-h-time { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.rs-h-game { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rs-h-when { color: #6a4a22; font-size: 12px; white-space: nowrap; }
+.rs-h-score { font-family: var(--font-display); font-weight: 800; font-size: 16px; color: #c0392b; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rs-h-time { font-variant-numeric: tabular-nums; white-space: nowrap; color: #4a3018; }
+.rs-h-ico { flex: none; }
+.rs-empty { grid-column: 1 / -1; color: #7a5a30; font-size: 13px; font-weight: 700; padding: 10px 0; text-align: center; background: transparent; }
+@media (max-width: 720px) {
+  .rs-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .rs-cards { grid-template-columns: 1fr; }
   .rs-history { max-height: none; }
+  .rs-thead, .rs-history li { grid-template-columns: 1.1fr 1fr .65fr .5fr; gap: 4px; padding: 6px 8px; font-size: 11px; }
+  .rs-best { font-size: 24px; }
+  .rs-name { font-size: 15px; }
 }
 
 /* ---- Tetapan: sound switch, account, about ---- */
@@ -1756,10 +1779,23 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .pf-slot .pf-x { right: -7px; top: -7px; }
 .pf-arrow { font-size: 22px; color: #f2b63c; text-shadow: 0 2px 0 #4e2a0e; }
 .pf-bowlbox { display: flex; flex-direction: column; align-items: center; }
-.pf-bowlico { display: block; width: 46px; height: 46px; }
-.pf-bowlico .pf-spr { width: 46px; height: 46px; }
+.pf-bowlico { display: block; width: 56px; height: 48px; visibility: hidden; }
+.pf-bowlico .pf-spr, .pf-bowlico .pf-bowlpic { width: 56px; height: 48px; object-fit: contain; }
+.pf-bowlico.ready { visibility: visible; }
 .pf-bowlico.full { filter: drop-shadow(0 0 8px #ffe27a) drop-shadow(0 0 14px #ffd34a); animation: pop .5s ease-in-out infinite alternate; }
+#pf-stat-bowl { visibility: hidden; }
+#pf-stat-bowl.ready { visibility: visible; }
+#pf-stat-bowl .pf-bowlpic { width: 40px; height: 34px; object-fit: contain; }
 .pf-bowlstate { font-family: var(--font-display); font-weight: 800; font-size: 11px; color: #ffe27a; text-shadow: 0 1px 0 #000, 0 0 6px rgba(0,0,0,.6); line-height: 1; white-space: nowrap; }
+.pf-extra-wrap { display: flex; align-items: center; gap: 6px; max-width: min(640px, 100%); padding: 4px 8px; border-radius: 12px; background: linear-gradient(180deg, rgba(62, 32, 12, .92), rgba(28, 14, 4, .92)); border: 2px solid #d9a441; box-shadow: 0 3px 0 #2e1706; }
+.pf-extra-label { font-family: var(--font-display); font-weight: 800; font-size: 10px; line-height: 1.1; color: #f2d27a; writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .4px; }
+.pf-extras { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; }
+.pf-xitem { position: relative; display: flex; flex-direction: column; align-items: center; min-width: 42px; padding: 1px 2px 2px; border-radius: 8px; background: rgba(0,0,0,.25); border: 1px solid rgba(217, 164, 65, .35); filter: grayscale(1) opacity(.5); }
+.pf-xitem .pf-spr { width: 20px; height: 20px; }
+.pf-xitem small { font-family: var(--font-display); font-weight: 800; font-size: 8px; line-height: 1; color: #ffe9bd; max-width: 48px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pf-xitem i { position: absolute; right: -4px; top: -4px; font-style: normal; font-size: 8px; background: #f2b63c; color: #3a2208; border-radius: 999px; padding: 1px 3px; }
+.pf-xitem.lit { filter: none; border-color: #f2d27a; background: rgba(90, 52, 16, .85); }
+@media (max-width: 900px) { .pf-extra-label { display: none; } .pf-xitem { min-width: 32px; } .pf-xitem small { display: none; } .pf-extra-wrap { padding: 3px; } }
 .pf-hud-right { gap: 6px; align-items: flex-end; }
 .pf-stats { display: inline-flex; align-items: stretch; border-radius: 12px; background: linear-gradient(180deg, #6a2d7a, #3f1849); border: 3px solid #d9a441; box-shadow: inset 0 0 0 2px #2a0f33, 0 4px 0 #2a0f33; overflow: hidden; }
 .pf-stat { display: flex; align-items: center; gap: 6px; padding: 5px 10px; }
@@ -1777,4 +1813,38 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .pf-coins { background: linear-gradient(180deg, #7a4a1e, #4e2a0e); border: 2px solid #d9a441; font-size: 14px; padding: 4px 9px; }
 .pf-power { text-align: center; }
 @media (max-width: 900px) { .pf-sign { display: none; } .pf-slot { min-width: 36px; } .pf-slot .pf-spr { width: 24px; height: 24px; } .pf-slot small { font-size: 9px; } .pf-logo { width: 110px; } .pf-stat { padding: 4px 7px; } .pf-stat-text b { font-size: 15px; } .pf-stat-text small { font-size: 9px; } .pf-timer, .pf-score { font-size: 15px; } }
-@media (max-width: 640px) { .pf-hud { flex-wrap: wrap; } .pf-hud-mid { order: 3; width: 100%; } .pf-bowlico, .pf-bowlico .pf-spr { width: 36px; height: 36px; } .pf-rbtn { width: 32px; height: 32px; font-size: 14px; } .pf-stat-ico { font-size: 16px; } .pf-stat-ico .pf-spr { width: 20px; height: 20px; } .pf-stat-text small { display: none; } .pf-arrow { font-size: 16px; } .pf-lives { padding: 3px 8px; } .pf-lives .pf-spr { width: 18px; height: 18px; } }
+@media (max-width: 640px) { .pf-hud { flex-wrap: nowrap; } .pf-bowlico, .pf-bowlico .pf-spr, .pf-bowlico .pf-bowlpic { width: 36px; height: 36px; } .pf-rbtn { width: 32px; height: 32px; font-size: 14px; } .pf-stat-ico { font-size: 16px; } .pf-stat-ico .pf-spr { width: 20px; height: 20px; } #pf-stat-bowl .pf-bowlpic { width: 28px; height: 24px; } .pf-stat-text small { display: none; } .pf-arrow { font-size: 16px; } .pf-lives { padding: 3px 8px; } .pf-lives .pf-spr { width: 18px; height: 18px; } }
+
+/* Collectibles on the left, the laksa set under the logo, hearts top-right, time in the centre. */
+.pf-hud-left { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); top: max(8px, env(safe-area-inset-top, 0px)); max-width: min(430px, 46vw); align-items: flex-start; }
+.pf-hud-right { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); top: max(8px, env(safe-area-inset-top, 0px)); max-width: min(280px, 42vw); align-items: flex-end; }
+.pf-quest { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; max-width: 100%; }
+.pf-sign { white-space: normal; max-width: 100%; text-align: left; transform: none; }
+.pf-bowlrow { flex-wrap: wrap; max-width: 100%; }
+.pf-clock { position: absolute; left: 50%; top: max(8px, env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 132px; padding: 8px 20px 9px; border-radius: 12px; background: linear-gradient(180deg, #6a2d7a, #3f1849); border: 3px solid #d9a441; box-shadow: inset 0 0 0 2px #2a0f33, 0 4px 0 #2a0f33; line-height: 1; }
+.pf-clock small { font-size: 12px; font-weight: 800; color: #f2d27a; letter-spacing: .4px; }
+.pf-clock .pf-timer { font-family: var(--font-display); font-weight: 800; font-size: 36px; color: #fff; background: none; border: 0; padding: 0; }
+.pf-clock .pf-power { min-height: 0; font-size: 11px; }
+.pf-btns { flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+.pf-extra-wrap { flex-direction: column; align-items: stretch; gap: 4px; width: min(240px, 100%); max-height: min(280px, 42vh); overflow: auto; pointer-events: auto; }
+.pf-extra-label { writing-mode: horizontal-tb; transform: none; font-size: 11px; letter-spacing: 0; text-align: left; }
+.pf-extras { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.pf-xitem { flex-direction: row; justify-content: flex-start; gap: 4px; min-width: 0; padding: 2px 5px; }
+.pf-xitem small { max-width: none; font-size: 9px; }
+@media (max-width: 900px) {
+  .pf-sign { display: block; font-size: 11px; padding: 3px 8px; }
+  .pf-extra-label { display: block; }
+  .pf-xitem small { display: block; }
+  .pf-logo { width: 120px; }
+  .pf-clock .pf-timer { font-size: 30px; }
+  .pf-slot { min-width: 34px; }
+}
+@media (max-width: 640px) {
+  .pf-hud-left { max-width: 48vw; }
+  .pf-hud-right { max-width: 34vw; }
+  .pf-extra-wrap { width: 100%; max-height: 32vh; }
+  .pf-clock { min-width: 96px; padding: 5px 12px 6px; }
+  .pf-clock .pf-timer { font-size: 24px; }
+  .pf-stats { flex-direction: column; }
+  .pf-stat + .pf-stat { border-left: 0; border-top: 2px solid rgba(217, 164, 65, .6); }
+}

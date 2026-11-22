@@ -27,7 +27,11 @@ game over), the 18 ingredients, coin, heart, gebok, mortar, basket, spoon,
 four bowl states, boars, monkeys, bees, rock, log, crate, bamboo trap, tiles
 (grass, stone, floating platform, table, water) and the scenery (house, hut,
 stall, palm, tree, bamboo, banana, bushes, bridge, waterfall, fence). Until
-the atlas loads, shapes and emoji stand in.
+the atlas loads, shapes and emoji stand in. The wild boar is drawn from
+`boar-sheet.png` (six 169×116 frames a row: idle then five walk poses; row 0
+faces right, row 1 left) and the traps and logs from `bamboo-traps.png`
+(`TRAP_FR`: hanging trap, fence, log, stake). The bowl pictures in the HUD
+are `laksa-bowl.png`.
 
 A 3-minute run (`LIMIT` in platformer.js) on one clock, 3 hearts. The world
 is generated as the player advances from hand-made chunks (`CHUNKS`, 11 rows
@@ -35,10 +39,19 @@ of ASCII, 16–22 columns each: safe, gap, hazard, enemy, rock, log, stairs,
 power, mixed), picked with weights that grow harder after each minute and
 never two of a kind in a row. Every chunk has flat ground at both ends, gaps
 are at most 4 columns (a jump clears 5.4) and every falling rock is announced
-by a sign and a shake. Six chunks make a zone; the zones cycle through
-Kampung Melayu, Hutan Tropika, Sungai (gaps are water), Dapur Tradisional
-(indoor, plank walls) and Lanskap Kampung, each with its own sky, ground and
-decorations.
+by a sign and a shake. The chunk weights are biased per zone (`bias`). Two
+chunks make a zone (`ZONE_CHUNKS`); the zones cycle through Kampung Pahang,
+Sungai & Jambatan (gaps are water), Hutan Tropika and Kampung Laksa Gebok,
+each painted on its own backdrop (`quest-bg-village.jpg`, `quest-bg-river.jpg`,
+`quest-bg-jungle.jpg`, `quest-bg-laksa.jpg`, 1024×341: one picture per zone,
+scaled to cover and bottom-aligned, `drawBackgrounds`). The pictures are
+scenery only: the path sits on row 9 (`GROUND`), platforms, gaps and hazards
+keep their own collision tiles, gaps are shaded over the picture, and
+`addJumpPlanks` puts a plank within one jump of the path in every chunk.
+In the river and jungle zones one plank per chunk is detached as a mover
+(`movers`, `detachMover`): it bobs up and down over water and slides sideways
+in the jungle, and `rideMovers` carries the player along. Until the pictures
+load, the drawn sky, hills, signboards and scenery stand in.
 
 - Opening the game shows "Syarat Permainan" (`#pf-rules`, OK button); the
   world is drawn behind it and the clock starts on OK. MAIN SEMULA skips it.
@@ -66,26 +79,31 @@ decorations.
 - Obstacles: bamboo traps `^` and logs `L` (static, jump over them), crates
   `X` (solid blocks to climb), falling rocks `O` (a ⚠ sign on the ground, a
   shake, then the drop; the rock rests 1.6 s), wild boars `W` (patrol, turn at
-  edges and walls), monkeys `M` (hop along their plank) and bees `Z` (fly to
-  and fro in the air). Enemies die when jumped on (+20). Any other contact, a
-  trap, a log or a rock costs a heart and 1.5 s of invincibility; falling into
-  a stream or pit costs a heart and returns the player to the last safe
-  ground. At 0 hearts the run ends.
-- HUD (after the user's mockup): the Laksa Quest logo and a wooden hearts
-  pill top-left; in the middle a wooden sign "Kumpul 6 bahan lengkap untuk 1
-  mangkuk laksa!" over a dark-wood panel of six labelled slots (Mi, Ikan,
-  Santan, Rempah, Kesum, Ulam; green ✓ when held, ×n for spares) and an arrow
-  to the bowl icon (empty → full by progress, "Mangkuk Lengkap!" glow on a
-  finished bowl); top-right a purple stats panel (Mangkuk Laksa, Skor as six
-  digits, Masa) with round purple buttons: coins, Almari, sound, pause, exit.
-  Active power-ups with seconds under the slots. Floating "+n" texts and
-  sparks on every pickup. On phones the sign hides and the slot panel wraps
-  under the logo and stats.
-- Scene: sky by zone, far mountains with snow caps, a far canopy with
-  waterfalls, hills, a parallax row of trees, vines hanging into the top
-  corners, a wooden signboard with the zone name at each zone's first chunk
-  ("KAMPUNG / MELAYU / PAHANG"), rope-hung floating platforms outdoors,
-  streams in the river zone with floating logs and jumping fish.
+  edges and walls; the `M` and `Z` marks in chunks spawn boars too). Boars
+  die when jumped on (+20). Any other contact, a trap, a log, a rock or a fall
+  into a stream or pit costs a heart, gives 1.4 s of invincibility and sends
+  the player back to the start of the run while the clock keeps running. At
+  0 hearts the run ends.
+- HUD (after the user's mockup): top-left the Laksa Quest logo, the wooden
+  sign "Kumpul 6 bahan lengkap untuk 1 mangkuk laksa!", a dark-wood panel of
+  six labelled slots (Mi, Ikan, Santan, Rempah, Kesum, Ulam; green ✓ when
+  held, ×n for spares) with an arrow to the bowl picture (shown once all six
+  are in, "Mangkuk Lengkap!" glow), and under it a "Boleh dikutip" panel
+  listing the twelve extras (`#pf-extras`, grey until held, ×n counts). Top
+  centre a purple clock panel (Masa 03:00) with the active power-ups and
+  their seconds under it. Top-right the wooden hearts pill with round purple
+  buttons (Almari, sound, exit) and the stats panel (Mangkuk Laksa with the
+  bowl picture once a bowl is done, Skor as six digits). There is no coin
+  counter or pause button in the HUD (P still pauses). Floating "+n" texts
+  and sparks on every pickup. On phones the panels narrow and the stats
+  stack.
+- Scene: the zone picture behind the tiles (see above), rope-hung floating
+  platforms, streams in the river zone with floating logs and jumping fish,
+  spike runs drawn as a stake, a fence or a hanging trap by length, logs as
+  the trap-sheet log. Without the pictures: sky by zone, far mountains with
+  snow caps, a far canopy with waterfalls, hills, a parallax row of trees,
+  vines in the jungle and a wooden signboard with the zone name at each
+  zone's first chunk.
 - Question blocks `Q`: solid; hitting one from below bumps it, turns it into a
   stone block and gives a coin (45%) or pops an ingredient onto it.
 - End card (`.done-card`): "Syabas!" at 3 minutes ("Berapa banyak mangkuk
@@ -298,10 +316,16 @@ address.
 
 ## Keputusan Pemain (player results)
 
-The medal button in the games menu opens the signed-in player's results: one
-card per game (best score, plays, level progress or last played, and the
-player's leaderboard rank once it loads) and the last eight plays with date,
-score and a won/lost mark. KEMBALI returns to the menu.
+Opened from the hub. Cream score cards on the wooden board, one per game
+(`GAMES_INFO` in game.js: art, icon badge, name, "Skor Terbaik" with a cup,
+a plays pill "n kali main | Terakhir: date" or "Level selesai", the fastest
+time for the puzzles, and a rank pill filled from `fetchLeaderboard`:
+"Kedudukan #n daripada m" or "Belum dalam kedudukan"). Clicking a card (or
+Enter on it) selects that game in the history. Under the red ribbon
+"Sejarah Terkini", filter tabs (Semua plus one per game, `#rs-filters`) and a
+table (`.rs-table`: Permainan, Tarikh & Masa, Skor, Masa) of the last 8 runs,
+12 when filtered to one game. Dates are written by `whenText` as
+"22 Nov 07:30 PTG" (Malay month names, PG/PTG).
 
 ## Kedudukan Terkini (leaderboard)
 

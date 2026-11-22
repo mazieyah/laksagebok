@@ -55,7 +55,7 @@
     'login-popup', 'login-popup-card', 'login-popup-title', 'login-popup-text', 'login-popup-bar', 'login-popup-fill', 'login-popup-ok',
     'hub', 'hub-player', 'hub-switch', 'hub-howto', 'hub-story', 'hub-lb', 'hub-games', 'reset', 'games', 'games-sound', 'platform', 'crossword', 'wordsearch', 'lb-tabs',
     'howto', 'howto-back', 'best-start', 'story', 'story-cards', 'story-note', 'story-back',
-    'leaderboard', 'lb-list', 'lb-status', 'lb-me', 'lb-back', 'lb-refresh', 'results', 'rs-player', 'rs-cards', 'rs-history', 'rs-back',
+    'leaderboard', 'lb-list', 'lb-status', 'lb-me', 'lb-back', 'lb-refresh', 'results', 'rs-player', 'rs-cards', 'rs-filters', 'rs-history', 'rs-back',
     'pause', 'resume', 'restart', 'pause-menu', 'pause-sound',
     'complete', 'complete-title', 'complete-badge', 'complete-level', 'c-laksa', 'c-gebuk', 'c-lives', 'c-score',
     'b-laksa', 'b-gebuk', 'b-mission', 'b-level', 'b-flawless', 'b-total', 'complete-rank', 'next', 'complete-menu', 'complete-lb',
@@ -1693,67 +1693,118 @@
   }
   // Keputusan Pemain: the signed-in player's results for each game (medal button in the games menu).
   const GAMES_INFO = [
-    { key: 'runner', name: 'Laksa Gebok Run', icon: '🏃', lbKey: 'bestScore' },
-    { key: 'platform', name: 'Laksa Quest', icon: '🍜', lbKey: 'platformBest' },
-    { key: 'crossword', name: 'Teka Silang Laksa', icon: '🧩', lbKey: 'crosswordBest' },
-    { key: 'wordsearch', name: 'Cari Kata Laksa', icon: '🔍', lbKey: 'wordsearchBest' },
+    { key: 'runner', name: 'Laksa Gebok Run', tab: 'Gebok Run', icon: '🏃', art: 'traveler-menu.png', lbKey: 'bestScore' },
+    { key: 'platform', name: 'Laksa Quest', tab: 'Laksa Quest', icon: '🍜', art: 'laksa-bowl.png', lbKey: 'platformBest' },
+    { key: 'crossword', name: 'Teka Silang Laksa', tab: 'Teka Silang', icon: '🧩', art: 'teka-silang-art.png', lbKey: 'crosswordBest' },
+    { key: 'wordsearch', name: 'Cari Kata Laksa', tab: 'Cari Kata', icon: '🔍', art: 'cari-kata-art.png', lbKey: 'wordsearchBest' },
   ];
-  const gameName = (g) => (GAMES_INFO.find((x) => x.key === (g || 'runner')) || GAMES_INFO[0]).name;
   function whenText(iso) {
     if (!iso) return '';
     const d = new Date(iso);
     if (isNaN(d)) return '';
-    return d.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+    const months = ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ogos', 'Sep', 'Okt', 'Nov', 'Dis'];
+    let h = d.getHours();
+    const ap = h >= 12 ? 'PTG' : 'PG';
+    h = h % 12 || 12;
+    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + String(h).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ' ' + ap;
   }
   function showResults() {
     const p = GebokStore.current();
     if (!p) return;
     menuState();
     const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
-    ui.rsPlayer.textContent = 'Keputusan ' + p.username + ' bagi setiap permainan.';
+    ui.rsPlayer.textContent = 'Keputusan markah bagi setiap permainan.';
     const st = p.stats || {}, games = p.games || {}, runs = p.runs || [];
     ui.rsCards.replaceChildren();
     const rankEls = {};
     for (const g of GAMES_INFO) {
       const card = el('div', 'rs-card');
-      card.append(el('span', 'rs-ico', g.icon), el('div', 'rs-name', g.name));
-      let best, plays, extra;
+      card.dataset.game = g.key;
+      const art = el('img', 'rs-art'); art.src = g.art; art.alt = '';
+      const body = el('div', 'rs-body');
+      const name = el('div', 'rs-name');
+      name.append(el('span', 'rs-badge', g.icon), document.createTextNode(g.name));
+      let best, plays, detail, extra = '';
       if (g.key === 'runner') {
         const runnerRuns = runs.filter((r) => !r.game || r.game === 'runner').length;
         best = st.bestScore || 0; plays = runnerRuns || st.runs || 0;
-        extra = 'Level selesai ' + (p.completed || []).filter(Boolean).length + '/3 · ' + (st.totalGebuk || 0) + ' gebok dikutip';
+        detail = 'Level selesai: ' + (p.completed || []).filter(Boolean).length + '/3';
+        extra = (st.totalGebuk || 0) + ' gebuk dikutip';
       } else {
         const gg = games[g.key] || {};
         best = gg.best || 0; plays = gg.plays || 0;
-        extra = gg.last ? 'Terakhir ' + whenText(gg.last) : 'Belum dimainkan';
-        if ((g.key === 'crossword' || g.key === 'wordsearch') && gg.bestTime) extra += ' · terpantas ' + fmtClock(gg.bestTime);
+        detail = gg.last ? 'Terakhir: ' + whenText(gg.last) : 'Belum dimainkan';
+        if ((g.key === 'crossword' || g.key === 'wordsearch') && gg.bestTime) extra = 'Terpantas: ' + fmtClock(gg.bestTime);
       }
-      const bestEl = el('div', 'rs-best'); bestEl.append(el('small', '', 'Skor terbaik'), document.createTextNode(best.toLocaleString()));
-      const meta = el('div', 'rs-meta'); meta.append(document.createTextNode(plays + ' kali main · ' + extra));
-      const rank = el('span', 'rs-rank'); meta.append(document.createTextNode(' · '), rank); rankEls[g.lbKey] = rank; rank.textContent = 'kedudukan…';
-      card.append(bestEl, meta);
+      const bestEl = el('div', 'rs-best');
+      bestEl.append(el('span', 'rs-cup', '🏆'), document.createTextNode(best.toLocaleString()));
+      body.append(name, el('div', 'rs-kicker', 'Skor Terbaik'), bestEl);
+      const foot = el('div', 'rs-foot');
+      const play = el('div', 'rs-plays');
+      const playTxt = el('span');
+      playTxt.append(document.createTextNode(plays + ' kali main | ' + detail));
+      if (extra) playTxt.append(document.createElement('br'), document.createTextNode(extra));
+      play.append(el('span', 'rs-pill-ico', '🎮'), playTxt);
+      const rank = el('div', 'rs-rank');
+      const rankTxt = el('span', 'rs-rank-txt', 'Kedudukan…');
+      rank.append(el('span', 'rs-pill-ico', '🏆'), rankTxt);
+      rankEls[g.lbKey] = rankTxt;
+      foot.append(play, rank);
+      card.append(art, body, foot);
       ui.rsCards.append(card);
     }
-    ui.rsHistory.replaceChildren();
-    const recent = runs.slice(-8).reverse();
-    if (!recent.length) ui.rsHistory.append(el('li', 'rs-empty', 'Belum ada permainan direkodkan.'));
-    for (const r of recent) {
-      const li = el('li');
-      const won = r.result === 'won' || r.result === 'complete';
-      li.append(el('span', 'rs-h-game', gameName(r.game) + (r.game ? '' : ' · Level ' + (r.level || 1))),
-        el('span', 'rs-h-when', whenText(r.at)),
-        el('span', 'rs-h-score', (r.score || 0).toLocaleString()),
-        el('span', 'rs-h-time', typeof r.time === 'number' ? fmtClock(r.time) : ''),
-        el('span', won ? 'rs-h-won' : 'rs-h-lost', won ? '✓' : '✗'));
-      ui.rsHistory.append(li);
+    const paintHistory = (key) => {
+      for (const b of ui.rsFilters.querySelectorAll('.rs-filter')) { b.classList.toggle('active', b.dataset.game === key); b.setAttribute('aria-selected', b.dataset.game === key ? 'true' : 'false'); }
+      for (const c of ui.rsCards.querySelectorAll('.rs-card')) c.classList.toggle('on', c.dataset.game === key);
+      const infoFor = (game) => GAMES_INFO.find((x) => x.key === (game || 'runner')) || GAMES_INFO[0];
+      const list = key === 'all' ? runs : runs.filter((r) => (r.game || 'runner') === key);
+      const recent = (key === 'all' ? list.slice(-8) : list.slice(-12)).reverse();
+      ui.rsHistory.replaceChildren();
+      if (!recent.length) {
+        const name = key === 'all' ? '' : infoFor(key).name;
+        ui.rsHistory.append(el('li', 'rs-empty', name ? 'Belum ada rekod untuk ' + name + '.' : 'Belum ada permainan direkodkan.'));
+        return;
+      }
+      for (const r of recent) {
+        const li = el('li');
+        const info = infoFor(r.game);
+        const game = el('span', 'rs-h-game');
+        game.append(el('span', 'rs-h-ico', info.icon), document.createTextNode(info.name + (r.game ? '' : ' · Level ' + (r.level || 1))));
+        const score = el('span', 'rs-h-score');
+        score.append(el('span', 'rs-h-ico', '🏆'), document.createTextNode((r.score || 0).toLocaleString()));
+        const time = el('span', 'rs-h-time');
+        time.append(el('span', 'rs-h-ico', '⏱'), document.createTextNode(typeof r.time === 'number' ? fmtClock(r.time) : '–'));
+        li.append(game, el('span', 'rs-h-when', whenText(r.at)), score, time);
+        ui.rsHistory.append(li);
+      }
+    };
+    const pickHistory = (key, scroll) => {
+      paintHistory(key);
+      if (scroll) ui.rsFilters.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+    ui.rsFilters.replaceChildren();
+    for (const f of [{ key: 'all', tab: 'Semua', icon: '⏱' }].concat(GAMES_INFO)) {
+      const b = el('button', 'lb-tab rs-filter');
+      b.type = 'button'; b.dataset.game = f.key; b.setAttribute('role', 'tab');
+      b.append(el('span', 'lb-tab-ico', f.icon), document.createTextNode(f.tab));
+      b.addEventListener('click', () => pickHistory(f.key, false));
+      ui.rsFilters.append(b);
     }
+    for (const c of ui.rsCards.querySelectorAll('.rs-card')) {
+      c.tabIndex = 0; c.setAttribute('role', 'button');
+      c.title = 'Lihat sejarah ' + (GAMES_INFO.find((g) => g.key === c.dataset.game) || {}).name;
+      c.addEventListener('click', () => pickHistory(c.dataset.game, true));
+      c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickHistory(c.dataset.game, true); } });
+    }
+    paintHistory('all');
     ui.results.hidden = false;
     for (const g of GAMES_INFO) {                  // ranks arrive after the leaderboard answers
       GebokStore.fetchLeaderboard(1, g.lbKey).then((lb) => {
-        if (ui.results.hidden) return;
+        const node = rankEls[g.lbKey];
+        if (!node || ui.results.hidden) return;
         const i = lb.all.findIndex((x) => x.id === p.id);
-        rankEls[g.lbKey].textContent = i >= 0 ? 'kedudukan #' + (i + 1) + ' daripada ' + lb.all.length : 'belum dalam kedudukan';
-      }).catch(() => { rankEls[g.lbKey].textContent = ''; });
+        node.textContent = i >= 0 ? 'Kedudukan #' + (i + 1) + ' daripada ' + lb.all.length : 'Belum dalam kedudukan';
+      }).catch(() => { const node = rankEls[g.lbKey]; if (node) node.textContent = 'Belum dalam kedudukan'; });
     }
   }
   function updateStoreStatus(text) {
