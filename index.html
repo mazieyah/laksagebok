@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=42">
+<link rel="stylesheet" href="style.css?v=43">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -446,23 +446,29 @@
       <img class="lb-trophy" src="nav-gear.png" alt="">
       <h2 class="lb-title">Tetapan</h2>
     </div>
-    <section class="st-section">
-      <h3 class="st-head"><span aria-hidden="true">🔊</span>Bunyi</h3>
+    <div id="st-tabs" class="lb-tabs st-tabs" role="tablist">
+      <button class="lb-tab active" data-tab="bunyi" type="button" role="tab" aria-selected="true"><span class="lb-tab-ico" aria-hidden="true">🔊</span>Bunyi</button>
+      <button class="lb-tab" data-tab="akaun" type="button" role="tab" aria-selected="false"><span class="lb-tab-ico" aria-hidden="true">👤</span>Akaun</button>
+      <button class="lb-tab" data-tab="tentang" type="button" role="tab" aria-selected="false"><span class="lb-tab-ico" aria-hidden="true">ℹ️</span>Tentang</button>
+    </div>
+    <section class="st-section" data-tab="bunyi">
       <div class="st-row">
-        <span class="st-label">Muzik menu dan kesan bunyi permainan</span>
-        <button id="settings-sound" class="st-switch" type="button" aria-pressed="true"><span class="st-knob" aria-hidden="true"></span><span class="st-switch-text">HIDUP</span></button>
+        <span class="st-label"><strong>Muzik</strong><small>Lagu tema di menu dan hab permainan</small></span>
+        <button id="settings-music" class="st-switch" type="button" aria-pressed="true"><span class="st-knob" aria-hidden="true"></span><span class="st-switch-text">HIDUP</span></button>
+      </div>
+      <div class="st-row">
+        <span class="st-label"><strong>Kesan bunyi</strong><small>Bunyi betul, salah, mata dan aksi dalam permainan</small></span>
+        <button id="settings-sfx" class="st-switch" type="button" aria-pressed="true"><span class="st-knob" aria-hidden="true"></span><span class="st-switch-text">HIDUP</span></button>
       </div>
     </section>
-    <section class="st-section">
-      <h3 class="st-head"><span aria-hidden="true">👤</span>Akaun</h3>
+    <section class="st-section" data-tab="akaun" hidden>
       <div class="st-row">
         <span id="settings-player" class="st-label">Pemain semasa</span>
         <button id="settings-switch" class="btn play-btn st-logout" type="button"><svg class="play-tri" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5v-2H6V6h4z"/><path d="M14 7l-1.4 1.4L15.2 11H9v2h6.2l-2.6 2.6L14 17l5-5z"/></svg>LOG KELUAR</button>
       </div>
       <button id="reset" class="st-link" type="button">Set semula kemajuan Laksa Gebok Run</button>
     </section>
-    <section class="st-section st-about">
-      <h3 class="st-head"><span aria-hidden="true">ℹ️</span>Tentang</h3>
+    <section class="st-section st-about" data-tab="tentang" hidden>
       <div class="st-about-body">
         <img class="st-about-logo" src="laksa-arcade-logo.png" alt="">
         <div class="st-about-text">
@@ -716,6 +722,6 @@
 <script src="platformer.js"></script>
 <script src="crossword.js?v=3"></script>
 <script src="wordsearch.js?v=5"></script>
-<script src="game.js?v=31"></script>
+<script src="game.js?v=32"></script>
 </body>
 </html>

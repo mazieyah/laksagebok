@@ -44,7 +44,8 @@
   const RIVER_X = SIDE + 6.5;
   const RIVER_W = 30;
   const BEST_KEY = 'gebokrun.best';
-  const MUTE_KEY = 'gebokrun.muted';
+  const MUTE_KEY = 'gebokrun.muted';            // the old single switch, read once for migration
+  const SFX_KEY = 'gebokrun.sfxOff', MUSIC_KEY = 'gebokrun.musicOff';   // Tetapan: kesan bunyi and muzik, each its own switch
   const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 
   /* ------------------------------------------------------------------ DOM */
@@ -62,7 +63,7 @@
     'over', 'new-best', 'final-score', 'final-laksa', 'final-gebuk', 'final-dist', 'final-mission', 'final-rank', 'again', 'over-menu', 'over-lb',
     'final', 'f-score', 'f-laksa', 'f-gebuk', 'final-replay', 'final-story', 'final-lb',
     'timer', 'b-time', 'hub-start', 'c-timeleft', 'c-total', 'i-level', 'f-time', 'f-lives',
-    'hub-achv', 'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-sound', 'settings-switch', 'settings-back', 'settings-player', 'about-studio', 'about-text', 'about-credits', 'about-version', 'achv', 'achv-list', 'achv-back',
+    'hub-achv', 'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-music', 'settings-sfx', 'st-tabs', 'settings-switch', 'settings-back', 'settings-player', 'about-studio', 'about-text', 'about-credits', 'about-version', 'achv', 'achv-list', 'achv-back',
     'intro', 'intro-tabs', 'intro-body', 'intro-back', 'intro-dots', 'intro-pager', 'intro-skip', 'intro-next', 'intro-next-text'];
   const ui = {};
   for (const id of ids) {
@@ -990,8 +991,15 @@
   /* ------------------------------------------------------------- audio */
   const sfx = (() => {
     let ctx = null;
-    let muted = false;
-    try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (e) { /* ignore */ }
+    let muted = false, musicOff = false;        // muted = sound effects off; the menu music has its own flag
+    try {
+      const legacy = localStorage.getItem(MUTE_KEY) === '1';
+      const s = localStorage.getItem(SFX_KEY), m = localStorage.getItem(MUSIC_KEY);
+      muted = s == null ? legacy : s === '1';
+      musicOff = m == null ? legacy : m === '1';
+    } catch (e) { /* ignore */ }
+    function setSfx(on) { muted = !on; saveVal(SFX_KEY, muted ? 1 : 0); }
+    function setMusic(on) { musicOff = !on; saveVal(MUSIC_KEY, musicOff ? 1 : 0); }
     function ensure() {
       if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; } }
       if (ctx && ctx.state === 'suspended') ctx.resume();
@@ -1047,20 +1055,28 @@
       boost() { tone(200, 0.5, 'sawtooth', 0.08, 1200); },
       count(go) { if (go) tone(880, 0.5, 'square', 0.08); else tone(440, 0.12, 'square', 0.07); },
       get muted() { return muted; },
+      get musicOff() { return musicOff; },
+      get allOff() { return muted && musicOff; },
       get ctx() { return ctx; },
-      toggle() { muted = !muted; saveVal(MUTE_KEY, muted ? 1 : 0); return muted; },
+      setSfx, setMusic,
+      toggle() { const off = !(muted && musicOff); setSfx(!off); setMusic(!off); return off; },   // the quick 🔊 buttons: everything off, or everything on
     };
   })();
   function syncSoundLabels() {
-    ui.mute.textContent = sfx.muted ? '🔇' : '🔊';
-    ui.mute.setAttribute('aria-pressed', sfx.muted ? 'true' : 'false');
-    ui.hubSound.textContent = sfx.muted ? '🔇' : '🔊';
-    ui.gamesSound.classList.toggle('is-muted', sfx.muted);
-    ui.gamesSound.setAttribute('aria-pressed', sfx.muted ? 'true' : 'false');
-    ui.pauseSound.textContent = 'BUNYI: ' + (sfx.muted ? 'MATI' : 'HIDUP');
-    ui.settingsSound.classList.toggle('off', sfx.muted);
-    ui.settingsSound.setAttribute('aria-pressed', sfx.muted ? 'false' : 'true');
-    ui.settingsSound.querySelector('.st-switch-text').textContent = sfx.muted ? 'MATI' : 'HIDUP';
+    const off = sfx.allOff;                     // the quick buttons speak for both switches
+    ui.mute.textContent = off ? '🔇' : '🔊';
+    ui.mute.setAttribute('aria-pressed', off ? 'true' : 'false');
+    ui.hubSound.textContent = off ? '🔇' : '🔊';
+    ui.gamesSound.classList.toggle('is-muted', off);
+    ui.gamesSound.setAttribute('aria-pressed', off ? 'true' : 'false');
+    ui.pauseSound.textContent = 'BUNYI: ' + (off ? 'MATI' : 'HIDUP');
+    setSwitch(ui.settingsMusic, !sfx.musicOff);
+    setSwitch(ui.settingsSfx, !sfx.muted);
+  }
+  function setSwitch(btn, on) {
+    btn.classList.toggle('off', !on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.querySelector('.st-switch-text').textContent = on ? 'HIDUP' : 'MATI';
   }
   syncSoundLabels();
 
@@ -1518,9 +1534,14 @@
     ui.mute.hidden = true;                 // the menu has its own sound button
     ui.hub.hidden = false;
   }
+  function settingsTab(name) {                 // Bunyi | Akaun | Tentang
+    for (const b of ui.stTabs.querySelectorAll('.lb-tab')) { const on = b.dataset.tab === name; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); }
+    for (const s of ui.settings.querySelectorAll('.st-section')) s.hidden = s.dataset.tab !== name;
+  }
   function showSettings() {
     menuState();
     syncSoundLabels();
+    settingsTab('bunyi');
     const p = GebokStore.current();
     ui.settingsPlayer.textContent = p ? 'Pemain semasa: ' + p.username : 'Tiada pemain log masuk';
     const ab = CFG.about || {};
@@ -2381,7 +2402,9 @@
   ui.hubSettings.addEventListener('click', showSettings);
   ui.hubSound.addEventListener('click', () => { sfx.toggle(); syncSoundLabels(); ui.hubSound.blur(); });
   ui.gamesSound.addEventListener('click', () => { sfx.toggle(); syncSoundLabels(); ui.gamesSound.blur(); });
-  ui.settingsSound.addEventListener('click', () => { sfx.toggle(); syncSoundLabels(); });
+  ui.settingsMusic.addEventListener('click', () => { sfx.setMusic(sfx.musicOff); syncSoundLabels(); });
+  ui.settingsSfx.addEventListener('click', () => { sfx.setSfx(sfx.muted); syncSoundLabels(); if (!sfx.muted) sfx.correct(); });   // a chime confirms it is on
+  ui.stTabs.addEventListener('click', (e) => { const b = e.target.closest('.lb-tab'); if (b) settingsTab(b.dataset.tab); });
   ui.settingsSwitch.addEventListener('click', showRegister);
   ui.settingsBack.addEventListener('click', goBack);
   ui.achvBack.addEventListener('click', goBack);
@@ -2461,7 +2484,7 @@
   function frame(now) {
     requestAnimationFrame(frame);
     const inMenu = state === 'menu' && !renderPaused && !GebokAdmin.isOpen();
-    music.sync(inMenu && !sfx.muted && !document.hidden, !inMenu);
+    music.sync(inMenu && !sfx.musicOff && !document.hidden, !inMenu);
     if (renderPaused) { last = now; return; }
     let dt = (now - last) / 1000;
     last = now;

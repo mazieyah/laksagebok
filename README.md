@@ -218,11 +218,15 @@ five round menu buttons sit in their own row under the welcome sign.
 
 ## Tetapan (settings)
 
-The gear button opens a wooden settings board: a green/brown Bunyi switch
-(music and effects, remembered by the browser), the current player with a
-LOG KELUAR button and a "set semula kemajuan" link for the runner, and a
-"Tentang" box whose studio name, description, credit lines and version come
-from `about` in config.js (Synexis Digital). The admin page is no longer
+The gear button opens a wooden settings board with three tabs (Bunyi, Akaun,
+Tentang; `settingsTab()` in game.js). Bunyi has two green/brown switches,
+Muzik (the menu theme) and Kesan bunyi (game effects), each remembered by the
+browser (`gebokrun.musicOff`, `gebokrun.sfxOff`; an old `gebokrun.muted` = 1
+turns both off once). The quick 🔊 buttons in the menus and the pause screen
+toggle both at once: they show 🔇 only when both are off. Akaun shows the
+current player with a LOG KELUAR button and a "set semula kemajuan" link for
+the runner. Tentang is a box whose studio name, description, credit lines and
+version come from `about` in config.js (Synexis Digital). The admin page is no longer
 linked from the interface; it is still reachable by adding `#admin` to the
 address.
 
