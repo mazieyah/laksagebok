@@ -48,7 +48,8 @@ completely but wrong buzzes and shakes red; both verdicts also show as a
 one-second green or red toast over the grid ("BETUL! KUNYIT · +50 mata",
 "SALAH · Cuba lagi"). BANTUAN (−20) is greyed out while the running score is
 below 20; taking a hint shows an amber one-second toast with the −20 and the
-new total.
+new total, and a word that contains a hinted letter earns 25 instead of 50 when
+it is completed.
 
 The screen is a wooden board over the village scene: a pencil sign, HUD pills
 (Skor, time, progress), the grid and a wooden on-screen keyboard on the left,
@@ -72,7 +73,8 @@ out, and an answer with several clues appears once per layout with one of them.
 - BANTUAN blinks the first letter of a random unfound word for −20.
 - Score: 14 words × 40 + a time bonus (600 − seconds, not below 0) − 20 per hint.
 
-A found word chimes and adds 40 points to the "SKOR" pill; a selection that
+A found word chimes and adds 40 points to the "SKOR" pill (20 if its first
+letter was shown by a hint); a selection that
 is not a listed word buzzes and flashes red. BANTUAN (−20) is greyed out while
 the score is below 20; the final score adds the time bonus.
 

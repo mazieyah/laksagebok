@@ -15,7 +15,7 @@
   ];
   const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0], [-1, -1], [-1, 1]];
   const FILL = 'AAABCDEGHIIJKKLMMNNPRSSTUU';          // the fill leans on letters common in Malay
-  const WORD_POINTS = 40, HINT_COST = 20, TIME_BONUS_MAX = 600;
+  const WORD_POINTS = 40, HINT_WORD_POINTS = 20, HINT_COST = 20, TIME_BONUS_MAX = 600;   // a word whose first letter was shown by a hint earns half
   let grid = [], placed = [], cellEls = [], open = false, done = false, startAt = 0, hints = 0, timer = 0, pts = 0;
   const sfx = () => (window.GebokRun ? window.GebokRun.sfx : null);
   const total = () => Math.max(0, pts - hints * HINT_COST);   // the running score: words found minus hints
@@ -106,10 +106,11 @@
       return false;
     }
     hit.found = true;
+    const gain = hit.hinted ? HINT_WORD_POINTS : WORD_POINTS;
     const idx = placed.indexOf(hit);
     for (const q of cells) { const el = cellEls[q.r][q.c]; el.classList.add('found'); el.style.setProperty('--ws-col', 'hsl(' + ((idx * 47) % 360) + ' 70% 78%)'); }
-    pts += WORD_POINTS;
-    $('ws-status').textContent = '\u2713 ' + hit.word + ' (' + hit.clue + ') +' + WORD_POINTS + ' mata. Jumlah: ' + total().toLocaleString() + '.';
+    pts += gain;
+    $('ws-status').textContent = '\u2713 ' + hit.word + ' (' + hit.clue + ') +' + gain + ' mata' + (hit.hinted ? ' (separuh, dengan bantuan)' : '') + '. Jumlah: ' + total().toLocaleString() + '.';
     if (sfx()) sfx().correct();
     renderList();
     const sc = $('ws-score'); sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop');
@@ -121,7 +122,7 @@
     const left = placed.filter((p) => !p.found);
     if (!left.length) return;
     const p = left[Math.floor(Math.random() * left.length)];
-    hints++;
+    hints++; p.hinted = true;
     clearTimeout(hintTimer);
     for (const row of cellEls) for (const d of row) d.classList.remove('hint');
     const el = cellEls[p.r0][p.c0]; el.classList.add('hint');

@@ -214,7 +214,7 @@
     }
     return numbered(FALLBACK.map((e) => Object.assign({}, e)));
   }
-  const WORD_POINTS = 50, HINT_COST = 20, TIME_BONUS_MAX = 600;
+  const WORD_POINTS = 50, HINT_WORD_POINTS = 25, HINT_COST = 20, TIME_BONUS_MAX = 600;   // a word completed with a hinted letter earns half
   let cells = {};              // 'r,c' -> { letter, num, el, entries: [] }
   const key = (r, c) => r + ',' + c;
   function indexCells() {
@@ -231,7 +231,7 @@
   }
   function relayout() { DATA.entries = layout(); indexCells(); build(); }
   let user = {}, sel = null, dir = 'A', open = false, startAt = 0, hints = 0, timer = 0, done = false, checked = {};
-  let solved = {}, locked = {}, pts = 0;   // solved entries (by id), their cells (locked green), running points
+  let solved = {}, locked = {}, pts = 0, hinted = {};   // solved entries (by id), their cells (locked green), running points, cells filled by a hint
   let wrongShown = {}, toastTimer = 0;      // a filled-but-wrong word is flagged once until one of its letters changes
   const TOAST_MS = 1000;
   function toast(kind, title, sub) {
@@ -316,10 +316,12 @@
   function total() { return Math.max(0, pts - hints * HINT_COST); }
   // A newly completed word: a chime, WORD_POINTS, its cells lock green and pop.
   function checkSolved(viaHint) {
-    let hit = null;
+    let hit = null, gain = 0, withHint = false;
     for (const e of DATA.entries) {
       if (solved[idOf(e)] || !isSolved(e)) continue;
-      solved[idOf(e)] = true; pts += WORD_POINTS; hit = e;
+      withHint = cellsOf(e).some((k) => hinted[k]);   // half points if any letter came from a hint
+      gain = withHint ? HINT_WORD_POINTS : WORD_POINTS;
+      solved[idOf(e)] = true; pts += gain; hit = e;
       for (let i = 0; i < e.word.length; i++) {
         const k = key(e.row + (e.dir === 'D' ? i : 0), e.col + (e.dir === 'A' ? i : 0));
         locked[k] = true; checked[k] = true;
@@ -329,8 +331,8 @@
     if (!hit) return checkWrong();
     const sc = $('xw-score'); sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop');
     if (sfx()) sfx().correct();
-    $('xw-status').textContent = '\u2713 ' + hit.word + ' betul! +' + WORD_POINTS + ' mata' + (viaHint ? ' (bantuan \u2212' + HINT_COST + ')' : '') + '. Jumlah: ' + total().toLocaleString() + '.';
-    toast('ok', 'BETUL! ' + hit.word, '+' + WORD_POINTS + ' mata \u00b7 Jumlah ' + total().toLocaleString());
+    $('xw-status').textContent = '\u2713 ' + hit.word + ' betul! +' + gain + ' mata' + (withHint ? ' (separuh, dengan bantuan)' : '') + (viaHint ? ' \u00b7 bantuan \u2212' + HINT_COST : '') + '. Jumlah: ' + total().toLocaleString() + '.';
+    toast('ok', 'BETUL! ' + hit.word, '+' + gain + ' mata' + (withHint ? ' (dengan bantuan)' : '') + ' \u00b7 Jumlah ' + total().toLocaleString());
     return true;
   }
   // A word filled in completely but not matching: a buzz, a red shake and a one-second verdict; flagged once per attempt.
@@ -378,7 +380,7 @@
     if (!sel || done || total() < HINT_COST) return;
     const k = key(sel.r, sel.c);
     if (user[k] === sel.letter) { const next = step(sel, dir, 1); if (next) { sel = next; render(); } return; }
-    user[k] = sel.letter; checked[k] = true; hints++;
+    user[k] = sel.letter; checked[k] = true; hinted[k] = true; hints++;
     const next = step(sel, dir, 1);
     if (next) sel = next;
     render();
@@ -407,7 +409,7 @@
   }
   function start() {
     relayout();
-    user = {}; checked = {}; solved = {}; locked = {}; wrongShown = {}; pts = 0; hints = 0; done = false; startAt = performance.now();
+    user = {}; checked = {}; solved = {}; locked = {}; hinted = {}; wrongShown = {}; pts = 0; hints = 0; done = false; startAt = performance.now();
     clearTimeout(toastTimer); $('xw-toast').hidden = true;
     $('xw-done').hidden = true;
     $('xw-status').textContent = 'Klik pada petak, taip jawapan dan lengkapkan semua teka silang. Klik petak yang sama untuk tukar arah.';
