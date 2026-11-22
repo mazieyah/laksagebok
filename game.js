@@ -50,11 +50,11 @@
   /* ------------------------------------------------------------------ DOM */
   const ids = ['hud', 'score', 'dist', 'level-label', 'missions', 'm-gebuk', 'm-gebuk-n', 'm-laksa', 'm-laksa-n', 'achievements', 'c-ach', 'i-laksa-target', 'f-ach',
     'power-magnet', 'power-magnet-fill', 'power-shield', 'power-boost', 'power-boost-fill', 'pause-btn', 'banner', 'countdown', 'hint', 'hitflash', 'mute',
-    'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'register-btn-text', 'register-cancel', 'register-lb', 'store-status', 'admin-link', 'name-hint',
+    'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'register-btn-text', 'register-cancel', 'register-lb', 'store-status', 'name-hint',
     'login-popup', 'login-popup-card', 'login-popup-title', 'login-popup-text', 'login-popup-bar', 'login-popup-fill', 'login-popup-ok',
-    'hub', 'hub-player', 'hub-switch', 'hub-howto', 'hub-story', 'hub-lb', 'hub-games', 'reset', 'admin-link-hub', 'games', 'games-sound', 'platform', 'crossword', 'wordsearch', 'lb-tabs',
+    'hub', 'hub-player', 'hub-switch', 'hub-howto', 'hub-story', 'hub-lb', 'hub-games', 'reset', 'games', 'games-sound', 'platform', 'crossword', 'wordsearch', 'lb-tabs',
     'howto', 'howto-back', 'best-start', 'story', 'story-cards', 'story-note', 'story-back',
-    'leaderboard', 'lb-list', 'lb-status', 'lb-me', 'lb-back', 'lb-refresh',
+    'leaderboard', 'lb-list', 'lb-status', 'lb-me', 'lb-back', 'lb-refresh', 'results', 'rs-player', 'rs-cards', 'rs-history', 'rs-back',
     'pause', 'resume', 'restart', 'pause-menu', 'pause-sound',
     'complete', 'complete-title', 'complete-badge', 'complete-level', 'c-laksa', 'c-gebuk', 'c-lives', 'c-score',
     'b-laksa', 'b-gebuk', 'b-mission', 'b-level', 'b-flawless', 'b-total', 'complete-rank', 'next', 'complete-menu', 'complete-lb',
@@ -62,7 +62,7 @@
     'over', 'new-best', 'final-score', 'final-laksa', 'final-gebuk', 'final-dist', 'final-mission', 'final-rank', 'again', 'over-menu', 'over-lb',
     'final', 'f-score', 'f-laksa', 'f-gebuk', 'final-replay', 'final-story', 'final-lb',
     'timer', 'b-time', 'hub-start', 'c-timeleft', 'c-total', 'i-level', 'f-time', 'f-lives',
-    'hub-achv', 'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-sound', 'settings-switch', 'settings-back', 'achv', 'achv-list', 'achv-back',
+    'hub-achv', 'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-sound', 'settings-switch', 'settings-back', 'settings-player', 'about-studio', 'about-text', 'about-credits', 'about-version', 'achv', 'achv-list', 'achv-back',
     'intro', 'intro-tabs', 'intro-body', 'intro-back', 'intro-dots', 'intro-pager', 'intro-skip', 'intro-next', 'intro-next-text'];
   const ui = {};
   for (const id of ids) {
@@ -71,7 +71,7 @@
   }
   ui.hearts = Array.from(document.querySelectorAll('#hearts .heart'));
   ui.cards = Array.from(document.querySelectorAll('.level-card'));
-  const SCREENS = ['register', 'games', 'platform', 'crossword', 'wordsearch', 'hub', 'howto', 'story', 'leaderboard', 'pause', 'complete', 'incomplete', 'over', 'final', 'settings', 'achv'];
+  const SCREENS = ['register', 'games', 'platform', 'crossword', 'wordsearch', 'hub', 'howto', 'story', 'leaderboard', 'results', 'pause', 'complete', 'incomplete', 'over', 'final', 'settings', 'achv'];
   let backTo = 'hub';                     // where KEMBALI goes from the shared screens: the runner hub or the games hub
   let renderPaused = false;               // the 3D loop idles while another mini-game owns the screen
 
@@ -1057,8 +1057,10 @@
     ui.hubSound.textContent = sfx.muted ? '🔇' : '🔊';
     ui.gamesSound.classList.toggle('is-muted', sfx.muted);
     ui.gamesSound.setAttribute('aria-pressed', sfx.muted ? 'true' : 'false');
-    ui.pauseSound.textContent = 'BUNYI: ' + (sfx.muted ? 'OFF' : 'ON');
-    ui.settingsSound.textContent = 'BUNYI: ' + (sfx.muted ? 'OFF' : 'ON');
+    ui.pauseSound.textContent = 'BUNYI: ' + (sfx.muted ? 'MATI' : 'HIDUP');
+    ui.settingsSound.classList.toggle('off', sfx.muted);
+    ui.settingsSound.setAttribute('aria-pressed', sfx.muted ? 'false' : 'true');
+    ui.settingsSound.querySelector('.st-switch-text').textContent = sfx.muted ? 'MATI' : 'HIDUP';
   }
   syncSoundLabels();
 
@@ -1516,7 +1518,18 @@
     ui.mute.hidden = true;                 // the menu has its own sound button
     ui.hub.hidden = false;
   }
-  function showSettings() { menuState(); syncSoundLabels(); ui.settings.hidden = false; }
+  function showSettings() {
+    menuState();
+    syncSoundLabels();
+    const p = GebokStore.current();
+    ui.settingsPlayer.textContent = p ? 'Pemain semasa: ' + p.username : 'Tiada pemain log masuk';
+    const ab = CFG.about || {};
+    ui.aboutStudio.textContent = ab.studio || '';
+    ui.aboutText.replaceChildren(...(ab.text || []).map((t) => { const q = document.createElement('span'); q.textContent = t; return q; }));
+    ui.aboutCredits.replaceChildren(...(ab.credits || []).map((t) => { const li = document.createElement('li'); li.textContent = t; return li; }));
+    ui.aboutVersion.textContent = ab.version || '';
+    ui.settings.hidden = false;
+  }
   function showAchievements() {
     menuState();
     ui.achvList.replaceChildren();
@@ -1657,6 +1670,69 @@
     ui.leaderboard.hidden = false;
     loadLeaderboard();
   }
+  // Keputusan Pemain: the signed-in player's results for each game (medal button in the games menu).
+  const GAMES_INFO = [
+    { key: 'runner', name: 'Laksa Gebok Run', icon: '🏃', lbKey: 'bestScore' },
+    { key: 'platform', name: 'Laksa Quest', icon: '🍜', lbKey: 'platformBest' },
+    { key: 'crossword', name: 'Teka Silang Laksa', icon: '🧩', lbKey: 'crosswordBest' },
+    { key: 'wordsearch', name: 'Cari Kata Laksa', icon: '🔍', lbKey: 'wordsearchBest' },
+  ];
+  const gameName = (g) => (GAMES_INFO.find((x) => x.key === (g || 'runner')) || GAMES_INFO[0]).name;
+  function whenText(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.toLocaleDateString('ms-MY', { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString('ms-MY', { hour: '2-digit', minute: '2-digit' });
+  }
+  function showResults() {
+    const p = GebokStore.current();
+    if (!p) return;
+    menuState();
+    const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+    ui.rsPlayer.textContent = 'Keputusan ' + p.username + ' bagi setiap permainan.';
+    const st = p.stats || {}, games = p.games || {}, runs = p.runs || [];
+    ui.rsCards.replaceChildren();
+    const rankEls = {};
+    for (const g of GAMES_INFO) {
+      const card = el('div', 'rs-card');
+      card.append(el('span', 'rs-ico', g.icon), el('div', 'rs-name', g.name));
+      let best, plays, extra;
+      if (g.key === 'runner') {
+        const runnerRuns = runs.filter((r) => !r.game || r.game === 'runner').length;
+        best = st.bestScore || 0; plays = runnerRuns || st.runs || 0;
+        extra = 'Level selesai ' + (p.completed || []).filter(Boolean).length + '/3 · ' + (st.totalGebuk || 0) + ' gebok dikutip';
+      } else {
+        const gg = games[g.key] || {};
+        best = gg.best || 0; plays = gg.plays || 0;
+        extra = gg.last ? 'Terakhir ' + whenText(gg.last) : 'Belum dimainkan';
+      }
+      const bestEl = el('div', 'rs-best'); bestEl.append(el('small', '', 'Skor terbaik'), document.createTextNode(best.toLocaleString()));
+      const meta = el('div', 'rs-meta'); meta.append(document.createTextNode(plays + ' kali main · ' + extra));
+      const rank = el('span', 'rs-rank'); meta.append(document.createTextNode(' · '), rank); rankEls[g.lbKey] = rank; rank.textContent = 'kedudukan…';
+      card.append(bestEl, meta);
+      ui.rsCards.append(card);
+    }
+    ui.rsHistory.replaceChildren();
+    const recent = runs.slice(-8).reverse();
+    if (!recent.length) ui.rsHistory.append(el('li', 'rs-empty', 'Belum ada permainan direkodkan.'));
+    for (const r of recent) {
+      const li = el('li');
+      const won = r.result === 'won' || r.result === 'complete';
+      li.append(el('span', 'rs-h-game', gameName(r.game) + (r.game ? '' : ' · Level ' + (r.level || 1))),
+        el('span', 'rs-h-when', whenText(r.at)),
+        el('span', 'rs-h-score', (r.score || 0).toLocaleString()),
+        el('span', won ? 'rs-h-won' : 'rs-h-lost', won ? '✓' : '✗'));
+      ui.rsHistory.append(li);
+    }
+    ui.results.hidden = false;
+    for (const g of GAMES_INFO) {                  // ranks arrive after the leaderboard answers
+      GebokStore.fetchLeaderboard(1, g.lbKey).then((lb) => {
+        if (ui.results.hidden) return;
+        const i = lb.all.findIndex((x) => x.id === p.id);
+        rankEls[g.lbKey].textContent = i >= 0 ? 'kedudukan #' + (i + 1) + ' daripada ' + lb.all.length : 'belum dalam kedudukan';
+      }).catch(() => { rankEls[g.lbKey].textContent = ''; });
+    }
+  }
   function updateStoreStatus(text) {
     if (text) { ui.storeStatus.textContent = text; return; }
     const i = GebokStore.info();
@@ -1664,9 +1740,6 @@
       ? 'Records are saved to the shared database.'
       : i.mode === 'supabase' ? 'Records are saved online.'
         : 'Records are saved on this device only' + (i.reason && i.reason !== 'standalone copy' ? ' (' + i.reason + ')' : '') + '.';
-    const adminLink = i.admin || i.mode === 'supabase';   // online: the admin page asks for its key
-    ui.adminLink.hidden = !adminLink;
-    ui.adminLinkHub.hidden = !adminLink;
   }
   // Sign-in is by player name. A new name asks for the e-mail once ('register'); a registered name asks for its e-mail to confirm it ('verify').
   const STEP_LABEL = { name: 'MULA BERMAIN', register: 'DAFTAR & MULA', verify: 'SAHKAN & MULA' };
@@ -2296,6 +2369,7 @@
   ui.howtoBack.addEventListener('click', showHub);
   ui.storyBack.addEventListener('click', showHub);
   ui.lbBack.addEventListener('click', goBack);
+  ui.rsBack.addEventListener('click', goBack);
   ui.hubGames.addEventListener('click', () => window.LaksaArcade.showGames());
   for (const b of ui.lbTabs.querySelectorAll('.lb-tab')) b.addEventListener('click', () => setLbTab(b.dataset.key));
   ui.lbRefresh.addEventListener('click', loadLeaderboard);
@@ -2366,6 +2440,7 @@
     leaderboard() { backTo = 'games'; showLeaderboard(); },
     settings() { backTo = 'games'; showSettings(); },
     achievements() { backTo = 'games'; showAchievements(); },
+    results() { backTo = 'games'; showResults(); },      // Keputusan Pemain, from the menu's medal button
     intro() { intro.show(false); },                  // the heritage pages again, from the menu's Maklumat button
     register: showRegister,
     pauseRender(on) { renderPaused = !!on; if (!on) last = performance.now(); },
@@ -2417,7 +2492,7 @@
     move, jump, roll, start: (l) => startGame(typeof l === 'number' ? l : undefined), nextLevel, showHub, showRegister, showLeaderboard, showStory, showFinal,
     register: (u, e) => GebokStore.register(u, e).then((p) => { useProfile(p); return p; }),
     store: window.GebokStore, player, sfx, applyPowerup,
-    showGames: () => window.LaksaArcade.showGames(), setLbTab, goBack, intro,
+    showGames: () => window.LaksaArcade.showGames(), setLbTab, goBack, intro, showResults,
     music: () => ({ playing: music.playing, wanted: music.wanted, loaded: music.loaded, failed: music.failed, mode: music.mode,
       position: +music.position().toFixed(2), duration: +music.duration.toFixed(2), loop: music.loop, ctx: sfx.ctx ? sfx.ctx.state : null, config: music.config }),
     musicSync: (want, fromTop) => music.sync(want, fromTop), musicRestart: () => music.restart(),   // tests: the frame loop drives this normally

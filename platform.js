@@ -28,7 +28,7 @@
     $('games-info').addEventListener('click', () => window.GebokRun.intro());   // the heritage pages again
     $('games-lb').addEventListener('click', () => window.GebokRun.leaderboard());
     $('games-settings').addEventListener('click', () => window.GebokRun.settings());
-    $('games-achv').addEventListener('click', () => window.GebokRun.achievements());
+    $('games-achv').addEventListener('click', () => window.GebokRun.results());   // Keputusan Pemain
     $('games-switch').addEventListener('click', () => window.GebokRun.register());
   }
   window.LaksaArcade = { showGames, renderBests, wire };

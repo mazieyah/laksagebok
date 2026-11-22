@@ -49,6 +49,12 @@ one-second green or red toast over the grid ("BETUL! KUNYIT · +50 mata",
 "SALAH · Cuba lagi"). BANTUAN (−20) is greyed out while the running score is
 below 20.
 
+The screen is a wooden board over the village scene: a pencil sign, HUD pills
+(Skor, time, progress), the grid and a wooden on-screen keyboard on the left,
+parchment clue lists with "Melintang" / "Menurun" ribbons, an info box and
+BANTUAN / PERMAINAN buttons on the right. There is no SEMAK button: words are
+checked as they are completed.
+
 ## Cari Kata Laksa (word search)
 
 - The 14 words (LAKSA, GEBUK, KUAH, IKAN, KESUM, KANTAN, SAMBAL, TIMUN, TAUGE,
@@ -180,6 +186,23 @@ fiezabard.blogspot.com, credited on the page), `laksa-bowl.png` and
 `golden-gebok.png`. On phones the tabs become a row above the page and the
 five round menu buttons sit in their own row under the welcome sign.
 
+## Tetapan (settings)
+
+The gear button opens a wooden settings board: a green/brown Bunyi switch
+(music and effects, remembered by the browser), the current player with a
+LOG KELUAR button and a "set semula kemajuan" link for the runner, and a
+"Tentang" box whose studio name, description, credit lines and version come
+from `about` in config.js (Synexis Digital). The admin page is no longer
+linked from the interface; it is still reachable by adding `#admin` to the
+address.
+
+## Keputusan Pemain (player results)
+
+The medal button in the games menu opens the signed-in player's results: one
+card per game (best score, plays, level progress or last played, and the
+player's leaderboard rank once it loads) and the last eight plays with date,
+score and a won/lost mark. KEMBALI returns to the menu.
+
 ## Kedudukan Terkini (leaderboard)
 
 The leaderboard is a wooden board over the village scene: a red ribbon with
@@ -255,7 +278,7 @@ shares one player database, so a player name signs in from any device.
    (the newer `sb_publishable_…` key works too) into `supabase: { url, anonKey }`
    in `config.js`, then push. Never put the service_role / secret key there.
 
-The sign-in screen then says "Records are saved online". The admin page
+The sign-in screen then says "Records are saved online". The admin page (open it by adding `#admin` to the address)
 (`#admin`) asks for the admin key once per browser; a wrong or changed key just
 asks again. The anon key is public by design: it can create a record, continue a
 record by player name, save a profile and read the leaderboard (no e-mails), and

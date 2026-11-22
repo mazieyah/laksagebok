@@ -86,7 +86,7 @@
       </div>
     </form>
   </div>
-  <p class="login-foot"><span id="store-status" class="store-status">Connecting to the database…</span><a id="admin-link" class="link-btn" href="#admin" hidden>Admin</a></p>
+  <p class="login-foot"><span id="store-status" class="store-status">Connecting to the database…</span></p>
   <div id="login-popup" class="login-popup" role="dialog" aria-modal="true" aria-labelledby="login-popup-title" hidden>
     <div id="login-popup-card" class="login-popup-card" data-kind="wait">
       <div class="popup-icon" aria-hidden="true"></div>
@@ -144,7 +144,7 @@
     </div>
     <nav class="top-nav games-nav" aria-label="Arcade">
       <button id="games-info" class="round-btn" type="button" aria-label="Maklumat Laksa Gebok" title="Maklumat Laksa Gebok"><img src="nav-info.png" alt=""></button>
-      <button id="games-achv" class="round-btn" type="button" aria-label="Pencapaian" title="Pencapaian"><img src="nav-medal.png" alt=""></button>
+      <button id="games-achv" class="round-btn" type="button" aria-label="Keputusan Pemain" title="Keputusan Pemain"><img src="nav-medal.png" alt=""></button>
       <button id="games-lb" class="round-btn" type="button" aria-label="Papan kedudukan" title="Papan kedudukan"><img src="nav-trophy.png" alt=""></button>
       <button id="games-settings" class="round-btn" type="button" aria-label="Tetapan" title="Tetapan"><img src="nav-gear.png" alt=""></button>
       <button id="games-sound" class="round-btn" type="button" aria-label="Bunyi" title="Bunyi"><img src="nav-sound.png" alt=""></button>
@@ -225,11 +225,18 @@
   </div>
 </div>
 
-<div id="crossword" class="screen crossword" hidden>
-  <div class="card xw-card">
-    <div class="xw-head">
-      <h2 class="title small">TEKA SILANG LAKSA</h2>
-      <div class="xw-meta"><span id="xw-score" class="xw-score">SKOR 0</span><span id="xw-timer" class="xw-timer">0:00</span><span id="xw-progress" class="xw-progress">0 / 15</span></div>
+<div id="crossword" class="screen login xw" hidden>
+  <div class="login-scene" aria-hidden="true"><img src="laksa-scene.jpg" alt=""></div>
+  <img class="login-food xw-food" src="laksa-quest-bowl.png" alt="" aria-hidden="true">
+  <div class="xw-panel">
+    <div class="xw-top">
+      <img class="xw-brand" src="laksa-arcade-logo.png" alt="Laksa Arcade">
+      <h2 class="xw-sign"><span class="xw-sign-ico" aria-hidden="true">✏️</span>Teka Silang Laksa</h2>
+      <div class="xw-hud">
+        <span id="xw-score" class="xw-pill xw-pill-score"><span class="xw-pill-ico" aria-hidden="true">⭐</span><span class="xw-pill-label">Skor</span><span id="xw-score-val" class="xw-pill-val">0</span></span>
+        <span class="xw-pill"><span class="xw-pill-ico" aria-hidden="true">⏱️</span><span id="xw-timer" class="xw-pill-val">00:00</span></span>
+        <span class="xw-pill"><span class="xw-pill-ico" aria-hidden="true">🧩</span><span id="xw-progress" class="xw-pill-val">0/15</span></span>
+      </div>
     </div>
     <div class="xw-wrap">
       <div class="xw-left">
@@ -237,16 +244,19 @@
         <div id="xw-grid" class="xw-grid" role="grid" aria-label="Crossword grid"></div>
         <div id="xw-keys" class="xw-keys" aria-label="On-screen keyboard"></div>
       </div>
-      <div class="xw-clues">
-        <h3>Melintang</h3><ol id="xw-across"></ol>
-        <h3>Menurun</h3><ol id="xw-down"></ol>
+      <div class="xw-right">
+        <div class="xw-clues">
+          <h3 class="xw-clue-head"><span class="xw-clue-ico" aria-hidden="true">🍜</span>Melintang<span class="xw-clue-arrow" aria-hidden="true">➜</span></h3>
+          <ol id="xw-across"></ol>
+          <h3 class="xw-clue-head"><span class="xw-clue-ico" aria-hidden="true">🌿</span>Menurun<span class="xw-clue-arrow" aria-hidden="true">⬇</span></h3>
+          <ol id="xw-down"></ol>
+        </div>
+        <p id="xw-status" class="xw-status"></p>
+        <div class="xw-btns">
+          <button id="xw-hint" class="xw-btn-gold" type="button"><span aria-hidden="true">💡</span>BANTUAN (−20)</button>
+          <button id="xw-exit" class="btn play-btn xw-btn-red" type="button">PERMAINAN<svg class="play-tri" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.2v17.6L20.5 12z"/></svg></button>
+        </div>
       </div>
-    </div>
-    <p id="xw-status" class="xw-status"></p>
-    <div class="btn-row">
-      <button id="xw-check" class="btn secondary" type="button">SEMAK</button>
-      <button id="xw-hint" class="btn secondary" type="button">BANTUAN (−20)</button>
-      <button id="xw-exit" class="btn" type="button">PERMAINAN</button>
     </div>
   </div>
   <div id="xw-done" class="pf-overlay" hidden>
@@ -355,16 +365,45 @@
   </div>
 </div>
 
-<div id="settings" class="screen" hidden>
-  <div class="card">
-    <h2 class="title small">TETAPAN</h2>
-    <div class="btn-row">
-      <button id="settings-sound" class="btn secondary" type="button">BUNYI: ON</button>
-      <button id="settings-switch" class="btn secondary" type="button">LOG KELUAR</button>
+<div id="settings" class="screen login lb st" hidden>
+  <div class="login-scene" aria-hidden="true"><img src="laksa-scene.jpg" alt=""></div>
+  <img class="login-food" src="laksa-quest-bowl.png" alt="" aria-hidden="true">
+  <div class="lb-panel st-panel">
+    <img class="register-brand lb-brand" src="laksa-arcade-logo.png" alt="Laksa Arcade">
+    <div class="lb-ribbon">
+      <img class="lb-trophy" src="nav-gear.png" alt="">
+      <h2 class="lb-title">Tetapan</h2>
     </div>
-    <button id="reset" class="link-btn" type="button">Reset progress</button>
-    <a id="admin-link-hub" class="link-btn" href="#admin" hidden>Admin: player performance</a>
-    <button id="settings-back" class="btn" type="button">KEMBALI</button>
+    <section class="st-section">
+      <h3 class="st-head"><span aria-hidden="true">🔊</span>Bunyi</h3>
+      <div class="st-row">
+        <span class="st-label">Muzik menu dan kesan bunyi permainan</span>
+        <button id="settings-sound" class="st-switch" type="button" aria-pressed="true"><span class="st-knob" aria-hidden="true"></span><span class="st-switch-text">HIDUP</span></button>
+      </div>
+    </section>
+    <section class="st-section">
+      <h3 class="st-head"><span aria-hidden="true">👤</span>Akaun</h3>
+      <div class="st-row">
+        <span id="settings-player" class="st-label">Pemain semasa</span>
+        <button id="settings-switch" class="btn play-btn st-logout" type="button"><svg class="play-tri" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5v-2H6V6h4z"/><path d="M14 7l-1.4 1.4L15.2 11H9v2h6.2l-2.6 2.6L14 17l5-5z"/></svg>LOG KELUAR</button>
+      </div>
+      <button id="reset" class="st-link" type="button">Set semula kemajuan Laksa Gebok Run</button>
+    </section>
+    <section class="st-section st-about">
+      <h3 class="st-head"><span aria-hidden="true">ℹ️</span>Tentang</h3>
+      <div class="st-about-body">
+        <img class="st-about-logo" src="laksa-arcade-logo.png" alt="">
+        <div class="st-about-text">
+          <strong id="about-studio"></strong>
+          <p id="about-text"></p>
+          <ul id="about-credits"></ul>
+          <p id="about-version" class="st-version"></p>
+        </div>
+      </div>
+    </section>
+    <div class="lb-btns">
+      <button id="settings-back" class="btn play-btn lb-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 3 12l8 7v-4.5h4c3 0 5 1.5 6 4.5.3-5-2-9-8-9h-2z"/></svg>KEMBALI</button>
+    </div>
   </div>
 </div>
 
@@ -403,6 +442,26 @@
     <div id="story-cards" class="story-cards"></div>
     <p id="story-note" class="note"></p>
     <button id="story-back" class="btn" type="button">KEMBALI</button>
+  </div>
+</div>
+
+<div id="results" class="screen login lb rs" hidden>
+  <div class="login-scene" aria-hidden="true"><img src="laksa-scene.jpg" alt=""></div>
+  <img class="login-boy" src="traveler-menu.png" alt="" aria-hidden="true">
+  <img class="login-food" src="laksa-quest-bowl.png" alt="" aria-hidden="true">
+  <div class="lb-panel rs-panel">
+    <img class="register-brand lb-brand" src="laksa-arcade-logo.png" alt="Laksa Arcade">
+    <div class="lb-ribbon">
+      <img class="lb-trophy" src="nav-medal.png" alt="">
+      <h2 class="lb-title">Keputusan Pemain</h2>
+    </div>
+    <p id="rs-player" class="lb-tagline"></p>
+    <div id="rs-cards" class="rs-cards"></div>
+    <h3 class="rs-sub">Sejarah terkini</h3>
+    <ol id="rs-history" class="rs-history"></ol>
+    <div class="lb-btns">
+      <button id="rs-back" class="btn play-btn lb-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 3 12l8 7v-4.5h4c3 0 5 1.5 6 4.5.3-5-2-9-8-9h-2z"/></svg>KEMBALI</button>
+    </div>
   </div>
 </div>
 

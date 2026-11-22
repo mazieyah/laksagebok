@@ -21,6 +21,20 @@ window.GebokConfig = {
   ],
   powerups: { magnet: 8, boost: 5, boostMultiplier: 1.45, chance: 0.09 },
   signIn: { checkSeconds: 2, noticeSeconds: 2, nameMaxLength: 9 },   // sign-in pop-ups and the player-name limit
+  // "Tentang" in Tetapan. Edit freely: studio, a short description, credit lines and the version shown.
+  about: {
+    studio: 'Synexis Digital',
+    text: [
+      'Laksa Arcade ialah koleksi permainan warisan Laksa Gebok Pahang: Laksa Gebok Run, Laksa Quest, Teka Silang Laksa dan Cari Kata Laksa.',
+      'Dibangunkan oleh Synexis Digital sebagai sebahagian daripada projek Jejak Warisan Laksa Gebok, untuk mengenali sejarah, peralatan dan cara pembuatan laksa gebok.',
+    ],
+    credits: [
+      'Rujukan warisan: Muzium Sultan Abu Bakar, Pekan',
+      'Demonstrasi gebok: Restoren Laksa Gebok Aki Pian, Temerloh',
+      'Proses pembuatan: blog fiezabard.blogspot.com',
+    ],
+    version: 'Versi 1.0 · 2026',
+  },
   music: { src: 'audio/menu-theme.mp4', startAt: 0, loopStart: 10, volume: 0.4, fade: 0.6 },  // menu theme: plays once from startAt (s), then loops loopStart → end; on the register, hub and menu screens only
   // Online player database (Supabase). Run supabase.sql once in the project's SQL editor, then paste the
   // project URL and the anon public key (or the newer publishable key) from Project Settings → API Keys. Both empty = the artifact's database on

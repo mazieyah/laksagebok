@@ -239,8 +239,8 @@
       li.classList.toggle('active', e === active);
       li.classList.toggle('solved', isSolved(e));
     });
-    $('xw-progress').textContent = DATA.entries.filter(isSolved).length + ' / ' + DATA.entries.length;
-    $('xw-score').textContent = 'SKOR ' + total().toLocaleString();
+    $('xw-progress').textContent = DATA.entries.filter(isSolved).length + '/' + DATA.entries.length;
+    $('xw-score-val').textContent = total().toLocaleString();
     $('xw-hint').disabled = done || total() < HINT_COST;   // a hint costs 20 points: none to spend, none to take
   }
   function total() { return Math.max(0, pts - hints * HINT_COST); }
@@ -304,12 +304,6 @@
     if (checkSolved(false)) render();
     if (DATA.entries.every(isSolved)) finish();
   }
-  function check() {
-    for (const k of Object.keys(cells)) if (user[k]) checked[k] = true;
-    render();
-    const wrong = Object.keys(cells).filter((k) => user[k] && user[k] !== cells[k].letter).length;
-    $('xw-status').textContent = wrong ? wrong + ' huruf salah ditanda merah.' : 'Semua huruf yang diisi betul.';
-  }
   function hint() {
     if (!sel || done || total() < HINT_COST) return;
     const k = key(sel.r, sel.c);
@@ -323,7 +317,7 @@
     if (DATA.entries.every(isSolved)) finish();
   }
   function elapsed() { return (performance.now() - startAt) / 1000; }
-  function tick() { if (!open || done) return; const t = Math.floor(elapsed()); $('xw-timer').textContent = Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
+  function tick() { if (!open || done) return; const t = Math.floor(elapsed()); $('xw-timer').textContent = String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); }
   function score(t) { return Math.max(0, pts + Math.max(0, TIME_BONUS_MAX - Math.floor(t)) - hints * HINT_COST); }   // words + time bonus − hints
   function finish() {
     done = true;
@@ -343,7 +337,7 @@
     user = {}; checked = {}; solved = {}; locked = {}; wrongShown = {}; pts = 0; hints = 0; done = false; startAt = performance.now();
     clearTimeout(toastTimer); $('xw-toast').hidden = true;
     $('xw-done').hidden = true;
-    $('xw-status').textContent = 'Klik petak atau petunjuk, kemudian taip. Klik petak yang sama untuk tukar arah.';
+    $('xw-status').textContent = 'Klik pada petak, taip jawapan dan lengkapkan semua teka silang. Klik petak yang sama untuk tukar arah.';
     const first = DATA.entries.slice().sort((p, q) => p.num - q.num)[0];
     dir = first.dir;
     select(cells[key(first.row, first.col)], false);
@@ -366,7 +360,6 @@
   }
   function wire() {
     relayout();
-    $('xw-check').addEventListener('click', check);
     $('xw-hint').addEventListener('click', hint);
     $('xw-exit').addEventListener('click', close);
     $('xw-again').addEventListener('click', start);
