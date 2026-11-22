@@ -18,7 +18,7 @@
   const REACH = 12;                                              // pickup padding around the player box (coins feel generous)
   const LIMIT = 180;                                             // seconds for the whole run
   // [emoji fallback, name, atlas frame]
-  const NEED = { n: ['🍝', 'Mi laksa', 'noodles'], i: ['🐟', 'Ikan', 'fish'], m: ['🥥', 'Santan', 'santan'], r: ['🧂', 'Rempah', 'belacan'], k: ['🌿', 'Daun kesum', 'kesum'], u: ['🥗', 'Ulam', 'ulam'] };
+  const NEED = { n: ['🍝', 'Mi laksa', 'noodles', 'Mi'], i: ['🐟', 'Ikan', 'fish', 'Ikan'], m: ['🥥', 'Santan', 'santan', 'Santan'], r: ['🧂', 'Rempah', 'belacan', 'Rempah'], k: ['🌿', 'Daun kesum', 'kesum', 'Kesum'], u: ['🥗', 'Ulam', 'ulam', 'Ulam'] };
   const TYPES = Object.keys(NEED);
   const EXTRA = { a: ['🌶', 'Cili kering', 'chilli'], b: ['🧅', 'Bawang merah', 'shallot'], d: ['🧄', 'Bawang putih', 'garlic'], e: ['🌰', 'Halia', 'ginger'], f: ['🎋', 'Serai', 'lemongrass'], g: ['🌸', 'Bunga kantan', 'kantan'],
     j: ['🥒', 'Timun', 'cucumber'], l: ['🌱', 'Tauge', 'sprouts'], o: ['🥬', 'Kacang panjang', 'longbean'], p: ['🍋', 'Limau kasturi', 'calamansi'], q: ['🥣', 'Sambal belacan', 'sambal'], s: ['🍘', 'Kerisik', 'kerisik'] };
@@ -29,15 +29,15 @@
   const SC = { item: 10, extra: 10, dup: 5, bowl: 100, coin: 5, rare: 20, power: 25, stomp: 20, life: 50 };
   const CAP = 3, CAP_BAKUL = 6;                                  // copies of a component the almari holds (one in use + spares)
   const ZONES = [
-    { name: 'Kampung Melayu', icon: '🏡', sky: ['#5fb5ef', '#bfe6f8', '#f8d79a'], hill1: '#7fb59c', hill2: '#5f9a7a', earth: '#8a5a2b', grass: '#6fa84f', blade: '#4ea845', ground: 'grass1', plank: 'platform', deco: [['house', 1.5], ['stall', 1.4], ['palm', 1.5], ['bushflower', 1.1], ['fence', 1.2]] },
-    { name: 'Hutan Tropika', icon: '🌳', sky: ['#2f7a5a', '#8fcfae', '#dff0c8'], hill1: '#3f7a52', hill2: '#2f5f3e', earth: '#6b4a2e', grass: '#3f9a3f', blade: '#2f7a2f', ground: 'grass2', plank: 'platform', deco: [['tree', 1.6], ['bamboo', 1.6], ['banana', 1.4], ['bushrock', 1.2], ['bushflower', 1.1]] },
-    { name: 'Sungai', icon: '🌊', sky: ['#4aa3df', '#bfe3f7', '#e2f3f9'], hill1: '#8bbfa0', hill2: '#6aa585', earth: '#b9955a', grass: '#8fcf6a', blade: '#6ab04a', ground: 'grass1', plank: 'platform', deco: [['waterfall', 1.6], ['bushrock', 1.2], ['palm', 1.5], ['bridge', 1.3]], water: true },
-    { name: 'Dapur Tradisional', icon: '🍳', sky: ['#6b4a2e', '#b98a5a', '#e8cfa0'], hill1: '#a97b4a', hill2: '#8a5a2b', earth: '#7a4a24', grass: '#c08a4a', blade: '#8a5a2b', ground: 'stone', plank: 'table', deco: [['hut', 1.6], ['crate', 1.0], ['basket', 1.0]], indoor: true },
-    { name: 'Lanskap Kampung', icon: '🌾', sky: ['#ff9a5a', '#ffd39a', '#fff0c8'], hill1: '#a8c47a', hill2: '#7fa85a', earth: '#8a5a2b', grass: '#9ac85a', blade: '#6fa84f', ground: 'grass1', plank: 'platform', deco: [['house', 1.5], ['tree', 1.6], ['fence', 1.2], ['bushflower', 1.1], ['stall', 1.4]] },
+    { name: 'Kampung Melayu', icon: '🏡', sign: ['KAMPUNG', 'MELAYU', 'PAHANG'], mount: '#5e7fa8', sky: ['#5fb5ef', '#bfe6f8', '#f8d79a'], hill1: '#7fb59c', hill2: '#5f9a7a', earth: '#8a5a2b', grass: '#6fa84f', blade: '#4ea845', ground: 'grass1', plank: 'platform', deco: [['house', 1.5], ['stall', 1.4], ['palm', 1.5], ['bushflower', 1.1], ['fence', 1.2]] },
+    { name: 'Hutan Tropika', icon: '🌳', sign: ['HUTAN', 'TROPIKA', 'PAHANG'], mount: '#3f6a7a', sky: ['#2f7a5a', '#8fcfae', '#dff0c8'], hill1: '#3f7a52', hill2: '#2f5f3e', earth: '#6b4a2e', grass: '#3f9a3f', blade: '#2f7a2f', ground: 'grass2', plank: 'platform', deco: [['tree', 1.6], ['bamboo', 1.6], ['banana', 1.4], ['bushrock', 1.2], ['bushflower', 1.1]] },
+    { name: 'Sungai', icon: '🌊', sign: ['SUNGAI', 'PAHANG'], mount: '#5a86b8', sky: ['#4aa3df', '#bfe3f7', '#e2f3f9'], hill1: '#8bbfa0', hill2: '#6aa585', earth: '#b9955a', grass: '#8fcf6a', blade: '#6ab04a', ground: 'grass1', plank: 'platform', deco: [['waterfall', 1.6], ['bushrock', 1.2], ['palm', 1.5], ['bridge', 1.3]], water: true },
+    { name: 'Dapur Tradisional', icon: '🍳', sign: ['DAPUR', 'TRADISIONAL'], mount: '#7a4a24', sky: ['#6b4a2e', '#b98a5a', '#e8cfa0'], hill1: '#a97b4a', hill2: '#8a5a2b', earth: '#7a4a24', grass: '#c08a4a', blade: '#8a5a2b', ground: 'stone', plank: 'table', deco: [['hut', 1.6], ['crate', 1.0], ['basket', 1.0]], indoor: true },
+    { name: 'Lanskap Kampung', icon: '🌾', sign: ['LANSKAP', 'KAMPUNG', 'PAHANG'], mount: '#8a6a9a', sky: ['#ff9a5a', '#ffd39a', '#fff0c8'], hill1: '#a8c47a', hill2: '#7fa85a', earth: '#8a5a2b', grass: '#9ac85a', blade: '#6fa84f', ground: 'grass1', plank: 'platform', deco: [['house', 1.5], ['tree', 1.6], ['fence', 1.2], ['bushflower', 1.1], ['stall', 1.4]] },
   ];
   const ZONE_CHUNKS = 6;                                         // chunks per setting before the next one
   // Chunks. Legend: # earth, = plank, X crate (solid), P start, * a pickup (component / extra / coin), c coin, $ rare,
-  // ? power-up, ^ bamboo trap, L log (jump it), W wild boar, M monkey (on a plank), Z bee (in the air), O falling rock (row 0).
+  // ? power-up, Q question block (hit it from below), ^ bamboo trap, L log (jump it), W wild boar, M monkey (on a plank), Z bee (in the air), O falling rock (row 0).
   // Ground is rows 8-10; a gap is a stream (river) or a pit. Jumps clear 4 columns and 3 rows.
   const C = (tag, rows) => ({ tag, rows, w: rows[0].length });
   const START = C('start', [
@@ -73,6 +73,18 @@
       '.....c...c......',
       '....c.===.c.....',
       '..*........*..*.',
+      '................',
+      '################',
+      '################',
+      '################']),
+    C('safe', [
+      '................',
+      '................',
+      '................',
+      '................',
+      '................',
+      '.....Q.Q.Q......',
+      '..*.........*...',
       '................',
       '################',
       '################',
@@ -316,9 +328,9 @@
   let map = [], cols = 0, solids = new Set(), colZone = [], zoneMarks = [], zoneIdx = 0, chunkN = 0, lastChunk = null, needIdx = 0;
   let player, items = [], enemies = [], hazards = [], rocks = [], deco = [], parts = [], floats = [], spawn = { x: 2 * T, y: 6 * T }, lastSafe;
   let lives, score, bowls, inv = {}, extraInv = {}, coins, ingredients, extras, rares, hits, stomps, powerT = { G: 0, S: 0, B: 0 }, bowlAnimT = 0, hurtT = 0;
-  let camX, time, runTime, invT, banner = '', bannerT = 0, over = false, paused = false, almariOpen = false, lastSec = -1, curZone = -1, pruneN = 0;
+  let camX, time, runTime, invT, banner = '', bannerT = 0, over = false, paused = false, almariOpen = false, lastSec = -1, curZone = -1, pruneN = 0, bumps = [];
   const keys = { left: false, right: false, jump: false }, held = { jump: false };
-  let coyote = 0, jumpBuf = 0;
+  let coyote = 0, jumpBuf = 0, doubleOk = true;              // one extra jump in the air, back on landing
   const clouds = Array.from({ length: 7 }, (_, i) => ({ x: i * 260 + 40, y: 40 + (i % 3) * 36, w: 90 + (i % 4) * 30 }));
 
   // ---- world generation ----
@@ -339,7 +351,7 @@
       let t = ch.rows[r][c] || '.';
       const x = (base + c) * T, y = r * T;
       let keep = '.';
-      if (t === '#' || t === '=' || t === 'X') { keep = t; solids.add((base + c) * 16 + r); }
+      if (t === '#' || t === '=' || t === 'X' || t === 'Q') { keep = t; solids.add((base + c) * 16 + r); }
       else if (t === 'P') spawn = { x: x + 7, y: y + T - 56 };
       else if (t === '*') t = randomPickup();
       else if (t === '?') t = randomPower();
@@ -384,7 +396,7 @@
   }
   function startRun() {
     map = Array.from({ length: ROWS }, () => []); cols = 0; solids = new Set(); colZone = []; zoneMarks = [{ x: 0, zone: 0 }]; zoneIdx = 0; chunkN = 0; lastChunk = null; needIdx = 0;
-    items = []; enemies = []; hazards = []; rocks = []; deco = []; parts = []; floats = [];
+    items = []; enemies = []; hazards = []; rocks = []; deco = []; parts = []; floats = []; bumps = [];
     score = 0; lives = 3; bowls = 0; inv = {}; extraInv = {}; coins = 0; ingredients = 0; extras = 0; rares = 0; hits = 0; stomps = 0; powerT = { G: 0, S: 0, B: 0 }; bowlAnimT = 0; hurtT = 0;
     camX = 0; time = 0; runTime = 0; lastSec = -1; over = false; paused = false; almariOpen = false; curZone = -1; pruneN = 0;
     appendChunk(START);
@@ -410,25 +422,33 @@
   function hud() {
     const z = ZONES[Math.max(0, curZone)];
     $('pf-level').textContent = 'LAKSA QUEST · ' + z.icon + ' ' + z.name.toUpperCase();
-    $('pf-score').textContent = score.toLocaleString();
-    $('pf-lives').textContent = '♥'.repeat(Math.max(0, lives)) + '♡'.repeat(Math.max(0, 3 - Math.max(0, lives)));
+    $('pf-score').textContent = String(score).padStart(6, '0');
+    const lv = $('pf-lives');
+    lv.replaceChildren();
+    for (let i = 0; i < 3; i++) { const hh = atlasOk ? sprCanvas('heart', 22) : Object.assign(document.createElement('span'), { textContent: '♥' }); if (i >= lives) hh.classList.add('lost'); lv.append(hh); }
     $('pf-coins').replaceChildren(atlasOk ? sprCanvas('coin', 18) : Object.assign(document.createElement('i'), { className: 'pf-coin-ico' }), document.createTextNode(' ' + coins));
     const slots = $('pf-bowl');
     slots.replaceChildren();
     for (const t of TYPES) {
       const n = inv[t] || 0;
-      const s = document.createElement('span'); s.className = 'pf-slot' + (n ? ' lit' : ''); s.title = NEED[t][1] + (n ? ' ×' + n : '');
-      if (atlasOk) s.append(sprCanvas(NEED[t][2], 26)); else s.textContent = NEED[t][0];
-      if (n > 1) { const x = document.createElement('i'); x.className = 'pf-x'; x.textContent = '×' + n; s.append(x); }
-      slots.append(s);
+      const sl = document.createElement('span'); sl.className = 'pf-slot' + (n ? ' lit' : ''); sl.title = NEED[t][1] + (n ? ' ×' + n : '');
+      if (atlasOk) sl.append(sprCanvas(NEED[t][2], 30)); else sl.append(document.createTextNode(NEED[t][0]));
+      const lab = document.createElement('small'); lab.textContent = NEED[t][3]; sl.append(lab);
+      if (n) { const ok = document.createElement('i'); ok.className = 'pf-ok'; ok.textContent = '✓'; sl.append(ok); }
+      if (n > 1) { const x = document.createElement('i'); x.className = 'pf-x'; x.textContent = '×' + n; sl.append(x); }
+      slots.append(sl);
     }
-    const b = $('pf-bowls');
-    b.replaceChildren();
-    if (atlasOk) b.append(sprCanvas(bowlFrame(), 26)); else b.append(document.createTextNode('🍜'));
-    b.append(document.createTextNode(' Mangkuk ' + bowls));
+    const filled = filledCount(), full = bowlAnimT > 0;
+    const ico = $('pf-bowlico');
+    ico.replaceChildren(atlasOk ? sprCanvas(bowlFrame(), 46) : document.createTextNode('🍜'));
+    ico.classList.toggle('full', full);
+    $('pf-bowlstate').textContent = full ? 'Mangkuk Lengkap!' : filled + '/6';
+    $('pf-bowls').textContent = String(bowls);
+    if (atlasOk) { $('pf-stat-bowl').replaceChildren(sprCanvas('bowl3', 26)); $('pf-stat-coin').replaceChildren(sprCanvas('coin', 26)); }
     const pw = [];
     for (const k of ['G', 'S', 'B']) if (powerT[k] > 0) pw.push(POWER[k][0] + ' ' + Math.ceil(powerT[k]) + 's');
     $('pf-power').textContent = pw.join('  ');
+    $('pf-sound').textContent = sfx().allOff ? '🔇' : '🔊';
   }
   function renderAlmari() {                                   // every ingredient of the run, with its count
     const cap = powerT.B > 0 ? CAP_BAKUL : CAP;
@@ -505,6 +525,15 @@
     if (filled === TYPES.length) completeBowl(); else say(NEED[t][1] + ' ' + filled + '/6', 1.1);
     hud();
   }
+  function bumpBlock(c, r) {                                  // a question block gives a coin or an ingredient
+    map[r][c] = 'q';
+    bumps.push({ c, r, t: 0.3 });
+    const x = c * T, y = (r - 1) * T;
+    let t = Math.random() < 0.45 ? 'c' : randomPickup();
+    if (t === 'c') { coins += 1; score += SC.coin; floater(x + 24, y + 10, '+' + SC.coin, '#ffe08a', 0.8); spark(x + 24, y + 30, '#ffd45a', 8); sfx().collect(1); hud(); return; }
+    items.push(Object.assign(item(x, y), { type: t, pop: 0.6 }));
+    sfx().power();
+  }
   function completeBowl() {
     for (const k of TYPES) inv[k] -= 1;                         // spare copies stay for the next bowl
     bowls += 1; score += SC.bowl; bowlAnimT = 1.6;
@@ -563,8 +592,14 @@
     p.vx = ax * RUN;
     if (ax) p.face = ax;
     coyote = p.ground ? 0.09 : Math.max(0, coyote - dt);
-    jumpBuf = keys.jump && !held.jump ? 0.12 : Math.max(0, jumpBuf - dt);
+    if (p.ground) doubleOk = true;
+    const pressed = keys.jump && !held.jump;
+    jumpBuf = pressed ? 0.12 : Math.max(0, jumpBuf - dt);
     if (jumpBuf > 0 && coyote > 0) { p.vy = JUMP; p.ground = false; coyote = 0; jumpBuf = 0; sfx().jump(); }
+    else if (pressed && !p.ground && coyote <= 0 && doubleOk) {   // the double jump: a second press in the air
+      doubleOk = false; p.vy = JUMP * 0.88; jumpBuf = 0;
+      spark(p.x + p.w / 2, p.y + p.h, '#ffffff', 10); sfx().jump();
+    }
     if (!keys.jump && p.vy < -250) p.vy = -250;
     held.jump = keys.jump;
     p.vy = Math.min(MAXFALL, p.vy + GRAV * dt);
@@ -577,9 +612,11 @@
     p.ground = false;
     for (const [r, c] of tilesAround(p)) if (solidAt(c, r) && overlaps(p, { x: c * T, y: r * T, w: T, h: T })) {
       if (p.vy > 0) { p.y = r * T - p.h; p.vy = 0; p.ground = true; }
-      else if (p.vy < 0) { p.y = r * T + T; p.vy = 0; }
+      else if (p.vy < 0) { p.y = r * T + T; p.vy = 0; if (map[r][c] === 'Q') bumpBlock(c, r); }
     }
     if (p.y > ROWS * T + 60) { hurt('fall'); return; }
+    for (let i = bumps.length - 1; i >= 0; i--) { bumps[i].t -= dt; if (bumps[i].t <= 0) bumps.splice(i, 1); }
+    for (const it of items) if (it.pop > 0) it.pop -= dt;
     if (p.ground) {                                             // remember solid ground under both feet, for the way back from a stream
       const fr = Math.floor((p.y + p.h + 2) / T);
       if (solidAt(Math.floor((p.x + 2) / T), fr) && solidAt(Math.floor((p.x + p.w - 2) / T), fr) && !hazards.some((hz) => Math.abs(hz.x - p.x) < 80)) lastSafe = { x: p.x, y: p.y };
@@ -637,7 +674,7 @@
       items = items.filter((it) => !it.got && it.x > lim); enemies = enemies.filter((e) => e.alive && e.x > lim); deco = deco.filter((d) => d.x > lim);
       rocks = rocks.filter((R) => R.state !== 'done'); hazards = hazards.filter((hz) => hz.x > lim);
     }
-    $('pf-score').textContent = score.toLocaleString();
+    $('pf-score').textContent = String(score).padStart(6, '0');
   }
   function tilesAround(b) {
     const out = [];
@@ -662,12 +699,32 @@
         if (!drawFit(g, i % 2 ? 'basket' : 'mortar', x, 150, 44)) { g.font = '30px serif'; g.textAlign = 'center'; g.fillText(i % 2 ? '🍲' : '🥘', x, 146); }
       }
     } else {
-      g.fillStyle = z.hill1;
-      for (let i = 0; i < 8; i++) { const x = ((i * 300 - camX * 0.2) % (W + 600) + W + 600) % (W + 600) - 300; g.beginPath(); g.ellipse(x, 400, 220, 120, 0, Math.PI, 0); g.fill(); }
-      g.fillStyle = z.hill2;
-      for (let i = 0; i < 10; i++) { const x = ((i * 240 - camX * 0.35) % (W + 480) + W + 480) % (W + 480) - 240; g.beginPath(); g.ellipse(x, 440, 170, 90, 0, Math.PI, 0); g.fill(); }
       g.fillStyle = 'rgba(255,255,255,.9)';
       for (const c of clouds) { const x = ((c.x - camX * 0.1 + time * 8) % (W + 300) + W + 300) % (W + 300) - 150; g.beginPath(); g.ellipse(x, c.y, c.w / 2, 18, 0, 0, Math.PI * 2); g.ellipse(x - c.w * 0.25, c.y + 6, c.w / 3, 14, 0, 0, Math.PI * 2); g.ellipse(x + c.w * 0.25, c.y + 6, c.w / 3, 14, 0, 0, Math.PI * 2); g.fill(); }
+      // far mountains with snow caps
+      for (let i = 0; i < 6; i++) {
+        const x = ((i * 420 - camX * 0.08) % (W + 840) + W + 840) % (W + 840) - 420, hgt = 150 + (i % 3) * 40;
+        g.fillStyle = z.mount; g.beginPath(); g.moveTo(x - 230, 400); g.lineTo(x, 400 - hgt); g.lineTo(x + 230, 400); g.closePath(); g.fill();
+        g.fillStyle = 'rgba(255,255,255,.85)'; g.beginPath(); g.moveTo(x - 34, 400 - hgt + 46); g.lineTo(x, 400 - hgt); g.lineTo(x + 34, 400 - hgt + 46); g.lineTo(x + 14, 400 - hgt + 38); g.lineTo(x, 400 - hgt + 52); g.lineTo(x - 14, 400 - hgt + 38); g.closePath(); g.fill();
+        g.fillStyle = 'rgba(0,0,0,.12)'; g.beginPath(); g.moveTo(x, 400 - hgt); g.lineTo(x + 230, 400); g.lineTo(x, 400); g.closePath(); g.fill();
+      }
+      // the far canopy with waterfalls
+      g.fillStyle = z.hill2;
+      for (let i = 0; i < 14; i++) { const x = ((i * 150 - camX * 0.15) % (W + 300) + W + 300) % (W + 300) - 150; g.beginPath(); g.ellipse(x, 400, 110, 70 + (i % 3) * 14, 0, Math.PI, 0); g.fill(); }
+      for (let i = 0; i < 3; i++) {
+        const x = ((i * 700 + 260 - camX * 0.15) % (W + 1400) + W + 1400) % (W + 1400) - 700;
+        const fall = g.createLinearGradient(0, 330, 0, 420); fall.addColorStop(0, 'rgba(210,240,255,.95)'); fall.addColorStop(1, 'rgba(120,190,240,.8)');
+        g.fillStyle = fall; g.fillRect(x - 12, 332, 24, 88);
+        g.fillStyle = 'rgba(255,255,255,.8)'; for (let k = 0; k < 3; k++) g.fillRect(x - 10 + k * 7, 332 + ((time * 120 + k * 30) % 88), 3, 10);
+        g.beginPath(); g.ellipse(x, 420, 26, 7, 0, 0, Math.PI * 2); g.fill();
+      }
+      g.fillStyle = z.hill1;
+      for (let i = 0; i < 8; i++) { const x = ((i * 300 - camX * 0.25) % (W + 600) + W + 600) % (W + 600) - 300; g.beginPath(); g.ellipse(x, 430, 220, 90, 0, Math.PI, 0); g.fill(); }
+      // a row of trees between the hills and the path
+      for (let i = 0; i < 6; i++) {
+        const x = ((i * 380 + 90 - camX * 0.55) % (W + 760) + W + 760) % (W + 760) - 380;
+        if (!drawFit(g, ['tree', 'palm', 'banana', 'tree', 'palm', 'bamboo'][i], x, 8 * T + 6, 120 + (i % 2) * 30)) { g.fillStyle = z.hill2; g.beginPath(); g.ellipse(x, 8 * T - 60, 50, 60, 0, 0, Math.PI * 2); g.fill(); }
+      }
     }
     g.save();
     g.translate(-Math.round(camX), 0);
@@ -700,15 +757,43 @@
             g.fillStyle = 'rgba(0,0,0,.08)'; g.fillRect(x + 4, y + 4, T - 8, T - 8);
             if (top) { g.fillStyle = zc.grass; g.fillRect(x, y, T, 12); g.fillStyle = zc.blade; for (let k = 0; k < 4; k++) g.fillRect(x + k * 12 + 3, y - 4, 4, 8); }
           }
+        } else if (ch === 'Q' || ch === 'q') {
+          const bmp = bumps.find((bb) => bb.c === c && bb.r === r), dy = bmp ? -Math.sin(Math.PI * bmp.t / 0.3) * 10 : 0;
+          if (ch === 'q') { if (!drawSpr(g, 'stone', x, y + dy, T, T)) { g.fillStyle = '#8a8a8a'; g.fillRect(x + 2, y + dy + 2, T - 4, T - 4); } }
+          else {
+            g.fillStyle = '#b8780f'; g.fillRect(x + 1, y + dy + 1, T - 2, T - 2);
+            g.fillStyle = '#f2b63c'; g.fillRect(x + 5, y + dy + 5, T - 10, T - 10);
+            g.fillStyle = '#fff2a8'; g.fillRect(x + 5, y + dy + 5, T - 10, 5);
+            g.fillStyle = '#5a3a1c'; g.font = 'bold 30px Nunito, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('?', x + T / 2, y + dy + T / 2 + 2); g.textBaseline = 'alphabetic';
+          }
         } else if (ch === 'X') {
           if (!drawSpr(g, 'crate', x, y, T, T)) { g.fillStyle = '#c08a4a'; g.fillRect(x + 2, y + 2, T - 4, T - 4); g.strokeStyle = '#8a5a2b'; g.lineWidth = 3; g.strokeRect(x + 4, y + 4, T - 8, T - 8); }
         }
       }
     }
-    for (let r = 0; r < ROWS; r++) for (let c = Math.max(0, c0 - 6); c <= c1; c++) {     // planks: one piece per run
+    for (const m of zoneMarks) if (m.x + 60 > camX - 160 && m.x + 60 < camX + W + 160) drawSignboard(g, m.x + 60, ZONES[m.zone]);
+    if (ZONES[Math.max(0, curZone)].water || colZone.slice(c0, c1 + 1).some((zi) => ZONES[zi].water)) {   // logs and fish in the streams
+      let run = null;
+      for (let c = c0; c <= c1 + 1; c++) {
+        const water = c <= c1 && (map[8][c] || '.') !== '#' && ZONES[colZone[c] || 0].water;
+        if (water && !run) run = { a: c };
+        if (!water && run) {
+          run.b = c; const cx = (run.a + run.b) / 2 * T, wdt = (run.b - run.a) * T;
+          if (!drawFit(g, 'log', cx, 8 * T + 34 + Math.sin(time * 2 + cx) * 3, 26)) { g.fillStyle = '#8a5a2b'; g.fillRect(cx - 30, 8 * T + 18, 60, 14); }
+          const ph = (time * 0.45 + run.a * 0.37) % 1;
+          if (ph < 0.5) { const k = ph * 2, fy = 8 * T + 24 - Math.sin(k * Math.PI) * 70, fx = cx - wdt / 4 + k * wdt / 2; g.save(); g.translate(fx, fy); g.rotate((k - 0.5) * 1.2); if (!drawFit(g, 'fish', 0, 14, 26)) { g.font = '22px serif'; g.fillText('🐟', 0, 0); } g.restore(); }
+          run = null;
+        }
+      }
+    }
+    for (let r = 0; r < ROWS; r++) for (let c = Math.max(0, c0 - 6); c <= c1; c++) {     // planks: one piece per run, hung on ropes outdoors
       if ((map[r][c] || '.') !== '=' || (map[r][c - 1] || '.') === '=') continue;
       let n = 1; while ((map[r][c + n] || '.') === '=') n++;
       const x = c * T, y = r * T, zc = ZONES[colZone[c] || 0];
+      if (!zc.indoor && r >= 2) {
+        g.strokeStyle = '#c9a070'; g.lineWidth = 3; g.beginPath(); g.moveTo(x + 10, y + 4); g.lineTo(x + 10, y - 52); g.moveTo(x + n * T - 10, y + 4); g.lineTo(x + n * T - 10, y - 52); g.stroke();
+        g.fillStyle = '#8a5a2b'; g.fillRect(x - 6, y - 58, n * T + 12, 8); g.fillStyle = '#c08a4a'; g.fillRect(x - 6, y - 58, n * T + 12, 3);
+      }
       if (!drawSpr(g, zc.plank, x - 4, y - 2, n * T + 8, T * 0.62)) {
         g.fillStyle = '#c08a4a'; g.fillRect(x, y, n * T, T * 0.55); g.fillStyle = '#8a5a2b'; g.fillRect(x, y, n * T, 5); g.fillRect(x, y + T * 0.55 - 5, n * T, 5);
       }
@@ -721,7 +806,7 @@
     }
     g.textBaseline = 'middle';
     for (const it of items) if (!it.got && it.x > camX - 60 && it.x < camX + W + 60) {
-      const bob = Math.sin(time * 4 + it.x) * 3;
+      const bob = Math.sin(time * 4 + it.x) * 3 - (it.pop > 0 ? Math.sin(Math.PI * Math.min(1, it.pop / 0.6)) * 26 : 0);
       const cx = it.x + 14, cy = it.y + 14 + bob;
       if (it.type === 'c') {                                    // a spinning gold coin
         const sx = Math.max(0.15, Math.abs(Math.cos(time * 5 + it.x * 0.05)));
@@ -769,6 +854,29 @@
     for (const f of floats) { g.globalAlpha = Math.max(0, Math.min(1, f.t / f.t0 * 1.5)); g.fillStyle = 'rgba(0,0,0,.5)'; g.fillText(f.text, f.x + 1, f.y + 1); g.fillStyle = f.color; g.fillText(f.text, f.x, f.y); }
     g.globalAlpha = 1;
     g.restore();
+    if (!z.indoor) drawVines(g);
+  }
+  function drawVines(g) {                                     // jungle vines hanging into the top corners
+    g.save();
+    g.lineCap = 'round';
+    for (const [sx, dir] of [[40, 1], [W - 40, -1], [W - 150, -1]]) {
+      g.strokeStyle = '#2f6b2f'; g.lineWidth = 4;
+      g.beginPath(); g.moveTo(sx, -4); g.bezierCurveTo(sx + 30 * dir, 40, sx - 20 * dir, 80, sx + 24 * dir, 124); g.stroke();
+      g.fillStyle = '#3f9a3f';
+      for (let k = 0; k < 5; k++) { const t = 0.15 + k * 0.2, px = sx + (30 * t * (1 - t) * 3 - 20 * t * t * (1 - t) * 3 + 24 * t * t * t) * dir, py = 124 * t; g.beginPath(); g.ellipse(px + 10 * dir, py, 11, 6, (k % 2 ? 0.6 : -0.6) * dir, 0, Math.PI * 2); g.fill(); }
+    }
+    g.restore();
+  }
+  function drawSignboard(g, x, zone) {                        // the zone's wooden sign at its first chunk
+    const gy = 8 * T;
+    g.fillStyle = '#6b4a2e'; g.fillRect(x - 5, gy - 112, 10, 112);
+    g.fillStyle = '#4e2a0e'; g.fillRect(x - 60, gy - 150, 120, 72);
+    g.fillStyle = '#c08a4a'; g.fillRect(x - 56, gy - 146, 112, 64);
+    g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(x - 56, gy - 146, 112, 6); g.fillRect(x - 56, gy - 88, 112, 6);
+    g.fillStyle = '#3a2208'; g.font = '800 15px Nunito, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    const lines = zone.sign || [zone.name.toUpperCase()];
+    lines.forEach((ln, i) => g.fillText(ln, x, gy - 114 - (lines.length - 1) * 9 + i * 18));
+    g.textBaseline = 'alphabetic';
   }
   function drawRock(g, x, y) {
     if (drawSpr(g, 'boulder', x - 3, y - 2, 42, 40)) return;
@@ -877,13 +985,14 @@
     $('pf-primary').addEventListener('click', () => { startRun(); last = performance.now(); });
     $('pf-secondary').addEventListener('click', close);
     $('pf-almari-btn').addEventListener('click', openAlmari);
+    $('pf-sound').addEventListener('click', () => { sfx().toggle(); hud(); $('pf-sound').blur(); });
     $('pf-bowl').addEventListener('click', openAlmari);
     $('pf-almari-close').addEventListener('click', closeAlmari);
   }
   window.LaksaQuest = {
     open: openGame, close, wire, start: startRun, rulesOk, openAlmari, closeAlmari, update, draw, keys, LIMIT, NEED, EXTRA, RARE, POWER, ZONES, CHUNKS, SC, FR,
     get atlasReady() { return atlasOk; },
-    debug: () => ({ lives, score, bowls, inv: Object.assign({}, inv), extraInv: Object.assign({}, extraInv), coins, ingredients, extras, rares, hits, stomps, powerT: Object.assign({}, powerT), runTime: +runTime.toFixed(2), zone: curZone, cols,
+    debug: () => ({ doubleOk, lives, score, bowls, inv: Object.assign({}, inv), extraInv: Object.assign({}, extraInv), coins, ingredients, extras, rares, hits, stomps, powerT: Object.assign({}, powerT), runTime: +runTime.toFixed(2), zone: curZone, cols,
       player: player && { x: Math.round(player.x), y: Math.round(player.y), ground: player.ground, frame: playerFrame() }, items: items.filter((i) => !i.got).length, enemies: enemies.filter((e) => e.alive).length, rocks: rocks.length,
       started, over, paused, almariOpen, banner, bannerT: +bannerT.toFixed(2), invT: +invT.toFixed(2) }),
     live: () => ({ player, items, enemies, hazards, rocks, map, deco, setLives: (n) => { lives = n; hud(); }, setTime: (t) => { runTime = t; lastSec = -1; timerText(); }, collect, hurt, lastSafe: () => lastSafe }),

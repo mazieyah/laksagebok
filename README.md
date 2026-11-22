@@ -43,7 +43,8 @@ decorations.
 - Opening the game shows "Syarat Permainan" (`#pf-rules`, OK button); the
   world is drawn behind it and the clock starts on OK. MAIN SEMULA skips it.
 - Controls: ← → (or A/D) run, ↑ / W / SPACE jump (coyote time, jump buffer,
-  short hop on release), P / Escape pause; on touch screens three buttons.
+  short hop on release; a second press in the air is a double jump at 88% of
+  the first, one per flight), P / Escape pause; on touch screens three buttons.
 - Ingredients: a bowl needs the six components `NEED` (mi laksa, ikan,
   santan, rempah, daun kesum, ulam) in any order; each is 10 points and the
   almari (`inv`) holds up to 3 copies of each component (6 with Bakul) so
@@ -70,9 +71,23 @@ decorations.
   trap, a log or a rock costs a heart and 1.5 s of invincibility; falling into
   a stream or pit costs a heart and returns the player to the last safe
   ground. At 0 hearts the run ends.
-- HUD: zone name, six component slots (spare count badges), bowls, active
-  power-ups with seconds, countdown (red in the last 30 s), score, hearts,
-  coins; smaller on phones. Floating "+n" texts and sparks on every pickup.
+- HUD (after the user's mockup): the Laksa Quest logo and a wooden hearts
+  pill top-left; in the middle a wooden sign "Kumpul 6 bahan lengkap untuk 1
+  mangkuk laksa!" over a dark-wood panel of six labelled slots (Mi, Ikan,
+  Santan, Rempah, Kesum, Ulam; green ✓ when held, ×n for spares) and an arrow
+  to the bowl icon (empty → full by progress, "Mangkuk Lengkap!" glow on a
+  finished bowl); top-right a purple stats panel (Mangkuk Laksa, Skor as six
+  digits, Masa) with round purple buttons: coins, Almari, sound, pause, exit.
+  Active power-ups with seconds under the slots. Floating "+n" texts and
+  sparks on every pickup. On phones the sign hides and the slot panel wraps
+  under the logo and stats.
+- Scene: sky by zone, far mountains with snow caps, a far canopy with
+  waterfalls, hills, a parallax row of trees, vines hanging into the top
+  corners, a wooden signboard with the zone name at each zone's first chunk
+  ("KAMPUNG / MELAYU / PAHANG"), rope-hung floating platforms outdoors,
+  streams in the river zone with floating logs and jumping fish.
+- Question blocks `Q`: solid; hitting one from below bumps it, turns it into a
+  stone block and gives a coin (45%) or pops an ingredient onto it.
 - End card (`.done-card`): "Syabas!" at 3 minutes ("Berapa banyak mangkuk
   Laksa Gebok berjaya anda hasilkan?") or "Alamak!" at 0 hearts, four stats
   (Skor, Mangkuk, Bahan, Syiling), achievement badges (Mangkuk Pertama, Tukang

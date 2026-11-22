@@ -1735,3 +1735,46 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .pf-alm b { font-family: var(--font-display); font-size: 14px; color: #8f1d0f; }
 .pf-alm.none { opacity: .45; }
 @media (max-width: 480px) { .pf-almari-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } .pf-alm .pf-spr { width: 32px; height: 32px; } .pf-almari-btn { font-size: 12px; padding: 4px 8px; } }
+
+/* ---- Laksa Quest HUD after the mockup: wood panels, labelled slots, purple stats, round buttons ---- */
+.pf-hud { padding-top: max(8px, env(safe-area-inset-top, 0px)); gap: 8px; }
+.pf-hud-left { gap: 6px; align-items: flex-start; }
+.pf-logo { width: clamp(120px, 15vw, 190px); height: auto; filter: drop-shadow(0 4px 6px rgba(0,0,0,.45)); }
+.pf-lives { display: inline-flex; gap: 4px; padding: 5px 12px; border-radius: 999px; background: linear-gradient(180deg, #7a4a1e, #4e2a0e); border: 3px solid #d9a441; box-shadow: 0 3px 0 #2e1706; letter-spacing: 0; font-size: 18px; line-height: 1; color: #ff5a6e; }
+.pf-lives .pf-spr { width: 22px; height: 22px; }
+.pf-lives .lost { filter: grayscale(1) brightness(.45); }
+.pf-hud-mid { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1 1 auto; min-width: 0; }
+.pf-sign { font-family: var(--font-display); font-weight: 800; font-size: clamp(11px, 1.3vw, 15px); color: #3a2208; text-shadow: none; background: linear-gradient(180deg, #e2b472, #c48b48); border: 3px solid #7a4a1e; border-radius: 8px; padding: 4px 14px; box-shadow: 0 3px 0 #4e2a0e; transform: rotate(-1.2deg); white-space: nowrap; }
+.pf-bowlrow { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
+.pf-slots { display: inline-flex; gap: 4px; padding: 6px 8px; border-radius: 12px; background: linear-gradient(180deg, #6b3b16, #3f2109); border: 3px solid #d9a441; box-shadow: inset 0 0 0 2px #2e1706, 0 4px 0 #2e1706; cursor: pointer; pointer-events: auto; }
+.pf-slot { position: relative; width: auto; height: auto; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 3px 4px 2px; border-radius: 10px; background: radial-gradient(circle at 50% 35%, #2a1507, #150a03); border: 2px solid #8a5a2b; filter: none; transform: none; min-width: 44px; font-size: 18px; }
+.pf-slot .pf-spr { width: 30px; height: 30px; filter: grayscale(1) opacity(.5); }
+.pf-slot.lit .pf-spr { filter: none; }
+.pf-slot.lit { border-color: #f2d27a; box-shadow: 0 0 10px rgba(255, 220, 120, .45); background: radial-gradient(circle at 50% 35%, #5a3410, #2a1507); }
+.pf-slot small { font-family: var(--font-display); font-weight: 800; font-size: 10px; line-height: 1; color: #ffe9bd; text-shadow: 0 1px 0 #000; }
+.pf-slot .pf-ok { position: absolute; left: -6px; top: -6px; width: 16px; height: 16px; border-radius: 50%; background: #2fb34a; color: #fff; font-size: 10px; font-weight: 900; display: grid; place-items: center; border: 2px solid #fff; text-shadow: none; line-height: 1; }
+.pf-slot .pf-x { right: -7px; top: -7px; }
+.pf-arrow { font-size: 22px; color: #f2b63c; text-shadow: 0 2px 0 #4e2a0e; }
+.pf-bowlbox { display: flex; flex-direction: column; align-items: center; }
+.pf-bowlico { display: block; width: 46px; height: 46px; }
+.pf-bowlico .pf-spr { width: 46px; height: 46px; }
+.pf-bowlico.full { filter: drop-shadow(0 0 8px #ffe27a) drop-shadow(0 0 14px #ffd34a); animation: pop .5s ease-in-out infinite alternate; }
+.pf-bowlstate { font-family: var(--font-display); font-weight: 800; font-size: 11px; color: #ffe27a; text-shadow: 0 1px 0 #000, 0 0 6px rgba(0,0,0,.6); line-height: 1; white-space: nowrap; }
+.pf-hud-right { gap: 6px; align-items: flex-end; }
+.pf-stats { display: inline-flex; align-items: stretch; border-radius: 12px; background: linear-gradient(180deg, #6a2d7a, #3f1849); border: 3px solid #d9a441; box-shadow: inset 0 0 0 2px #2a0f33, 0 4px 0 #2a0f33; overflow: hidden; }
+.pf-stat { display: flex; align-items: center; gap: 6px; padding: 5px 10px; }
+.pf-stat + .pf-stat { border-left: 2px solid rgba(217, 164, 65, .6); }
+.pf-stat-ico { font-size: 20px; line-height: 1; text-shadow: none; display: inline-flex; }
+.pf-stat-ico .pf-spr { width: 26px; height: 26px; }
+.pf-stat-text { display: flex; flex-direction: column; line-height: 1; gap: 2px; }
+.pf-stat-text small { font-size: 10px; font-weight: 800; color: #f2d27a; }
+.pf-stat-text b { font-family: var(--font-display); font-weight: 800; font-size: 18px; color: #fff; font-variant-numeric: tabular-nums; }
+.pf-timer, .pf-score { font-size: 18px; background: none; border: 0; padding: 0; border-radius: 0; line-height: 1; }
+.pf-timer.low { background: none; color: #ff6b6b; animation: pop .6s ease-in-out infinite alternate; }
+.pf-btns { display: flex; align-items: center; gap: 6px; pointer-events: auto; }
+.pf-rbtn { width: 38px; height: 38px; border-radius: 50%; border: 3px solid #d9a441; background: radial-gradient(circle at 40% 35%, #9a4bb0, #4a1b5a); color: #fff; font-size: 16px; cursor: pointer; box-shadow: 0 3px 0 #2a0f33; display: grid; place-items: center; text-shadow: none; padding: 0; }
+.pf-rbtn:active { transform: translateY(2px); box-shadow: 0 1px 0 #2a0f33; }
+.pf-coins { background: linear-gradient(180deg, #7a4a1e, #4e2a0e); border: 2px solid #d9a441; font-size: 14px; padding: 4px 9px; }
+.pf-power { text-align: center; }
+@media (max-width: 900px) { .pf-sign { display: none; } .pf-slot { min-width: 36px; } .pf-slot .pf-spr { width: 24px; height: 24px; } .pf-slot small { font-size: 9px; } .pf-logo { width: 110px; } .pf-stat { padding: 4px 7px; } .pf-stat-text b { font-size: 15px; } .pf-stat-text small { font-size: 9px; } .pf-timer, .pf-score { font-size: 15px; } }
+@media (max-width: 640px) { .pf-hud { flex-wrap: wrap; } .pf-hud-mid { order: 3; width: 100%; } .pf-bowlico, .pf-bowlico .pf-spr { width: 36px; height: 36px; } .pf-rbtn { width: 32px; height: 32px; font-size: 14px; } .pf-stat-ico { font-size: 16px; } .pf-stat-ico .pf-spr { width: 20px; height: 20px; } .pf-stat-text small { display: none; } .pf-arrow { font-size: 16px; } .pf-lives { padding: 3px 8px; } .pf-lives .pf-spr { width: 18px; height: 18px; } }

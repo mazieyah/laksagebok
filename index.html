@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=45">
+<link rel="stylesheet" href="style.css?v=46">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -197,15 +197,32 @@
   <canvas id="pf-canvas" width="960" height="540" aria-label="Laksa Quest platform game"></canvas>
   <div class="pf-hud">
     <div class="pf-hud-left">
-      <div id="pf-level" class="pf-title">LAKSA QUEST · 🏡 KAMPUNG MELAYU</div>
-      <div class="pf-bowlrow"><span id="pf-bowl" class="pf-bowlslots" role="button" tabindex="0" title="Almari Bahan (I)"></span><span id="pf-bowls" class="pf-bowls">🍜 Mangkuk 0</span><button id="pf-almari-btn" class="pf-bowls pf-almari-btn" type="button" title="Almari Bahan (I)">🧺 Almari</button></div>
+      <img class="pf-logo" src="laksa-quest-banner.png" alt="Laksa Quest">
+      <div id="pf-lives" class="pf-lives" aria-label="Nyawa"></div>
+      <div id="pf-level" class="pf-zone" hidden></div>
+    </div>
+    <div class="pf-hud-mid">
+      <div class="pf-sign">Kumpul 6 bahan lengkap untuk 1 mangkuk laksa!</div>
+      <div class="pf-bowlrow">
+        <div id="pf-bowl" class="pf-slots" role="button" tabindex="0" title="Almari Bahan (I)"></div>
+        <span class="pf-arrow" aria-hidden="true">➜</span>
+        <div class="pf-bowlbox"><span id="pf-bowlico" class="pf-bowlico"></span><span id="pf-bowlstate" class="pf-bowlstate">0/6</span></div>
+      </div>
       <div id="pf-power" class="pf-power"></div>
     </div>
     <div class="pf-hud-right">
-      <div id="pf-timer" class="pf-timer">03:00</div>
-      <div id="pf-score" class="pf-score">0</div>
-      <div class="pf-subrow"><span id="pf-lives" class="pf-lives">♥♥♥</span><span id="pf-coins" class="pf-coins"><i class="pf-coin-ico" aria-hidden="true"></i> 0</span></div>
-      <div class="pf-btns"><button id="pf-pause" class="round-btn" type="button" aria-label="Pause" title="Rehat (P)">⏸</button><button id="pf-exit" class="round-btn" type="button" aria-label="Back to games" title="Permainan">✕</button></div>
+      <div class="pf-stats">
+        <div class="pf-stat"><span id="pf-stat-bowl" class="pf-stat-ico">🍜</span><span class="pf-stat-text"><small>Mangkuk Laksa</small><b id="pf-bowls">0</b></span></div>
+        <div class="pf-stat"><span id="pf-stat-coin" class="pf-stat-ico">🪙</span><span class="pf-stat-text"><small>Skor</small><b id="pf-score">000000</b></span></div>
+        <div class="pf-stat"><span class="pf-stat-ico">⏱️</span><span class="pf-stat-text"><small>Masa</small><b id="pf-timer">03:00</b></span></div>
+      </div>
+      <div class="pf-btns">
+        <span id="pf-coins" class="pf-coins"><i class="pf-coin-ico" aria-hidden="true"></i> 0</span>
+        <button id="pf-almari-btn" class="pf-rbtn" type="button" aria-label="Almari Bahan" title="Almari Bahan (I)">🧺</button>
+        <button id="pf-sound" class="pf-rbtn" type="button" aria-label="Bunyi" title="Bunyi">🔊</button>
+        <button id="pf-pause" class="pf-rbtn" type="button" aria-label="Pause" title="Rehat (P)">⏸</button>
+        <button id="pf-exit" class="pf-rbtn" type="button" aria-label="Back to games" title="Permainan">✕</button>
+      </div>
     </div>
   </div>
   <div id="pf-banner" class="pf-banner" hidden></div>
@@ -213,7 +230,7 @@
     <div class="pf-touch-left"><button id="pf-left" class="pf-tbtn" type="button">◀</button><button id="pf-right" class="pf-tbtn" type="button">▶</button></div>
     <button id="pf-jump" class="pf-tbtn jump" type="button">▲</button>
   </div>
-  <div class="pf-keys">← → bergerak · ↑ / SPACE lompat · P rehat</div>
+  <div class="pf-keys">← → bergerak · ↑ / SPACE lompat · tekan 2× untuk lompat berganda · P rehat</div>
   <div id="pf-rules" class="pf-overlay xw-done" hidden>
     <div class="done-card rules-card">
       <div class="done-head">
@@ -228,7 +245,7 @@
           <li>Bahan tambahan 10 mata, syiling emas 5 mata, Lesung Batu (jarang) 20 mata. Almari simpan hingga 3 salinan setiap bahan: tekan 🧺 Almari atau I untuk melihatnya.</li>
           <li>Kuasa: Alat Gebok (bahan ×2), Senduk Sakti (perlindungan), Bakul (simpan bahan lebihan) dan Hati (+1 nyawa).</li>
           <li>Had masa 3 minit dengan 3 nyawa. Terlanggar musuh atau halangan tolak 1 nyawa.</li>
-          <li>Kawalan: ← → bergerak, ↑ atau SPACE lompat, P rehat. Di telefon gunakan butang pada skrin.</li>
+          <li>Kawalan: ← → bergerak, ↑ atau SPACE lompat (tekan dua kali untuk lompat berganda), P rehat. Di telefon gunakan butang pada skrin.</li>
         </ul>
       </div>
       <div class="done-btns">
@@ -771,7 +788,7 @@
 <script src="store.js?v=3"></script>
 <script src="admin.js"></script>
 <script src="platform.js"></script>
-<script src="platformer.js?v=3"></script>
+<script src="platformer.js?v=5"></script>
 <script src="crossword.js?v=3"></script>
 <script src="wordsearch.js?v=5"></script>
 <script src="game.js?v=32"></script>
