@@ -1,22 +1,24 @@
 /* ======================================================================
-   LaksaWordSearch — Cari Kata Laksa: find 14 laksa-heritage words hidden in a
-   12×12 letter grid. A new grid is generated every play. Select a word by
+   LaksaWordSearch — Cari Kata Laksa: find 14 words from the "Maklumat Laksa
+   Gebok" pages hidden in a 12×12 letter grid. A new grid is generated every play. Select a word by
    dragging across its letters (or tap its first letter, then its last).
    ====================================================================== */
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
   const N = 12;
-  const WORDS = [
-    ['LAKSA', 'hidangan mi Pahang'], ['GEBUK', 'acuan loyang penekan mi'], ['KUAH', 'kuah ikan yang pekat'], ['IKAN', 'bahan utama kuah'],
-    ['KESUM', 'daun ulam yang wajib'], ['KANTAN', 'bunga ulam dihiris nipis'], ['SAMBAL', 'pedas di atas laksa'], ['TIMUN', 'ulam hijau'],
-    ['TAUGE', 'kecambah kacang hijau'], ['LIMAU', 'perahan masam'], ['TEPUNG', 'tepung beras adunan mi'], ['PAHANG', 'negeri asal laksa gebuk'],
-    ['MUZIUM', 'tempat gebuk dipamerkan'], ['REBUS', 'mi ditekan terus ke air mendidih'],
+  const WORDS = [                                 // from the "Maklumat Laksa Gebok" pages
+    ['LAKSA', 'hidangan kebanggaan Pahang'], ['GEBOK', 'alat tembaga penekan mi'], ['TEMBAGA', 'logam gebok tradisional'], ['PEKAN', 'bandar Muzium Sultan Abu Bakar'],
+    ['GANDUM', 'tepung untuk doh mi'], ['KEMBUNG', 'ikan kuah lemak'], ['SANTAN', 'pekat, dalam kuah'], ['KERISIK', 'kelapa goreng tumbuk'],
+    ['SERAI', 'empat batang dalam kuah'], ['KETUMBAR', 'biji rempah digoreng tanpa minyak'], ['SELASIH', 'daun ulam dihiris nipis'], ['KUNYIT', 'daunnya ulam laksa'],
+    ['BELACAN', 'dibakar, bersama sambal'], ['KASTURI', 'limau dibelah dua'],
   ];
   const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1], [0, -1], [-1, 0], [-1, -1], [-1, 1]];
   const FILL = 'AAABCDEGHIIJKKLMMNNPRSSTUU';          // the fill leans on letters common in Malay
   const WORD_POINTS = 40, HINT_COST = 20, TIME_BONUS_MAX = 600;
-  let grid = [], placed = [], cellEls = [], open = false, done = false, startAt = 0, hints = 0, timer = 0;
+  let grid = [], placed = [], cellEls = [], open = false, done = false, startAt = 0, hints = 0, timer = 0, pts = 0;
+  const sfx = () => (window.GebokRun ? window.GebokRun.sfx : null);
+  const total = () => Math.max(0, pts - hints * HINT_COST);   // the running score: words found minus hints
   let drag = null, anchor = null, hintTimer = 0;
 
   function generate() {
@@ -67,6 +69,8 @@
   function renderList() {
     for (const li of $('ws-words').children) li.classList.toggle('found', placed[+li.dataset.i].found);
     $('ws-progress').textContent = placed.filter((p) => p.found).length + ' / ' + placed.length;
+    $('ws-score').textContent = 'SKOR ' + total().toLocaleString();
+    $('ws-hint').disabled = done || total() < HINT_COST || placed.every((p) => p.found);   // a hint costs 20 points
   }
   function cellAt(x, y) {
     const rect = $('ws-grid').getBoundingClientRect();
@@ -94,18 +98,26 @@
     if (done || cells.length < 2) return false;
     const s = cells.map((q) => grid[q.r][q.c]).join(''), rs = s.split('').reverse().join('');
     const hit = placed.find((p) => !p.found && (p.word === s || p.word === rs));
-    if (!hit) { $('ws-status').textContent = s.length > 2 ? '"' + s + '" bukan perkataan dalam senarai.' : ''; return false; }
+    if (!hit) {                              // not a listed word: a buzz and a red flash on the letters picked
+      $('ws-status').textContent = s.length > 2 ? '\u2717 "' + s + '" bukan perkataan dalam senarai.' : '';
+      for (const q of cells) { const el = cellEls[q.r][q.c]; el.classList.remove('bad'); void el.offsetWidth; el.classList.add('bad'); }
+      setTimeout(() => { for (const q of cells) cellEls[q.r][q.c].classList.remove('bad'); }, 700);
+      if (sfx()) sfx().wrong();
+      return false;
+    }
     hit.found = true;
     const idx = placed.indexOf(hit);
     for (const q of cells) { const el = cellEls[q.r][q.c]; el.classList.add('found'); el.style.setProperty('--ws-col', 'hsl(' + ((idx * 47) % 360) + ' 70% 78%)'); }
-    $('ws-status').textContent = hit.word + ': ' + hit.clue;
-    if (window.GebokRun) window.GebokRun.sfx.collect(placed.filter((p) => p.found).length);
+    pts += WORD_POINTS;
+    $('ws-status').textContent = '\u2713 ' + hit.word + ' (' + hit.clue + ') +' + WORD_POINTS + ' mata. Jumlah: ' + total().toLocaleString() + '.';
+    if (sfx()) sfx().correct();
     renderList();
+    const sc = $('ws-score'); sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop');
     if (placed.every((p) => p.found)) finish();
     return true;
   }
   function hint() {
-    if (done) return;
+    if (done || total() < HINT_COST) return;
     const left = placed.filter((p) => !p.found);
     if (!left.length) return;
     const p = left[Math.floor(Math.random() * left.length)];
@@ -114,18 +126,19 @@
     for (const row of cellEls) for (const d of row) d.classList.remove('hint');
     const el = cellEls[p.r0][p.c0]; el.classList.add('hint');
     hintTimer = setTimeout(() => el.classList.remove('hint'), 2500);
-    $('ws-status').textContent = 'Bantuan: huruf pertama "' + p.word + '" berkelip (−' + HINT_COST + ').';
+    $('ws-status').textContent = 'Bantuan: huruf pertama "' + p.word + '" berkelip (−' + HINT_COST + '). Jumlah: ' + total().toLocaleString() + '.';
+    renderList();
   }
   function elapsed() { return (performance.now() - startAt) / 1000; }
   function fmt(t) { t = Math.floor(t); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
   function tick() { if (!open || done) return; $('ws-timer').textContent = fmt(elapsed()); }
-  function score(t) { return Math.max(0, placed.length * WORD_POINTS + Math.max(0, TIME_BONUS_MAX - Math.floor(t)) - hints * HINT_COST); }
+  function score(t) { return Math.max(0, pts + Math.max(0, TIME_BONUS_MAX - Math.floor(t)) - hints * HINT_COST); }   // words + time bonus − hints
   function finish() {
     done = true;
     const t = elapsed(), s = score(t);
     const stats = $('ws-stats');
     stats.replaceChildren();
-    for (const [label, val] of [['Skor', s.toLocaleString()], ['Masa', fmt(t)], ['Perkataan', placed.length + ' / ' + placed.length], ['Bantuan', String(hints)]]) {
+    for (const [label, val] of [['Skor', s.toLocaleString()], ['Mata perkataan', (pts - hints * HINT_COST).toLocaleString()], ['Bonus masa', String(Math.max(0, TIME_BONUS_MAX - Math.floor(t)))], ['Masa', fmt(t)], ['Perkataan', placed.length + ' / ' + placed.length], ['Bantuan', String(hints)]]) {
       const d = document.createElement('div'); const dt = document.createElement('dt'); dt.textContent = label; const dd = document.createElement('dd'); dd.textContent = val; d.append(dt, dd); stats.append(d);
     }
     $('ws-done').hidden = false;
@@ -136,7 +149,8 @@
   }
   function start() {
     build();
-    hints = 0; done = false; startAt = performance.now(); drag = null; anchor = null;
+    hints = 0; pts = 0; done = false; startAt = performance.now(); drag = null; anchor = null;
+    renderList();
     $('ws-done').hidden = true;
     $('ws-status').textContent = 'Seret merentasi huruf, atau ketik huruf pertama kemudian huruf terakhir.';
     clearInterval(timer);

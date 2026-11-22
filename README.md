@@ -11,9 +11,9 @@ the player lands on the games screen ("PILIH PERMAINAN") and picks:
    daun kesum, bunga kantan, sambal). Five different ingredients complete one
    bowl; each level has a bowl mission (2 / 3 / 4 bowls) and the laksa stall at
    the end only accepts the player once the mission is done.
-3. **Teka Silang Laksa** – a 12×12 crossword with 15 clues (6 across, 9 down)
+3. **Teka Silang Laksa** – a 12×12 crossword with 15 clues (7 across, 8 down) drawn from the Maklumat Laksa Gebok pages
    about laksa, gebuk and Pahang.
-4. **Cari Kata Laksa** – a word search: 14 laksa-heritage words hidden in a 12×12
+4. **Cari Kata Laksa** – a word search: 14 words from the Maklumat Laksa Gebok pages hidden in a 12×12
    letter grid that is generated fresh every play.
 
 Each game writes its own records; the leaderboard has a tab per game and the
@@ -41,6 +41,14 @@ admin page shows the best score of every game per player.
 - Score: 15 words × 50 + a time bonus (600 − seconds, not below 0) − 20 per hint.
   The timer starts when the puzzle opens.
 
+Each correctly completed word plays a chime, locks its cells green and adds
+50 points at once; the running total (words minus hints) shows as "SKOR" next
+to the timer, and the final score adds the time bonus. A word filled in
+completely but wrong buzzes and shakes red; both verdicts also show as a
+one-second green or red toast over the grid ("BETUL! KUNYIT · +50 mata",
+"SALAH · Cuba lagi"). BANTUAN (−20) is greyed out while the running score is
+below 20.
+
 ## Cari Kata Laksa (word search)
 
 - The 14 words (LAKSA, GEBUK, KUAH, IKAN, KESUM, KANTAN, SAMBAL, TIMUN, TAUGE,
@@ -51,6 +59,10 @@ admin page shows the best score of every game per player.
   coloured in and struck off the list; hovering a word shows its meaning.
 - BANTUAN blinks the first letter of a random unfound word for −20.
 - Score: 14 words × 40 + a time bonus (600 − seconds, not below 0) − 20 per hint.
+
+A found word chimes and adds 40 points to the "SKOR" pill; a selection that
+is not a listed word buzzes and flashes red. BANTUAN (−20) is greyed out while
+the score is below 20; the final score adds the time bonus.
 
 ## Laksa Gebok Run (3D runner)
 

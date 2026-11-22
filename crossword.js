@@ -1,27 +1,28 @@
 /* ======================================================================
-   LaksaCrossword — Teka Silang Laksa: 15 clues about laksa gebuk and Pahang.
-   Grid generated offline and validated: every crossing letter agrees and no
+   LaksaCrossword — Teka Silang Laksa: 15 clues drawn from the "Maklumat Laksa
+   Gebok" pages (asal-usul, proses pembuatan, resipi). Grid generated offline
+   (scratchpad xwgen.py) and validated: every crossing letter agrees and no
    stray adjacent letters.
    ====================================================================== */
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
   const DATA = { rows: 12, cols: 12, entries: [
-    { word: 'KUAH', row: 1, col: 1, dir: 'A', num: 2, clue: 'Cecair pekat yang disiram ke atas mi' },
-    { word: 'TIMUN', row: 4, col: 7, dir: 'A', num: 7, clue: 'Ulam hijau yang dihiris halus' },
-    { word: 'LAKSA', row: 5, col: 3, dir: 'A', num: 8, clue: 'Hidangan mi tradisi Pahang dengan kuah ikan' },
-    { word: 'TEPUNG', row: 7, col: 1, dir: 'A', num: 10, clue: 'Bahan asas adunan mi (tepung beras)' },
-    { word: 'MUZIUM', row: 10, col: 5, dir: 'A', num: 12, clue: 'Tempat gebuk dipamerkan di Pahang' },
-    { word: 'REBUS', row: 11, col: 0, dir: 'A', num: 13, clue: 'Cara memasak mi laksa: terus dalam air mendidih' },
-    { word: 'SAMBAL', row: 0, col: 3, dir: 'D', num: 1, clue: 'Pedas, disendukkan ke atas laksa' },
-    { word: 'KESUM', row: 1, col: 1, dir: 'D', num: 2, clue: 'Daun ulam yang wajib ada dalam laksa' },
-    { word: 'KANTAN', row: 1, col: 7, dir: 'D', num: 3, clue: 'Bunga yang dihiris nipis sebagai ulam' },
-    { word: 'ULAM', row: 1, col: 9, dir: 'D', num: 4, clue: 'Sayur mentah pelengkap laksa' },
-    { word: 'KENDURI', row: 2, col: 11, dir: 'D', num: 5, clue: 'Majlis kampung tempat laksa dihidang beramai-ramai' },
-    { word: 'IKAN', row: 4, col: 5, dir: 'D', num: 6, clue: 'Bahan utama kuah laksa' },
-    { word: 'LIMAU', row: 6, col: 9, dir: 'D', num: 9, clue: 'Diperah untuk rasa masam' },
-    { word: 'TAUGE', row: 7, col: 1, dir: 'D', num: 10, clue: 'Kecambah kacang hijau dalam laksa' },
-    { word: 'GEBUK', row: 7, col: 6, dir: 'D', num: 11, clue: 'Acuan loyang yang menekan adunan menjadi mi laksa' },
+    { word: 'TIMUN', row: 0, col: 1, dir: 'A', num: 1, clue: 'Ulam yang diparut halus' },
+    { word: 'KUNYIT', row: 2, col: 0, dir: 'A', num: 4, clue: 'Daunnya dihiris halus sebagai ulam laksa gebok' },
+    { word: 'KENDURI', row: 4, col: 3, dir: 'A', num: 6, clue: 'Majlis kampung tempat laksa gebok disediakan beramai-ramai' },
+    { word: 'KEMBUNG', row: 7, col: 0, dir: 'A', num: 9, clue: 'Ikan untuk kuah lemak laksa gebok' },
+    { word: 'KUAH', row: 7, col: 8, dir: 'A', num: 11, clue: 'Lemak ikan, dicurah ke atas mi dalam mangkuk' },
+    { word: 'DOH', row: 9, col: 0, dir: 'A', num: 12, clue: 'Diuli daripada tepung dan air, lalu dimasukkan ke dalam gebok' },
+    { word: 'MUZIUM', row: 10, col: 4, dir: 'A', num: 13, clue: 'Tempat gebok asal dipamerkan sebagai warisan makanan' },
+    { word: 'TAUGE', row: 0, col: 1, dir: 'D', num: 1, clue: 'Kecambah yang ditabur sedikit di atas laksa' },
+    { word: 'KASTURI', row: 0, col: 7, dir: 'D', num: 2, clue: 'Limau yang dibelah dua untuk laksa' },
+    { word: 'HALIA', row: 1, col: 9, dir: 'D', num: 3, clue: '40 g dalam kuah, digoreng berasingan tanpa minyak' },
+    { word: 'TANGAN', row: 2, col: 5, dir: 'D', num: 5, clue: 'Orang Pahang kata laksa gebok paling sedap dimakan dengan ini' },
+    { word: 'PAHANG', row: 5, col: 11, dir: 'D', num: 7, clue: 'Negeri asal laksa gebok' },
+    { word: 'GEBOK', row: 6, col: 1, dir: 'D', num: 8, clue: 'Alat tradisional tembaga yang menekan doh menjadi mi laksa' },
+    { word: 'ULAM', row: 7, col: 4, dir: 'D', num: 10, clue: 'Sayur mentah pelengkap semangkuk laksa' },
+    { word: 'KESUM', row: 7, col: 8, dir: 'D', num: 11, clue: 'Daun ulam laksa yang dihiris nipis' },
   ] };
   const WORD_POINTS = 50, HINT_COST = 20, TIME_BONUS_MAX = 600;
   const cells = {};            // 'r,c' -> { letter, num, el, entries: [] }
@@ -36,6 +37,19 @@
     }
   }
   let user = {}, sel = null, dir = 'A', open = false, startAt = 0, hints = 0, timer = 0, done = false, checked = {};
+  let solved = {}, locked = {}, pts = 0;   // solved entries (by id), their cells (locked green), running points
+  let wrongShown = {}, toastTimer = 0;      // a filled-but-wrong word is flagged once until one of its letters changes
+  const TOAST_MS = 1000;
+  function toast(kind, title, sub) {
+    const t = $('xw-toast');
+    t.className = 'xw-toast ' + kind; $('xw-toast-title').textContent = title; $('xw-toast-sub').textContent = sub || '';
+    t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, TOAST_MS);
+  }
+  const cellsOf = (e) => { const out = []; for (let i = 0; i < e.word.length; i++) out.push(key(e.row + (e.dir === 'D' ? i : 0), e.col + (e.dir === 'A' ? i : 0))); return out; };
+  const isFilled = (e) => cellsOf(e).every((k) => !!user[k]);
+  const idOf = (e) => e.dir + e.num + e.word;
+  const sfx = () => (window.GebokRun ? window.GebokRun.sfx : null);
   function build() {
     const grid = $('xw-grid');
     grid.replaceChildren();
@@ -93,6 +107,7 @@
       el.classList.toggle('inword', !!active && cell.entries.includes(active));
       el.classList.toggle('wrong', !!checked[k] && user[k] && user[k] !== cell.letter);
       el.classList.toggle('ok', !!checked[k] && user[k] === cell.letter);
+      el.classList.toggle('locked', !!locked[k]);
     }
     document.querySelectorAll('#xw-across li, #xw-down li').forEach((li) => {
       const e = DATA.entries.find((x) => x.dir + x.num + x.word === li.dataset.id);
@@ -100,6 +115,40 @@
       li.classList.toggle('solved', isSolved(e));
     });
     $('xw-progress').textContent = DATA.entries.filter(isSolved).length + ' / ' + DATA.entries.length;
+    $('xw-score').textContent = 'SKOR ' + total().toLocaleString();
+    $('xw-hint').disabled = done || total() < HINT_COST;   // a hint costs 20 points: none to spend, none to take
+  }
+  function total() { return Math.max(0, pts - hints * HINT_COST); }
+  // A newly completed word: a chime, WORD_POINTS, its cells lock green and pop.
+  function checkSolved(viaHint) {
+    let hit = null;
+    for (const e of DATA.entries) {
+      if (solved[idOf(e)] || !isSolved(e)) continue;
+      solved[idOf(e)] = true; pts += WORD_POINTS; hit = e;
+      for (let i = 0; i < e.word.length; i++) {
+        const k = key(e.row + (e.dir === 'D' ? i : 0), e.col + (e.dir === 'A' ? i : 0));
+        locked[k] = true; checked[k] = true;
+        const el = cells[k].el; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+      }
+    }
+    if (!hit) return checkWrong();
+    const sc = $('xw-score'); sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop');
+    if (sfx()) sfx().correct();
+    $('xw-status').textContent = '\u2713 ' + hit.word + ' betul! +' + WORD_POINTS + ' mata' + (viaHint ? ' (bantuan \u2212' + HINT_COST + ')' : '') + '. Jumlah: ' + total().toLocaleString() + '.';
+    toast('ok', 'BETUL! ' + hit.word, '+' + WORD_POINTS + ' mata \u00b7 Jumlah ' + total().toLocaleString());
+    return true;
+  }
+  // A word filled in completely but not matching: a buzz, a red shake and a one-second verdict; flagged once per attempt.
+  function checkWrong() {
+    const e = DATA.entries.find((x) => !solved[idOf(x)] && !wrongShown[idOf(x)] && isFilled(x));
+    if (!e) return false;
+    wrongShown[idOf(e)] = true;
+    for (const k of cellsOf(e)) { const el = cells[k].el; if (locked[k]) continue; el.classList.remove('bad'); void el.offsetWidth; el.classList.add('bad'); }
+    setTimeout(() => { for (const k of cellsOf(e)) cells[k].el.classList.remove('bad'); }, 700);
+    if (sfx()) sfx().wrong();
+    $('xw-status').textContent = '\u2717 Belum tepat. Semak ejaan dan cuba lagi.';
+    toast('bad', 'SALAH', 'Cuba lagi');
+    return true;
   }
   function isSolved(e) {
     for (let i = 0; i < e.word.length; i++) {
@@ -116,17 +165,18 @@
     if (!sel || done) return;
     if (ch === 'Backspace') {
       const k = key(sel.r, sel.c);
-      if (user[k]) { delete user[k]; delete checked[k]; }
-      else { const prev = step(sel, dir, -1); if (prev) { sel = prev; delete user[key(prev.r, prev.c)]; delete checked[key(prev.r, prev.c)]; } }
+      if (user[k] && !locked[k]) { delete user[k]; delete checked[k]; for (const e of sel.entries) delete wrongShown[idOf(e)]; }
+      else { const prev = step(sel, dir, -1); if (prev) { sel = prev; const pk = key(prev.r, prev.c); if (!locked[pk]) { delete user[pk]; delete checked[pk]; } } }
       render();
       return;
     }
     if (!/^[A-Z]$/.test(ch)) return;
     const k = key(sel.r, sel.c);
-    user[k] = ch; delete checked[k];
+    if (!locked[k]) { user[k] = ch; delete checked[k]; for (const e of sel.entries) delete wrongShown[idOf(e)]; }   // a solved word stays as it is
     const next = step(sel, dir, 1);
     if (next) sel = next;
     render();
+    if (checkSolved(false)) render();
     if (DATA.entries.every(isSolved)) finish();
   }
   function check() {
@@ -136,25 +186,26 @@
     $('xw-status').textContent = wrong ? wrong + ' huruf salah ditanda merah.' : 'Semua huruf yang diisi betul.';
   }
   function hint() {
-    if (!sel || done) return;
+    if (!sel || done || total() < HINT_COST) return;
     const k = key(sel.r, sel.c);
     if (user[k] === sel.letter) { const next = step(sel, dir, 1); if (next) { sel = next; render(); } return; }
     user[k] = sel.letter; checked[k] = true; hints++;
     const next = step(sel, dir, 1);
     if (next) sel = next;
     render();
-    $('xw-status').textContent = 'Bantuan digunakan: ' + hints + ' (−' + HINT_COST + ' setiap satu).';
+    $('xw-status').textContent = 'Bantuan digunakan: ' + hints + ' (−' + HINT_COST + ' setiap satu). Jumlah: ' + total().toLocaleString() + '.';
+    if (checkSolved(true)) render();
     if (DATA.entries.every(isSolved)) finish();
   }
   function elapsed() { return (performance.now() - startAt) / 1000; }
   function tick() { if (!open || done) return; const t = Math.floor(elapsed()); $('xw-timer').textContent = Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
-  function score(t) { return Math.max(0, DATA.entries.length * WORD_POINTS + Math.max(0, TIME_BONUS_MAX - Math.floor(t)) - hints * HINT_COST); }
+  function score(t) { return Math.max(0, pts + Math.max(0, TIME_BONUS_MAX - Math.floor(t)) - hints * HINT_COST); }   // words + time bonus − hints
   function finish() {
     done = true;
     const t = elapsed(), s = score(t);
     const stats = $('xw-stats');
     stats.replaceChildren();
-    for (const [label, val] of [['Skor', s.toLocaleString()], ['Masa', Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0')], ['Perkataan', DATA.entries.length + ' / ' + DATA.entries.length], ['Bantuan', String(hints)]]) {
+    for (const [label, val] of [['Skor', s.toLocaleString()], ['Mata perkataan', (pts - hints * HINT_COST).toLocaleString()], ['Bonus masa', String(Math.max(0, TIME_BONUS_MAX - Math.floor(t)))], ['Masa', Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0')], ['Perkataan', DATA.entries.length + ' / ' + DATA.entries.length], ['Bantuan', String(hints)]]) {
       const d = document.createElement('div'); const dt = document.createElement('dt'); dt.textContent = label; const dd = document.createElement('dd'); dd.textContent = val; d.append(dt, dd); stats.append(d);
     }
     $('xw-done').hidden = false;
@@ -163,7 +214,8 @@
       .catch(() => { /* kept on this device only */ });
   }
   function start() {
-    user = {}; checked = {}; hints = 0; done = false; startAt = performance.now();
+    user = {}; checked = {}; solved = {}; locked = {}; wrongShown = {}; pts = 0; hints = 0; done = false; startAt = performance.now();
+    clearTimeout(toastTimer); $('xw-toast').hidden = true;
     $('xw-done').hidden = true;
     $('xw-status').textContent = 'Klik petak atau petunjuk, kemudian taip. Klik petak yang sama untuk tukar arah.';
     dir = 'A';
@@ -206,5 +258,5 @@
       } else if (k === 'Escape') { close(); e.preventDefault(); }
     });
   }
-  window.LaksaCrossword = { open: openGame, close, wire, DATA };
+  window.LaksaCrossword = { open: openGame, close, wire, DATA, select: (r, c, d) => { dir = d || dir; select(cells[key(r, c)], false); }, type: typeChar, get points() { return total(); } };
 })();

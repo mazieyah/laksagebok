@@ -173,7 +173,7 @@
           <img class="xw-art" src="teka-silang-art.png" alt="">
         </span>
         <span class="game-name xw-name"><img src="teka-silang-banner.png" alt="Teka Silang Laksa"></span>
-        <span class="game-desc">15 petunjuk tentang laksa, gebuk dan warisan Pahang. Lebih pantas, lebih tinggi skor.</span>
+        <span class="game-desc">15 petunjuk daripada Maklumat Laksa Gebok: asal-usul, proses pembuatan dan resipi. Lebih pantas, lebih tinggi skor.</span>
         <span class="game-best"><i aria-hidden="true">🏆</i>Terbaik: <strong id="gbest-crossword">0</strong></span>
         <span class="game-play">MAIN <i aria-hidden="true">▶</i></span>
       </button>
@@ -182,7 +182,7 @@
           <img class="ws-art" src="cari-kata-art.png" alt="">
         </span>
         <span class="game-name ws-name"><img src="cari-kata-banner.png" alt="Cari Kata Laksa"></span>
-        <span class="game-desc">14 perkataan warisan laksa tersembunyi dalam grid huruf. Seret untuk menandakannya; grid baharu setiap kali.</span>
+        <span class="game-desc">Cari 14 perkataan daripada Maklumat Laksa Gebok yang tersembunyi dalam grid 12×12.</span>
         <span class="game-best"><i aria-hidden="true">🏆</i>Terbaik: <strong id="gbest-wordsearch">0</strong></span>
         <span class="game-play">MAIN <i aria-hidden="true">▶</i></span>
       </button>
@@ -226,10 +226,11 @@
   <div class="card xw-card">
     <div class="xw-head">
       <h2 class="title small">TEKA SILANG LAKSA</h2>
-      <div class="xw-meta"><span id="xw-timer" class="xw-timer">0:00</span><span id="xw-progress" class="xw-progress">0 / 15</span></div>
+      <div class="xw-meta"><span id="xw-score" class="xw-score">SKOR 0</span><span id="xw-timer" class="xw-timer">0:00</span><span id="xw-progress" class="xw-progress">0 / 15</span></div>
     </div>
     <div class="xw-wrap">
       <div class="xw-left">
+        <div id="xw-toast" class="xw-toast" role="status" aria-live="polite" hidden><span class="xw-toast-ico" aria-hidden="true"></span><span class="xw-toast-text"><strong id="xw-toast-title"></strong><span id="xw-toast-sub"></span></span></div>
         <div id="xw-grid" class="xw-grid" role="grid" aria-label="Crossword grid"></div>
         <div id="xw-keys" class="xw-keys" aria-label="On-screen keyboard"></div>
       </div>
@@ -262,7 +263,7 @@
   <div class="card xw-card">
     <div class="xw-head">
       <h2 class="title small">CARI KATA LAKSA</h2>
-      <div class="xw-meta"><span id="ws-timer" class="xw-timer">0:00</span><span id="ws-progress" class="xw-progress">0 / 14</span></div>
+      <div class="xw-meta"><span id="ws-score" class="xw-score">SKOR 0</span><span id="ws-timer" class="xw-timer">0:00</span><span id="ws-progress" class="xw-progress">0 / 14</span></div>
     </div>
     <div class="ws-wrap">
       <div id="ws-grid" class="ws-grid" aria-label="Word search grid"></div>

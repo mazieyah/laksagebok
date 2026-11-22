@@ -1038,6 +1038,8 @@
         setTimeout(() => tone(1760, 0.7, 'triangle', 0.09), 280);
       },
       mission() { seq([659, 784, 1046, 1318], 90, 0.25, 'triangle', 0.13); },
+      correct() { seq([659, 880, 1175], 80, 0.2, 'triangle', 0.13); },   // a word or answer is right (crossword)
+      wrong() { tone(260, 0.14, 'square', 0.07, 200); setTimeout(() => tone(200, 0.24, 'square', 0.07, 140), 130); },   // a filled word is not right
       fanfare() { [523, 659, 784, 1046, 784, 1046, 1318].forEach((f, i) => setTimeout(() => tone(f, i === 6 ? 0.6 : 0.18, 'triangle', 0.13), i * 110)); },
       gameover() { seq([392, 330, 262, 196], 180, 0.35, 'sawtooth', 0.08); },
       shieldHit() { tone(1200, 0.25, 'sine', 0.12, 600); noise(0.1, 0.2, 2000); },
