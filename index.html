@@ -60,19 +60,37 @@
   <div id="hint" class="hint" hidden></div>
 </div>
 
-<div id="register" class="screen">
-  <div class="card">
-    <img class="register-brand" src="laksa-arcade-logo.png" alt="Laksa Arcade · Pilih Permainan · Warisan Laksa Pahang · Synexis Digital">
-    <p class="tagline">Empat permainan warisan Laksa Pahang: Laksa Gebok Run, Laksa Quest, Teka Silang Kata dan Cari Kata. Masukkan nama pemain; alamat e-mel diminta untuk kali pertama sahaja. Skor setiap permainan disimpan di bawah nama itu.</p>
-    <form id="register-form" class="form" novalidate>
-      <label class="field"><span>Nama Pemain</span><input id="username" type="text" maxlength="20" autocomplete="nickname" placeholder="cth. Along" required></label>
-      <label id="email-field" class="field" hidden><span>Alamat E-Mail</span><input id="email" type="email" maxlength="80" autocomplete="email" placeholder="anda@contoh.com"></label>
+<div id="register" class="screen login">
+  <div class="login-scene" aria-hidden="true"><img src="laksa-scene.jpg" alt=""></div>
+  <img class="login-boy" src="traveler-menu.png" alt="" aria-hidden="true">
+  <img class="login-food" src="laksa-quest-bowl.png" alt="" aria-hidden="true">
+  <button id="register-lb" class="rank-btn" type="button" aria-label="Kedudukan Terkini: papan kedudukan"><img src="nav-trophy.png" alt=""><span>Kedudukan<br>Terkini</span></button>
+  <div class="login-panel">
+    <img class="register-brand" src="laksa-arcade-logo.png" alt="Laksa Arcade · Warisan Laksa Pahang · Synexis Digital">
+    <p class="login-jom">
+      <svg class="spark left" viewBox="0 0 28 28" aria-hidden="true"><path d="M4 23 L11 15 M12 26 L16 18 M2 13 L10 11"/></svg>
+      <span>Jom Main &amp; Terokai<br>Warisan Laksa Pahang!</span>
+      <svg class="spark right" viewBox="0 0 28 28" aria-hidden="true"><path d="M24 23 L17 15 M16 26 L12 18 M26 13 L18 11"/></svg>
+    </p>
+    <p class="login-sub">Nikmati 4 permainan menarik:</p>
+    <ul class="login-games" aria-label="Permainan"><li>Laksa Gebok Run</li><li>Laksa Quest</li><li>Teka Silang Kata</li><li>Cari Kata</li></ul>
+    <form id="register-form" class="form login-form" novalidate>
+      <label class="field login-field"><span><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.2"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z"/></svg>Nama Pemain</span><input id="username" type="text" maxlength="20" autocomplete="nickname" placeholder="cth. Along" required></label>
+      <label id="email-field" class="field login-field" hidden><span><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5h18v12H3z"/><path d="M3 7l9 6 9-6" fill="none" stroke="#7a2a0c" stroke-width="2"/></svg>Alamat E-Mel</span><input id="email" type="email" maxlength="80" autocomplete="email" placeholder="anda@contoh.com"></label>
       <p id="register-note" class="form-note" hidden></p>
       <p id="register-error" class="form-error" hidden></p>
-      <button id="register-btn" class="btn" type="submit">TERUSKAN</button>
+      <button id="register-btn" class="btn play-btn" type="submit"><svg class="play-tri" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.2v17.6L20.5 12z"/></svg><span id="register-btn-text">MULA BERMAIN</span></button>
     </form>
-    <p id="store-status" class="store-status">Connecting to the database…</p>
-    <a id="admin-link" class="link-btn" href="#admin" hidden>Admin: player performance</a>
+  </div>
+  <p class="login-foot"><span id="store-status" class="store-status">Connecting to the database…</span><a id="admin-link" class="link-btn" href="#admin" hidden>Admin</a></p>
+  <div id="login-popup" class="login-popup" role="dialog" aria-modal="true" aria-labelledby="login-popup-title" hidden>
+    <div id="login-popup-card" class="login-popup-card" data-kind="wait">
+      <div class="popup-icon" aria-hidden="true"></div>
+      <h2 id="login-popup-title" class="login-popup-title">Menyemak…</h2>
+      <p id="login-popup-text" class="login-popup-text" aria-live="polite"></p>
+      <div id="login-popup-bar" class="login-bar" aria-hidden="true" hidden><div id="login-popup-fill" class="login-bar-fill"></div></div>
+      <button id="login-popup-ok" class="btn play-btn popup-ok" type="button" hidden>OK</button>
+    </div>
   </div>
 </div>
 

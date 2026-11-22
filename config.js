@@ -20,6 +20,7 @@ window.GebokConfig = {
     { id: 'flawless', icon: '💎', name: 'Tanpa langgaran', desc: 'Finish the level without losing a heart' },
   ],
   powerups: { magnet: 8, boost: 5, boostMultiplier: 1.45, chance: 0.09 },
+  signIn: { checkSeconds: 2, noticeSeconds: 2 },   // sign-in pop-ups: the 'Menyemak…' bar runs checkSeconds; 'telah mendaftar' shows noticeSeconds, then the menu opens
   music: { src: 'audio/menu-theme.mp4', startAt: 0, loopStart: 10, volume: 0.4, fade: 0.6 },  // menu theme: plays once from startAt (s), then loops loopStart → end; on the register, hub and menu screens only
   // Online player database (Supabase). Run supabase.sql once in the project's SQL editor, then paste the
   // project URL and the anon public key (or the newer publishable key) from Project Settings → API Keys. Both empty = the artifact's database on

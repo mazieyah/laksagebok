@@ -50,7 +50,8 @@
   /* ------------------------------------------------------------------ DOM */
   const ids = ['hud', 'score', 'dist', 'level-label', 'missions', 'm-gebuk', 'm-gebuk-n', 'm-laksa', 'm-laksa-n', 'achievements', 'c-ach', 'i-laksa-target', 'f-ach',
     'power-magnet', 'power-magnet-fill', 'power-shield', 'power-boost', 'power-boost-fill', 'pause-btn', 'banner', 'countdown', 'hint', 'hitflash', 'mute',
-    'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'store-status', 'admin-link',
+    'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'register-btn-text', 'register-lb', 'store-status', 'admin-link',
+    'login-popup', 'login-popup-card', 'login-popup-title', 'login-popup-text', 'login-popup-bar', 'login-popup-fill', 'login-popup-ok',
     'hub', 'hub-player', 'hub-switch', 'hub-howto', 'hub-story', 'hub-lb', 'hub-games', 'reset', 'admin-link-hub', 'games', 'games-sound', 'platform', 'crossword', 'wordsearch', 'lb-tabs',
     'howto', 'howto-back', 'best-start', 'story', 'story-cards', 'story-note', 'story-back',
     'leaderboard', 'lb-list', 'lb-status', 'lb-me', 'lb-back', 'lb-refresh',
@@ -1478,7 +1479,11 @@
     ui.mute.hidden = false;
     setStage(true);
   }
-  function goBack() { if (backTo === 'games' && window.LaksaArcade) window.LaksaArcade.showGames(); else showHub(); }
+  function goBack() {
+    if (backTo === 'register') showRegister();                                   // the leaderboard opened from the sign-in page
+    else if (backTo === 'games' && window.LaksaArcade) window.LaksaArcade.showGames();
+    else showHub();
+  }
   function showHub() {
     menuState();
     backTo = 'hub';
@@ -1637,14 +1642,28 @@
     ui.adminLink.hidden = !adminLink;
     ui.adminLinkHub.hidden = !adminLink;
   }
-  // Sign-in is by player name: the e-mail address is asked once, when the name is new (GebokStore.findProfile).
-  function registerStep(first) {                 // first: a new name, so the e-mail field is shown
-    ui.emailField.hidden = !first;
-    ui.registerNote.hidden = !first;
-    ui.registerNote.textContent = first ? 'Pemain baharu! Masukkan alamat e-mel untuk kali pertama sahaja.' : '';
-    ui.registerBtn.textContent = first ? 'DAFTAR & MULA' : 'TERUSKAN';
+  // Sign-in is by player name. A new name asks for the e-mail once ('register'); a registered name asks for its e-mail to confirm it ('verify').
+  const STEP_LABEL = { name: 'MULA BERMAIN', register: 'DAFTAR & MULA', verify: 'SAHKAN & MULA' };
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const normText = (t) => (t || '').trim().toLowerCase();
+  let stepMode = 'name', pendingProfile = null;   // pendingProfile: the registered record waiting for its e-mail
+  let signInRun = 0;                               // bumped by showRegister(): a sign-in flow from before the reset stops quietly
+  function registerStep(mode) {
+    stepMode = mode;
+    if (mode !== 'verify') pendingProfile = null;
+    const withEmail = mode !== 'name';
+    ui.emailField.hidden = !withEmail;
+    ui.registerNote.hidden = !withEmail;
+    ui.registerNote.textContent = mode === 'register' ? 'Daftar Alamat E-Mel: alamat e-mel diminta untuk kali pertama sahaja.'
+      : mode === 'verify' ? 'Pengesahan E-Mel: masukkan alamat e-mel yang didaftarkan untuk ' + (pendingProfile ? pendingProfile.username : 'nama ini') + '.' : '';
+    ui.registerBtnText.textContent = STEP_LABEL[mode];
     ui.registerError.hidden = true;
+    if (withEmail) ui.email.value = '';
+    if (mode === 'name') fieldState(ui.username.parentElement, '');
+    fieldState(ui.emailField, '');
   }
+  // 'ok' = green tick, 'error' = red cross inside the input, '' = plain (cleared again as soon as the player types)
+  function fieldState(field, state) { if (state) field.dataset.state = state; else delete field.dataset.state; }
   async function refreshStore() {
     updateStoreStatus('Connecting to the database…');
     try { await GebokStore.ready; } catch (e) { /* info() reports the fallback */ }
@@ -1656,9 +1675,11 @@
   }
   function showRegister() {
     menuState();
+    signInRun++;
+    popupHide();
     ui.register.hidden = false;
     ui.username.value = ''; ui.email.value = '';
-    registerStep(false);
+    registerStep('name');
     refreshStore();
   }
   function useProfile(p) {
@@ -1668,36 +1689,120 @@
     music.restart();                       // the menu page opens with the theme from the top
     window.LaksaArcade.showGames();
   }
+  // Sign-in pop-ups (CFG.signIn): a checking bar, then "telah mendaftar" (auto-close -> menu) or "Daftar Maklumat Pemain" (OK -> e-mail field).
+  let popupOk = null;
+  function popupShow(o) {                      // o.kind: 'wait' (spinner) | 'ok' (green tick) | 'error' (red cross) | 'info' (blue i)
+    ui.loginPopupCard.dataset.kind = o.kind || 'info';
+    ui.loginPopupTitle.textContent = o.title;
+    ui.loginPopupText.textContent = o.text || '';
+    ui.loginPopupBar.hidden = !o.bar;
+    if (o.bar) {                               // restart the fill animation at the requested length
+      ui.loginPopupFill.style.animation = 'none';
+      void ui.loginPopupFill.offsetWidth;
+      ui.loginPopupFill.style.setProperty('--bar-secs', (o.bar / 1000) + 's');
+      ui.loginPopupFill.style.animation = '';
+    }
+    ui.loginPopupOk.hidden = !o.ok;
+    ui.loginPopup.hidden = false;
+    if (o.ok) ui.loginPopupOk.focus();
+  }
+  function popupHide() { ui.loginPopup.hidden = true; const r = popupOk; popupOk = null; if (r) r(); }   // a waiting OK is released
+  const popupWaitOk = () => new Promise((r) => { popupOk = r; });
+  const sleep = (ms) => new Promise((r) => setTimeout(r, Math.max(0, ms)));
   async function onRegister(e) {
     e.preventDefault();
     const username = ui.username.value.trim(), email = ui.email.value.trim();
-    const first = !ui.emailField.hidden;         // step 2: the e-mail field is showing
+    let mode = stepMode;
+    if (mode === 'verify' && (!pendingProfile || normText(username) !== normText(pendingProfile.username))) mode = 'name';   // the name was changed: check it again
+    const withEmail = mode !== 'name';
     const err = username.length < 2 ? 'Nama pemain perlu sekurang-kurangnya 2 aksara.'
-      : first && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? 'Masukkan alamat e-mel yang sah.' : '';
+      : withEmail && !EMAIL_RE.test(email) ? 'Masukkan alamat e-mel yang sah.' : '';
     ui.registerError.textContent = err;
     ui.registerError.hidden = !err;
-    if (err) return;
+    if (err) { fieldState(username.length < 2 ? ui.username.parentElement : ui.emailField, 'error'); (username.length < 2 ? ui.username : ui.email).focus(); return; }
+    if (ui.registerBtn.disabled) return;         // a check is already running
     ui.registerBtn.disabled = true;
-    ui.registerBtn.textContent = first ? 'MENYIMPAN…' : 'MENYEMAK…';
+    ui.registerBtnText.textContent = mode === 'register' ? 'MENYIMPAN…' : mode === 'verify' ? 'MENGESAHKAN…' : 'MENYEMAK…';
+    const S = CFG.signIn || {};
+    const checkMs = (S.checkSeconds == null ? 2 : S.checkSeconds) * 1000;
+    const noticeMs = (S.noticeSeconds == null ? 2 : S.noticeSeconds) * 1000;
+    const run = signInRun;
+    const stale = () => run !== signInRun;       // showRegister() ran meanwhile: leave the screen as it reset it
+    const notice = async (kind, title, text) => {   // a notice the player closes with OK
+      popupShow({ kind, title, text, ok: true });
+      await popupWaitOk();
+      popupHide();
+      await sleep(60);                           // the Enter that pressed OK must not reach the input that gets focus next
+    };
+    const enter = async (title, text, p) => {    // a green closing notice, then the games menu
+      popupShow({ kind: 'ok', title, text: text + ', ' + p.username + '! Membuka menu utama…' });
+      await sleep(noticeMs);
+      popupHide();
+      ui.username.value = ''; ui.email.value = '';
+      pendingProfile = null;
+      useProfile(p);
+    };
     try {
-      const existing = await GebokStore.findProfile(username, first ? email : '');
-      if (existing) {                            // a returning player: the name is enough
-        ui.username.value = ''; ui.email.value = '';
-        useProfile(existing);
-      } else if (!first) {                       // a new name: ask for the e-mail, this once
-        registerStep(true);
-        ui.email.focus();
+      if (mode === 'verify') {                   // a registered name: only its own e-mail logs in
+        popupShow({ kind: 'wait', title: 'Mengesahkan…', text: 'Menyemak alamat e-mel…', bar: checkMs });
+        await sleep(checkMs);
+        if (stale()) return;
+        if (normText(email) !== normText(pendingProfile.email)) {
+          fieldState(ui.emailField, 'error');
+          await notice('error', 'E-Mel Salah', 'Alamat e-mel tidak sepadan dengan nama pemain "' + pendingProfile.username + '". Sila cuba lagi.');
+          if (stale()) return;
+          ui.email.select();
+        } else {
+          fieldState(ui.emailField, 'ok');
+          await enter('Pengesahan Berjaya', 'Selamat kembali', pendingProfile);
+        }
       } else {
-        const p = await GebokStore.register(username, email);
-        ui.username.value = ''; ui.email.value = '';
-        useProfile(p);
+        popupShow({ kind: 'wait', title: mode === 'register' ? 'Mendaftar…' : 'Menyemak…', text: mode === 'register' ? 'Menyimpan maklumat pemain…' : 'Menyemak nama pemain…', bar: checkMs });
+        const started = Date.now();
+        const existing = await GebokStore.findProfile(username, mode === 'register' ? email : '');
+        const byName = !!existing && normText(existing.username) === normText(username);
+        const p = mode === 'register' && !existing ? await GebokStore.register(username, email) : null;   // a used e-mail is never registered twice
+        await sleep(checkMs - (Date.now() - started));   // the bar fills to the end
+        if (stale()) return;
+        if (mode === 'name') {
+          if (existing) {                        // registered: say so (green: the name is right), then ask for the e-mail
+            pendingProfile = existing;
+            fieldState(ui.username.parentElement, 'ok');
+            popupShow({ kind: 'ok', title: 'Nama Pemain Telah Mendaftar', text: 'Nama "' + existing.username + '" sudah berdaftar. Masukkan alamat e-mel yang didaftarkan untuk pengesahan.' });
+            await sleep(noticeMs);
+            popupHide();
+            if (stale()) return;
+            registerStep('verify');
+          } else {                               // a new name: ask for a new e-mail, this once
+            await notice('info', 'Daftar Maklumat Pemain', 'Nama pemain "' + username + '" belum didaftarkan. Tekan OK untuk daftar alamat e-mel (kali pertama sahaja).');
+            if (stale()) return;
+            registerStep('register');
+          }
+          ui.email.focus();
+        } else if (p) {
+          fieldState(ui.emailField, 'ok');
+          await enter('Pendaftaran Berjaya', 'Selamat datang', p);
+        } else if (byName) {                     // the name was taken while the e-mail was typed
+          await notice('error', 'Nama Telah Berdaftar', 'Nama pemain "' + username + '" baru sahaja didaftarkan oleh pemain lain. Sila gunakan nama lain.');
+          if (stale()) return;
+          registerStep('name');
+          fieldState(ui.username.parentElement, 'error');
+          ui.username.select();
+        } else {                                 // the e-mail already belongs to another player
+          fieldState(ui.emailField, 'error');
+          await notice('error', 'E-Mel Telah Berdaftar', 'Alamat e-mel ini telah berdaftar untuk pemain lain. Sila gunakan e-mel baru.');
+          if (stale()) return;
+          ui.email.select();
+        }
       }
     } catch (e2) {
+      popupHide();
       ui.registerError.textContent = 'Pemain tidak dapat disimpan. Cuba lagi.';
       ui.registerError.hidden = false;
+    } finally {
+      ui.registerBtn.disabled = false;
+      ui.registerBtnText.textContent = STEP_LABEL[stepMode];
     }
-    ui.registerBtn.disabled = false;
-    ui.registerBtn.textContent = ui.emailField.hidden ? 'TERUSKAN' : 'DAFTAR & MULA';
   }
   function route() {
     if (location.hash === '#admin') { menuState(); GebokAdmin.show(); }
@@ -2009,7 +2114,7 @@
     if (!ui.register.hidden || !ui.games.hidden || !ui.platform.hidden || !ui.crossword.hidden || !ui.wordsearch.hidden || GebokAdmin.isOpen()) return;
     const k = e.key;
     if (k === 'p' || k === 'P' || k === 'Escape') {
-      if (state === 'menu') { if (!ui.hub.hidden) window.LaksaArcade.showGames(); else if (GebokStore.current()) goBack(); }
+      if (state === 'menu') { if (!ui.hub.hidden) window.LaksaArcade.showGames(); else if (GebokStore.current() || backTo === 'register') goBack(); }
       else togglePause();
       e.preventDefault();
       return;
@@ -2049,6 +2154,10 @@
   }, { passive: true });
   window.addEventListener('touchmove', (e) => { if (state === 'playing') e.preventDefault(); }, { passive: false });
   ui.registerForm.addEventListener('submit', onRegister);
+  ui.registerLb.addEventListener('click', () => { backTo = 'register'; showLeaderboard(); });   // Kedudukan Terkini
+  ui.loginPopupOk.addEventListener('click', () => { if (popupOk) popupOk(); });
+  ui.username.addEventListener('input', () => { fieldState(ui.username.parentElement, ''); ui.registerError.hidden = true; });
+  ui.email.addEventListener('input', () => { fieldState(ui.emailField, ''); ui.registerError.hidden = true; });
   ui.hubSwitch.addEventListener('click', showRegister);
   ui.hubHowto.addEventListener('click', showHowto);
   ui.hubStory.addEventListener('click', showStory);

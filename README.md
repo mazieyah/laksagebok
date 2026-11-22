@@ -135,12 +135,28 @@ at the first interaction.
 
 ## Players, leaderboard, admin
 
-The game opens with a sign-in screen. The player types their "Nama Pemain" and
-presses TERUSKAN: a name already on record (case-insensitive) continues that
-record; a new name reveals the "Alamat E-Mail" field, asked once, and DAFTAR &
-MULA creates the record. The name of the player this device used last is
-prefilled, so a returning player only confirms it. Nothing lists other players
-on the device. Each player record keeps level progress, best run score, best
+The game opens with a sign-in page drawn after the project's mockup: the
+village scene with the Traveller and a laksa spread around a wooden panel
+(logo, "Jom Main & Terokai Warisan Laksa Pahang!", the four games, the
+"Nama Pemain" field and the MULA BERMAIN button). The player types their name
+and presses MULA BERMAIN. A pop-up with a loading bar ("Menyemak…") runs for
+`signIn.checkSeconds` (config.js, 2 s). A name already on record
+(case-insensitive) gets "Nama Pemain Telah Mendaftar" for `signIn.noticeSeconds`
+(2 s), which closes by itself and reveals the "Alamat E-Mel" field for
+confirmation: SAHKAN & MULA accepts only the e-mail the record was registered
+with ("Pengesahan Berjaya", then the games menu); any other e-mail gets the
+"E-Mel Salah" pop-up and no sign-in. A new name gets "Daftar Maklumat Pemain"
+with an OK button that reveals the same field, asked once; DAFTAR & MULA shows
+"Mendaftar…" and "Pendaftaran Berjaya" before the menu opens, unless the e-mail
+already belongs to another player: then "E-Mel Telah Berdaftar" asks for a new
+e-mail and nothing is saved. Every pop-up carries an outcome badge (green
+tick = right, red cross = wrong, blue "i" = information, amber ring = checking)
+and the field concerned shows the same tick or cross inside the input until the
+player types again. The name of the player this device
+used last is prefilled, so a returning player only confirms it. Nothing lists
+other players on the device. "Kedudukan Terkini" at the top right opens the
+leaderboard without signing in; KEMBALI returns to the sign-in page. The
+database status and the Admin link sit in small print at the foot of the page. Each player record keeps level progress, best run score, best
 score per level, totals and a history of every level played (level, result,
 level score, run total, laksa, gebuk, distance, time, time left, hearts lost,
 badges).
