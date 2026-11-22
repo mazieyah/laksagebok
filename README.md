@@ -168,6 +168,7 @@ five round menu buttons sit in their own row under the welcome sign.
 
 ## Players, leaderboard, admin
 
+Player names are at most `signIn.nameMaxLength` characters (config.js, 9).
 The game opens with a sign-in page drawn after the project's mockup: the
 village scene with the Traveller and a laksa spread around a wooden panel
 (logo, "Jom Main & Terokai Warisan Laksa Pahang!", the four games, the
@@ -187,7 +188,9 @@ tick = right, red cross = wrong, blue "i" = information, amber ring = checking)
 and the field concerned shows the same tick or cross inside the input until the
 player types again. The name of the player this device
 used last is prefilled, so a returning player only confirms it. Nothing lists
-other players on the device. "Kedudukan Terkini" at the top right opens the
+other players on the device. The red "Log Keluar" button under the welcome
+sign (and LOG KELUAR in the settings) returns to the sign-in page and clears
+the current player; the name stays prefilled. "Kedudukan Terkini" at the top right opens the
 leaderboard without signing in; KEMBALI returns to the sign-in page. The
 database status and the Admin link sit in small print at the foot of the page. Each player record keeps level progress, best run score, best
 score per level, totals and a history of every level played (level, result,

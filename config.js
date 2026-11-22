@@ -20,8 +20,8 @@ window.GebokConfig = {
     { id: 'flawless', icon: '💎', name: 'Tanpa langgaran', desc: 'Finish the level without losing a heart' },
   ],
   powerups: { magnet: 8, boost: 5, boostMultiplier: 1.45, chance: 0.09 },
-  signIn: { checkSeconds: 2, noticeSeconds: 2 },
-  // Heritage pages ("Maklumat Laksa Gebok") shown right after sign-in, before the games menu, and again from the menu's "i" button.
+  signIn: { checkSeconds: 2, noticeSeconds: 2, nameMaxLength: 9 },
+  // Heritage pages ("Maklumat Laksa Gebok") shown right after sign-in, before the games menu, and again from the menu's "i" button.; names are at most nameMaxLength characters
   // SETERUSNYA / KEMBALI turn the pages; the last page's button opens the menu. Text follows the project's poster and the recipe
   // board photographed at Muzium Sultan Abu Bakar, Pekan. Each page: tab + icon (sidebar), title, figure, points / steps / columns, callout,
   // photo (a picture under the text), lead (a paragraph before the steps), gallery (captioned photos after the steps), more (icon paragraphs

@@ -1667,6 +1667,8 @@
   // Sign-in is by player name. A new name asks for the e-mail once ('register'); a registered name asks for its e-mail to confirm it ('verify').
   const STEP_LABEL = { name: 'MULA BERMAIN', register: 'DAFTAR & MULA', verify: 'SAHKAN & MULA' };
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const NAME_MAX = (CFG.signIn && CFG.signIn.nameMaxLength) || 9;   // player names are short: they must fit the welcome sign
+  ui.username.maxLength = NAME_MAX;
   const normText = (t) => (t || '').trim().toLowerCase();
   let stepMode = 'name', pendingProfile = null;   // pendingProfile: the registered record waiting for its e-mail
   let signInRun = 0;                               // bumped by showRegister(): a sign-in flow from before the reset stops quietly
@@ -1692,13 +1694,14 @@
     updateStoreStatus();
     try {                                        // the player this device used last only confirms the name
       const name = await GebokStore.rememberedName();
-      if (name && !ui.username.value) ui.username.value = name;
+      if (name && name.length <= NAME_MAX && !ui.username.value) ui.username.value = name;   // a longer remembered name would only be refused
     } catch (e) { /* ignore */ }
   }
-  function showRegister() {
+  function showRegister() {                  // the sign-in page: reaching it logs the current player out
     menuState();
     signInRun++;
     popupHide();
+    GebokStore.signOut();
     ui.register.hidden = false;
     ui.username.value = ''; ui.email.value = '';
     registerStep('name');
@@ -1826,10 +1829,11 @@
     if (mode === 'verify' && (!pendingProfile || normText(username) !== normText(pendingProfile.username))) mode = 'name';   // the name was changed: check it again
     const withEmail = mode !== 'name';
     const err = username.length < 2 ? 'Nama pemain perlu sekurang-kurangnya 2 aksara.'
+      : username.length > NAME_MAX ? 'Nama pemain paling panjang ' + NAME_MAX + ' aksara.'
       : withEmail && !EMAIL_RE.test(email) ? 'Masukkan alamat e-mel yang sah.' : '';
     ui.registerError.textContent = err;
     ui.registerError.hidden = !err;
-    if (err) { fieldState(username.length < 2 ? ui.username.parentElement : ui.emailField, 'error'); (username.length < 2 ? ui.username : ui.email).focus(); return; }
+    if (err) { const nameErr = username.length < 2 || username.length > NAME_MAX; fieldState(nameErr ? ui.username.parentElement : ui.emailField, 'error'); (nameErr ? ui.username : ui.email).focus(); return; }
     if (ui.registerBtn.disabled) return;         // a check is already running
     ui.registerBtn.disabled = true;
     ui.registerBtnText.textContent = mode === 'register' ? 'MENYIMPAN…' : mode === 'verify' ? 'MENGESAHKAN…' : 'MENYEMAK…';

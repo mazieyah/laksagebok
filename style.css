@@ -738,14 +738,19 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
   text-shadow: 0 2px 0 #9a4a0c, 0 4px 0 #5c2806;
   overflow: hidden;
 }
-.welcome-switch {
-  position: absolute; right: 14%; bottom: 8%;
-  border: 0; background: transparent; cursor: pointer;
-  color: #ffe9a8; font: inherit; font-size: 11px; font-weight: 800;
-  text-decoration: underline; padding: 2px 4px;
+.logout-btn {                             /* hangs from the welcome sign's lower edge */
+  position: absolute; right: 12%; bottom: -13px;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 12px 5px; border-radius: 999px; cursor: pointer;
+  border: 2px solid #f8c84e; background: linear-gradient(180deg, #ff7a52, #ef3a1f 55%, #c81d0d);
+  color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 12px; line-height: 1; letter-spacing: .3px; white-space: nowrap;
+  text-shadow: 0 1px 0 #7a1d0b; box-shadow: 0 0 0 2px #6e1a09, 0 3px 0 #8d1308, 0 6px 10px rgba(0, 0, 0, .3);
+  transition: transform .08s, box-shadow .08s, filter .08s;
 }
-.welcome-switch:hover { color: #fff; }
-.welcome-switch:focus-visible { outline: 2px solid #ffe14a; outline-offset: 2px; }
+.logout-btn svg { width: 14px; height: 14px; fill: #fff; flex: none; filter: drop-shadow(0 1px 0 #7a1d0b); }
+.logout-btn:hover { filter: brightness(1.08); }
+.logout-btn:active { transform: translateY(2px); box-shadow: 0 0 0 2px #6e1a09, 0 1px 0 #8d1308; }
+.logout-btn:focus-visible { outline: 2px solid #ffe14a; outline-offset: 2px; }
 .game-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 17px; width: 100%; align-items: stretch; }
 .game-card {
   --cd: #f08a2a; --wash: #ffe0bf; --wave: #e8943a;

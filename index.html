@@ -75,7 +75,7 @@
     <p class="login-sub">Setiap Warisan Mempunyai Cerita</p>
     <ul class="login-games" aria-label="Permainan"><li>Laksa Gebok Run</li><li>Laksa Quest</li><li>Teka Silang Laksa</li><li>Cari Kata Laksa</li></ul>
     <form id="register-form" class="form login-form" novalidate>
-      <label class="field login-field"><span><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.2"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z"/></svg>Nama Pemain</span><input id="username" type="text" maxlength="20" autocomplete="nickname" placeholder="cth. Along" required></label>
+      <label class="field login-field"><span><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.2"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z"/></svg>Nama Pemain</span><input id="username" type="text" maxlength="9" autocomplete="nickname" placeholder="cth. Along" required></label>
       <label id="email-field" class="field login-field" hidden><span><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5h18v12H3z"/><path d="M3 7l9 6 9-6" fill="none" stroke="#7a2a0c" stroke-width="2"/></svg>Alamat E-Mel</span><input id="email" type="email" maxlength="80" autocomplete="email" placeholder="anda@contoh.com"></label>
       <p id="register-note" class="form-note" hidden></p>
       <p id="register-error" class="form-error" hidden></p>
@@ -130,7 +130,7 @@
     <div class="welcome-sign">
       <img src="selamat-datang.png" alt="">
       <strong id="games-player" class="welcome-name"></strong>
-      <button id="games-switch" class="welcome-switch" type="button">Tukar</button>
+      <button id="games-switch" class="logout-btn" type="button" aria-label="Log keluar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5v-2H6V6h4z"/><path d="M14 7l-1.4 1.4L15.2 11H9v2h6.2l-2.6 2.6L14 17l5-5z"/></svg>Log Keluar</button>
     </div>
     <div class="sign arcade-brand">
       <img src="laksa-arcade-logo.png" alt="Laksa Arcade · Pilih Permainan · Warisan Laksa Pahang · Synexis Digital">
@@ -303,7 +303,7 @@
   </div>
   <div class="hub-body">
     <div class="hub-left">
-      <div class="player-chip">Pemain: <strong id="hub-player"></strong> <button id="hub-switch" class="chip-link" type="button">Tukar</button></div>
+      <div class="player-chip">Pemain: <strong id="hub-player"></strong> <button id="hub-switch" class="chip-link" type="button">Log Keluar</button></div>
     </div>
     <nav class="hub-nav" aria-label="Main menu">
       <button id="hub-start" class="play-btn" type="button"><span class="play-icon" aria-hidden="true">▶</span><span class="play-text">MULA LARIAN</span></button>
@@ -352,7 +352,7 @@
     <h2 class="title small">TETAPAN</h2>
     <div class="btn-row">
       <button id="settings-sound" class="btn secondary" type="button">BUNYI: ON</button>
-      <button id="settings-switch" class="btn secondary" type="button">TUKAR PEMAIN</button>
+      <button id="settings-switch" class="btn secondary" type="button">LOG KELUAR</button>
     </div>
     <button id="reset" class="link-btn" type="button">Reset progress</button>
     <a id="admin-link-hub" class="link-btn" href="#admin" hidden>Admin: player performance</a>

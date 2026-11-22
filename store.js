@@ -158,6 +158,7 @@
   }
 
   function select(p) { S.current = p; lsSet(LS_PROFILE, p.id); lsSet(LS_NAME, p.username || ''); }
+  function signOut() { S.current = null; lsDel(LS_PROFILE); }   // Log Keluar: the name stays remembered for the sign-in field
   // The record for a player name (case-insensitive) or, failing that, for the e-mail; null for a new player.
   async function findProfile(name, email) {
     await ready;
@@ -389,5 +390,5 @@
   function forgetAdminKey() { lsDel(LS_ADMIN); if (S.mode === 'supabase') { S.admin = false; S.owner = false; } }
   function info() { return { mode: S.mode, reason: S.reason, admin: S.admin, owner: S.owner, account: S.accountId, current: S.current, supabase: sbConfigured() }; }
 
-  window.GebokStore = { ready, info, listProfiles, findProfile, rememberedName, register, select, remembered: () => lsGet(LS_PROFILE), current: () => S.current, saveProgress, recordRun, recordGame, fetchAll, subscribeAll, clearAll, download, fetchLeaderboard, setAdminKey, forgetAdminKey };
+  window.GebokStore = { ready, info, listProfiles, findProfile, rememberedName, register, select, signOut, remembered: () => lsGet(LS_PROFILE), current: () => S.current, saveProgress, recordRun, recordGame, fetchAll, subscribeAll, clearAll, download, fetchLeaderboard, setAdminKey, forgetAdminKey };
 })();
