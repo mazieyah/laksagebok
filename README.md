@@ -11,7 +11,7 @@ the player lands on the games screen ("PILIH PERMAINAN") and picks:
    daun kesum, bunga kantan, sambal). Five different ingredients complete one
    bowl; each level has a bowl mission (2 / 3 / 4 bowls) and the laksa stall at
    the end only accepts the player once the mission is done.
-3. **Teka Silang Laksa** – a 12×12 crossword: 15 clues from a pool of 30 drawn from the Maklumat Laksa Gebok pages, laid out at random every play
+3. **Teka Silang Laksa** – a 12×12 crossword: 15 clues from a 100-question bank (Pahang heritage, the laksa kitchen, laksa gebok), laid out at random every play
    about laksa, gebuk and Pahang.
 4. **Cari Kata Laksa** – a word search: 14 words from the Maklumat Laksa Gebok pages hidden in a 12×12
    letter grid that is generated fresh every play.
@@ -47,13 +47,19 @@ to the timer, and the final score adds the time bonus. A word filled in
 completely but wrong buzzes and shakes red; both verdicts also show as a
 one-second green or red toast over the grid ("BETUL! KUNYIT · +50 mata",
 "SALAH · Cuba lagi"). BANTUAN (−20) is greyed out while the running score is
-below 20.
+below 20; taking a hint shows an amber one-second toast with the −20 and the
+new total.
 
 The screen is a wooden board over the village scene: a pencil sign, HUD pills
 (Skor, time, progress), the grid and a wooden on-screen keyboard on the left,
 parchment clue lists with "Melintang" / "Menurun" ribbons, an info box and
 BANTUAN / PERMAINAN buttons on the right. There is no SEMAK button: words are
 checked as they are completed.
+
+The question bank (`POOL` in crossword.js) holds 97 usable clues for 85
+answers; two-word answers are written without spaces (SUNGAIPAHANG), answers
+over 12 letters (CAMERON HIGHLANDS, PATIN TEMPOYAK) or under 3 (MI) are left
+out, and an answer with several clues appears once per layout with one of them.
 
 ## Cari Kata Laksa (word search)
 

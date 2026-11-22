@@ -1,44 +1,112 @@
 /* ======================================================================
-   LaksaCrossword — Teka Silang Laksa: 15 clues drawn from the "Maklumat Laksa
-   Gebok" pages (asal-usul, proses pembuatan, resipi), laid out at random on a
+   LaksaCrossword — Teka Silang Laksa: 15 clues from a 100-question bank on
+   Pahang heritage, the laksa kitchen and laksa gebok, laid out at random on a
    12×12 grid every play (classic rules: every word crosses another, crossings
    agree, no stray adjacent letters); a fixed layout is the fallback.
    ====================================================================== */
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
-  // Word pool (word, clue) from the "Maklumat Laksa Gebok" pages; each play lays 15 of them out at random.
+  // Question bank (100 clues, Pahang heritage and kitchen): answers without spaces; a word with several clues gets one of them, and
+  // never appears twice in one layout. Answers over 12 letters or under 3 are left out.
   const POOL = [
-    ['GEBOK', 'Alat tradisional tembaga yang menekan doh menjadi mi laksa'],
-    ['LAKSA', 'Hidangan tradisional kebanggaan negeri Pahang'],
-    ['PAHANG', 'Negeri asal laksa gebok'],
-    ['PEKAN', 'Bandar Muzium Sultan Abu Bakar, tempat gebok asal dipamerkan'],
-    ['MUZIUM', 'Tempat gebok asal dipamerkan sebagai warisan makanan'],
-    ['TEMBAGA', 'Logam gebok tradisional'],
-    ['GANDUM', 'Tepung untuk doh mi laksa gebok'],
-    ['DOH', 'Diuli daripada tepung dan air, lalu dimasukkan ke dalam gebok'],
-    ['REBUS', 'Mi dimasak begini dalam air mendidih lebih kurang 10 minit'],
-    ['KEMBUNG', 'Ikan untuk kuah lemak laksa gebok'],
-    ['SANTAN', 'Pekat, bahan utama kuah lemak'],
-    ['KERISIK', 'Kelapa parut goreng yang ditumbuk ke dalam kuah'],
-    ['SERAI', 'Empat batang dalam resipi kuah laksa'],
-    ['KETUMBAR', 'Biji rempah yang digoreng tanpa minyak hingga naik bau'],
-    ['KESUM', 'Daun ulam laksa yang dihiris nipis'],
-    ['SELASIH', 'Daun ulam, dihiris nipis bersama daun kesum'],
-    ['KUNYIT', 'Daunnya dihiris halus sebagai ulam laksa gebok'],
-    ['TAUGE', 'Kecambah yang ditabur sedikit di atas laksa'],
-    ['BELACAN', 'Dibakar, dihidang bersama sambal lada'],
-    ['KASTURI', 'Limau yang dibelah dua untuk laksa'],
-    ['TIMUN', 'Ulam yang diparut halus'],
-    ['KUAH', 'Lemak ikan, dicurah ke atas mi dalam mangkuk'],
-    ['SAMBAL', 'Lada kering ditumbuk halus, pedas'],
-    ['KENDURI', 'Majlis kampung tempat laksa gebok disediakan beramai-ramai'],
-    ['KUANTAN', 'Daerah Kampung Panching, tempat resipi keluarga itu'],
-    ['JINTAN', 'Rempah putih dan manis dalam kuah laksa'],
-    ['HALIA', '40 g dalam kuah, digoreng berasingan tanpa minyak'],
-    ['TENGGIRI', 'Ikan dalam resipi papan Muzium Sultan Abu Bakar'],
-    ['ULAM', 'Sayur mentah pelengkap semangkuk laksa'],
-    ['TANGAN', 'Orang Pahang kata laksa gebok paling sedap dimakan dengan ini'],
+    ['PAHANG', 'Negeri yang terkenal dengan Laksa Pahang.'],
+    ['LESUNG', 'Alat tradisional untuk menumbuk cili dan rempah.'],
+    ['DURIAN', 'Buah yang dikenali sebagai raja buah.'],
+    ['LAKSA', 'Makanan tradisional yang menjadi tema utama permainan.'],
+    ['PERIUK', 'Peralatan untuk memasak air atau kuah.'],
+    ['PEKAN', 'Bandar diraja negeri Pahang.'],
+    ['IKAN', 'Bahan utama untuk menghasilkan kuah laksa.'],
+    ['SILAT', 'Seni mempertahankan diri tradisional Melayu.'],
+    ['ASAM', 'Bahan yang memberikan rasa masam dalam kuah.'],
+    ['GEBOK', 'Alat tradisional yang digunakan dalam penyediaan Laksa Gebok.'],
+    ['KUANTAN', 'Bandar utama dan ibu negeri Pahang.'],
+    ['GULA', 'Bahan yang digunakan untuk memberikan rasa manis.'],
+    ['PISAU', 'Alat untuk memotong bahan masakan.'],
+    ['TIOMAN', 'Pulau peranginan terkenal di Pahang.'],
+    ['CILI', 'Bahan berwarna merah yang memberikan rasa pedas.'],
+    ['SONGKET', 'Kain tradisional yang mempunyai corak tenunan.'],
+    ['KUAH', 'Cecair yang dihidangkan bersama laksa.'],
+    ['KELAPA', 'Tumbuhan yang menghasilkan buah kelapa.'],
+    ['CONGKAK', 'Permainan tradisional menggunakan papan berlubang dan buah.'],
+    ['GORENG', 'Kaedah memasak menggunakan minyak panas.'],
+    ['SENDUK', 'Alat untuk mengacau kuah di dalam periuk.'],
+    ['KESUM', 'Daun beraroma yang digunakan dalam masakan laksa.'],
+    ['CAWAN', 'Bekas untuk minum air.'],
+    ['GUNUNGTAHAN', 'Gunung tertinggi di Semenanjung Malaysia yang terletak di Pahang.'],
+    ['BERAS', 'Bahan utama dalam pembuatan nasi.'],
+    ['TUMBUK', 'Proses menghancurkan bahan menggunakan lesung.'],
+    ['GONG', 'Alat muzik tradisional yang dimainkan dengan dipukul.'],
+    ['LIMAU', 'Buah yang sering digunakan untuk memberikan rasa masam.'],
+    ['PAPAN', 'Permukaan yang digunakan untuk memotong bahan.'],
+    ['GARAM', 'Bahan masakan yang memberikan rasa masin.'],
+    ['SUNGAIPAHANG', 'Sungai terkenal yang mengalir di negeri Pahang.'],
+    ['TEMPAYAN', 'Bekas tradisional untuk menyimpan makanan.'],
+    ['KUPAS', 'Proses membuang kulit bawang.'],
+    ['BULUH', 'Tumbuhan yang mempunyai batang beruas dan boleh dijadikan bahan kraf.'],
+    ['PEDAS', 'Rasa yang dihasilkan oleh cili dalam masakan.'],
+    ['PINGGAN', 'Peralatan untuk menghidangkan makanan.'],
+    ['PATIN', 'Haiwan air tawar yang terkenal sebagai hidangan Pahang.'],
+    ['GAUL', 'Proses mencampurkan beberapa bahan.'],
+    ['BELACAN', 'Bahan yang sering digunakan untuk menghasilkan sambal.'],
+    ['TAMANNEGARA', 'Hutan simpan yang terkenal di Pahang.'],
+    ['ALU', 'Alat untuk menumbuk bahan masakan.'],
+    ['MAKAN', 'Aktiviti menikmati makanan.'],
+    ['SERAI', 'Tumbuhan yang digunakan untuk menambah aroma masakan.'],
+    ['CINCANG', 'Proses memotong bahan kepada bahagian kecil.'],
+    ['GASING', 'Permainan tradisional menggunakan gasing.'],
+    ['REBUS', 'Kaedah memasak menggunakan air panas.'],
+    ['SANTAN', 'Bahan asas masakan yang diperoleh daripada kelapa.'],
+    ['PENAPIS', 'Peralatan untuk menyaring bahan masakan.'],
+    ['TUKANGMASAK', 'Orang yang menyediakan makanan.'],
+    ['NANGKA', 'Buah tempatan yang mempunyai duri pada kulit.'],
+    ['PERSIAPAN', 'Aktiviti menyediakan bahan sebelum memasak.'],
+    ['PENGISAR', 'Alat untuk mengisar atau menghancurkan bahan.'],
+    ['BAWANG', 'Bahan masakan yang mempunyai aroma kuat.'],
+    ['GARAM', 'Bahan yang diperoleh daripada laut dan digunakan dalam masakan.'],
+    ['SENDUK', 'Peralatan untuk mengambil makanan berkuah.'],
+    ['BASUH', 'Perbuatan menjaga kebersihan bahan makanan.'],
+    ['ULAM', 'Makanan yang dihidangkan sebagai pelengkap hidangan utama.'],
+    ['BAWANGPUTIH', 'Bahan masakan berwarna putih dan mempunyai aroma kuat.'],
+    ['PENGUPAS', 'Alat untuk mengupas kulit sayuran.'],
+    ['TRADISI', 'Amalan turun-temurun yang diwarisi daripada generasi terdahulu.'],
+    ['REBUS', 'Proses memasak bahan menggunakan air mendidih.'],
+    ['SUNGAI', 'Sumber air semula jadi yang mengalir.'],
+    ['KUNYIT', 'Tumbuhan yang digunakan dalam masakan dan mempunyai bau harum.'],
+    ['KAYU', 'Rumah tradisional Melayu biasanya diperbuat daripada bahan ini.'],
+    ['KAYU', 'Bahan api tradisional daripada kayu.'],
+    ['TAWAR', 'Rasa makanan yang tidak manis dan tidak masin.'],
+    ['KERANG', 'Haiwan bercengkerang yang hidup di sungai atau laut.'],
+    ['JAG', 'Bekas untuk menyimpan air.'],
+    ['HIDANG', 'Proses memasukkan makanan ke dalam bekas untuk dihidangkan.'],
+    ['GURU', 'Individu yang mewariskan ilmu kepada generasi muda.'],
+    ['PANDAN', 'Tumbuhan yang menghasilkan daun pandan.'],
+    ['HUTAN', 'Kawasan yang mempunyai banyak pokok dan hidupan liar.'],
+    ['LADA', 'Bahan masakan yang mempunyai rasa pedas dan aroma tersendiri.'],
+    ['BAKUL', 'Alat tradisional untuk menganyam atau membawa barangan.'],
+    ['DOKUMENTASI', 'Proses menyimpan resipi dan cara memasak untuk generasi akan datang.'],
+    ['BULUH', 'Bahan semula jadi yang digunakan untuk membuat peralatan tradisional.'],
+    ['SEGAR', 'Keadaan makanan yang masih baik untuk dimakan.'],
+    ['SEDAP', 'Rasa makanan yang menyelerakan.'],
+    ['ISI', 'Bahagian putih kelapa yang diperah untuk mendapatkan santan.'],
+    ['AIR', 'Cecair yang digunakan untuk membersihkan bahan makanan.'],
+    ['MASAK', 'Proses memasak sehingga bahan menjadi lembut.'],
+    ['KEROPOK', 'Makanan yang diperbuat daripada ikan dan sagu.'],
+    ['GARAM', 'Bahan masakan yang digunakan untuk menambah rasa.'],
+    ['AROMA', 'Bau yang menyenangkan daripada makanan.'],
+    ['MERAH', 'Warna yang sering dikaitkan dengan cili masak.'],
+    ['PEMELIHARAAN', 'Proses mengekalkan budaya supaya tidak hilang.'],
+    ['WARISAN', 'Sesuatu yang diwarisi daripada generasi terdahulu.'],
+    ['KUALI', 'Peralatan dapur yang digunakan untuk menggoreng makanan.'],
+    ['DAUN', 'Daun yang sering digunakan sebagai hiasan makanan.'],
+    ['HALIA', 'Rempah yang mempunyai aroma dan rasa tersendiri.'],
+    ['TEMPAYAN', 'Peralatan tradisional untuk menyimpan air atau bahan.'],
+    ['MASAK', 'Kaedah memasak menggunakan haba.'],
+    ['AIR', 'Cecair yang digunakan dalam penyediaan makanan.'],
+    ['GAUL', 'Proses mencampurkan bahan sehingga sebati.'],
+    ['TARIAN', 'Persembahan seni tradisional yang menggunakan gerakan tubuh.'],
+    ['SERAI', 'Tumbuhan yang digunakan dalam penyediaan masakan tradisional.'],
+    ['LAKSA', 'Makanan yang mempunyai rasa pedas, masam dan berlemak.'],
   ];
   const ROWS = 12, COLS = 12, TARGET = 15;
   const FALLBACK = [
@@ -89,6 +157,7 @@
       let progress = false;
       for (const cand of pool.slice()) {
         const [w, clue] = cand, options = [], seen = new Set();
+        if (placed.some((e) => e.word === w)) { pool.splice(pool.indexOf(cand), 1); continue; }   // same answer, other clue: already on the grid
         for (const [r, c] of filled) {               // only positions that cross a letter already on the grid
           const ch = g[r][c];
           for (let i = 0; i < w.length; i++) {
@@ -106,7 +175,7 @@
         options.sort(() => Math.random() - 0.5); options.sort((x, y) => y[0] - x[0]);
         const [, r, c, d] = Math.random() < 0.7 ? options[0] : options[Math.floor(Math.random() * options.length)];
         put(w, clue, r, c, d);
-        pool.splice(pool.indexOf(cand), 1);
+        for (let i = pool.length - 1; i >= 0; i--) if (pool[i][0] === w) pool.splice(i, 1);   // drop its other clues too
         progress = true;
         if (placed.length >= TARGET) break;
       }
@@ -168,6 +237,7 @@
   function toast(kind, title, sub) {
     const t = $('xw-toast');
     t.className = 'xw-toast ' + kind; $('xw-toast-title').textContent = title; $('xw-toast-sub').textContent = sub || '';
+    t.querySelector('.xw-toast-ico').textContent = kind === 'hint' ? '💡' : '';
     t.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, TOAST_MS);
   }
@@ -313,6 +383,9 @@
     if (next) sel = next;
     render();
     $('xw-status').textContent = 'Bantuan digunakan: ' + hints + ' (−' + HINT_COST + ' setiap satu). Jumlah: ' + total().toLocaleString() + '.';
+    const sc = $('xw-score'); sc.classList.remove('pop'); void sc.offsetWidth; sc.classList.add('pop');
+    if (sfx()) sfx().swipe();
+    toast('hint', 'BANTUAN', '\u2212' + HINT_COST + ' mata \u00b7 Jumlah ' + total().toLocaleString());
     if (checkSolved(true)) render();
     if (DATA.entries.every(isSolved)) finish();
   }

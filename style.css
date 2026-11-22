@@ -603,6 +603,9 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 }
 .xw-toast.ok { background: linear-gradient(180deg, #5fd36f, #1f9d3a); }
 .xw-toast.bad { background: linear-gradient(180deg, #ff7a6a, #c8201a); }
+.xw-toast.hint { background: linear-gradient(180deg, #ffd54a, #e08a1a); color: #4a2208; border-color: #fff3c4; }
+.xw-toast.hint .xw-toast-text { text-shadow: none; }
+.xw-toast.hint .xw-toast-ico { background-image: none; display: grid; place-items: center; font-size: 18px; }
 .xw-toast-ico { width: 30px; height: 30px; border-radius: 50%; background: #fff center / 18px no-repeat; flex: none; }
 .xw-toast.ok .xw-toast-ico { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f9d3a' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5.2 5L20 7'/%3E%3C/svg%3E"); }
 .xw-toast.bad .xw-toast-ico { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8201a' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E"); }
