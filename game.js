@@ -50,7 +50,7 @@
   /* ------------------------------------------------------------------ DOM */
   const ids = ['hud', 'score', 'dist', 'level-label', 'missions', 'm-gebuk', 'm-gebuk-n', 'm-laksa', 'm-laksa-n', 'achievements', 'c-ach', 'i-laksa-target', 'f-ach',
     'power-magnet', 'power-magnet-fill', 'power-shield', 'power-boost', 'power-boost-fill', 'pause-btn', 'banner', 'countdown', 'hint', 'hitflash', 'mute',
-    'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'register-btn-text', 'register-lb', 'store-status', 'admin-link', 'name-hint',
+    'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'register-btn-text', 'register-cancel', 'register-lb', 'store-status', 'admin-link', 'name-hint',
     'login-popup', 'login-popup-card', 'login-popup-title', 'login-popup-text', 'login-popup-bar', 'login-popup-fill', 'login-popup-ok',
     'hub', 'hub-player', 'hub-switch', 'hub-howto', 'hub-story', 'hub-lb', 'hub-games', 'reset', 'admin-link-hub', 'games', 'games-sound', 'platform', 'crossword', 'wordsearch', 'lb-tabs',
     'howto', 'howto-back', 'best-start', 'story', 'story-cards', 'story-note', 'story-back',
@@ -1686,6 +1686,8 @@
     ui.registerNote.textContent = mode === 'register' ? 'Daftar Alamat E-Mel: alamat e-mel diminta untuk kali pertama sahaja.'
       : mode === 'verify' ? 'Pengesahan E-Mel: masukkan alamat e-mel yang didaftarkan untuk ' + (pendingProfile ? pendingProfile.username : 'nama ini') + '.' : '';
     ui.registerBtnText.textContent = STEP_LABEL[mode];
+    ui.registerBtn.classList.toggle('green', mode === 'verify');   // confirming is green, BATAL beside it is red
+    ui.registerCancel.hidden = mode !== 'verify';
     ui.registerError.hidden = true;
     if (withEmail) ui.email.value = '';
     if (mode === 'name') fieldState(ui.username.parentElement, '');
@@ -2279,6 +2281,12 @@
   ui.introNext.addEventListener('click', () => intro.next());
   ui.introBack.addEventListener('click', () => intro.back());
   ui.introSkip.addEventListener('click', () => intro.hide());
+  ui.registerCancel.addEventListener('click', () => {           // BATAL on the e-mail check: back to the name step, nobody signed in
+    if (ui.registerBtn.disabled) return;
+    registerStep('name');
+    fieldState(ui.username.parentElement, '');
+    ui.username.focus(); ui.username.select();
+  });
   ui.username.addEventListener('input', () => { fieldState(ui.username.parentElement, ''); ui.registerError.hidden = true; });
   ui.email.addEventListener('input', () => { fieldState(ui.emailField, ''); ui.registerError.hidden = true; });
   ui.hubSwitch.addEventListener('click', showRegister);

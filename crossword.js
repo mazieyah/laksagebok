@@ -1,13 +1,47 @@
 /* ======================================================================
    LaksaCrossword — Teka Silang Laksa: 15 clues drawn from the "Maklumat Laksa
-   Gebok" pages (asal-usul, proses pembuatan, resipi). Grid generated offline
-   (scratchpad xwgen.py) and validated: every crossing letter agrees and no
-   stray adjacent letters.
+   Gebok" pages (asal-usul, proses pembuatan, resipi), laid out at random on a
+   12×12 grid every play (classic rules: every word crosses another, crossings
+   agree, no stray adjacent letters); a fixed layout is the fallback.
    ====================================================================== */
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
-  const DATA = { rows: 12, cols: 12, entries: [
+  // Word pool (word, clue) from the "Maklumat Laksa Gebok" pages; each play lays 15 of them out at random.
+  const POOL = [
+    ['GEBOK', 'Alat tradisional tembaga yang menekan doh menjadi mi laksa'],
+    ['LAKSA', 'Hidangan tradisional kebanggaan negeri Pahang'],
+    ['PAHANG', 'Negeri asal laksa gebok'],
+    ['PEKAN', 'Bandar Muzium Sultan Abu Bakar, tempat gebok asal dipamerkan'],
+    ['MUZIUM', 'Tempat gebok asal dipamerkan sebagai warisan makanan'],
+    ['TEMBAGA', 'Logam gebok tradisional'],
+    ['GANDUM', 'Tepung untuk doh mi laksa gebok'],
+    ['DOH', 'Diuli daripada tepung dan air, lalu dimasukkan ke dalam gebok'],
+    ['REBUS', 'Mi dimasak begini dalam air mendidih lebih kurang 10 minit'],
+    ['KEMBUNG', 'Ikan untuk kuah lemak laksa gebok'],
+    ['SANTAN', 'Pekat, bahan utama kuah lemak'],
+    ['KERISIK', 'Kelapa parut goreng yang ditumbuk ke dalam kuah'],
+    ['SERAI', 'Empat batang dalam resipi kuah laksa'],
+    ['KETUMBAR', 'Biji rempah yang digoreng tanpa minyak hingga naik bau'],
+    ['KESUM', 'Daun ulam laksa yang dihiris nipis'],
+    ['SELASIH', 'Daun ulam, dihiris nipis bersama daun kesum'],
+    ['KUNYIT', 'Daunnya dihiris halus sebagai ulam laksa gebok'],
+    ['TAUGE', 'Kecambah yang ditabur sedikit di atas laksa'],
+    ['BELACAN', 'Dibakar, dihidang bersama sambal lada'],
+    ['KASTURI', 'Limau yang dibelah dua untuk laksa'],
+    ['TIMUN', 'Ulam yang diparut halus'],
+    ['KUAH', 'Lemak ikan, dicurah ke atas mi dalam mangkuk'],
+    ['SAMBAL', 'Lada kering ditumbuk halus, pedas'],
+    ['KENDURI', 'Majlis kampung tempat laksa gebok disediakan beramai-ramai'],
+    ['KUANTAN', 'Daerah Kampung Panching, tempat resipi keluarga itu'],
+    ['JINTAN', 'Rempah putih dan manis dalam kuah laksa'],
+    ['HALIA', '40 g dalam kuah, digoreng berasingan tanpa minyak'],
+    ['TENGGIRI', 'Ikan dalam resipi papan Muzium Sultan Abu Bakar'],
+    ['ULAM', 'Sayur mentah pelengkap semangkuk laksa'],
+    ['TANGAN', 'Orang Pahang kata laksa gebok paling sedap dimakan dengan ini'],
+  ];
+  const ROWS = 12, COLS = 12, TARGET = 15;
+  const FALLBACK = [
     { word: 'TIMUN', row: 0, col: 1, dir: 'A', num: 1, clue: 'Ulam yang diparut halus' },
     { word: 'KUNYIT', row: 2, col: 0, dir: 'A', num: 4, clue: 'Daunnya dihiris halus sebagai ulam laksa gebok' },
     { word: 'KENDURI', row: 4, col: 3, dir: 'A', num: 6, clue: 'Majlis kampung tempat laksa gebok disediakan beramai-ramai' },
@@ -23,19 +57,110 @@
     { word: 'GEBOK', row: 6, col: 1, dir: 'D', num: 8, clue: 'Alat tradisional tembaga yang menekan doh menjadi mi laksa' },
     { word: 'ULAM', row: 7, col: 4, dir: 'D', num: 10, clue: 'Sayur mentah pelengkap semangkuk laksa' },
     { word: 'KESUM', row: 7, col: 8, dir: 'D', num: 11, clue: 'Daun ulam laksa yang dihiris nipis' },
-  ] };
+  ];   // used when no random layout is found in time
+  const DATA = { rows: ROWS, cols: COLS, entries: [] };
+  // ---- random layout: classic rules (every word crosses another, crossings agree, no stray adjacent letters)
+  const cellList = (w, r, c, d) => Array.from({ length: w.length }, (_, i) => [r + (d === 'D' ? i : 0), c + (d === 'A' ? i : 0)]);
+  function canPlace(g, w, r, c, d) {
+    const cs = cellList(w, r, c, d);
+    for (const [rr, cc] of cs) if (rr < 0 || rr >= ROWS || cc < 0 || cc >= COLS) return -1;
+    const before = d === 'D' ? [r - 1, c] : [r, c - 1], after = d === 'D' ? [cs[cs.length - 1][0] + 1, c] : [r, cs[cs.length - 1][1] + 1];
+    for (const [rr, cc] of [before, after]) if (rr >= 0 && rr < ROWS && cc >= 0 && cc < COLS && g[rr][cc]) return -1;
+    let cross = 0;
+    for (let i = 0; i < cs.length; i++) {
+      const [rr, cc] = cs[i], ch = g[rr][cc];
+      if (ch) { if (ch !== w[i]) return -1; cross++; continue; }
+      const side = d === 'D' ? [[rr, cc - 1], [rr, cc + 1]] : [[rr - 1, cc], [rr + 1, cc]];
+      for (const [nr, nc] of side) if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && g[nr][nc]) return -1;
+    }
+    return cross;
+  }
+  function attempt() {
+    const g = Array.from({ length: ROWS }, () => Array(COLS).fill(''));
+    const pool = POOL.slice().sort(() => Math.random() - 0.5);
+    const first = pool.slice(0, 8).reduce((m, p) => (p[0].length > m[0].length ? p : m));
+    pool.splice(pool.indexOf(first), 1);
+    const placed = [];
+    const filled = [];                              // cells that hold a letter, the anchors for crossings
+    const put = (w, clue, r, c, d) => { for (const [i, [rr, cc]] of cellList(w, r, c, d).entries()) { if (!g[rr][cc]) filled.push([rr, cc]); g[rr][cc] = w[i]; } placed.push({ word: w, row: r, col: c, dir: d, clue }); };
+    put(first[0], first[1], 3 + Math.floor(Math.random() * 5), Math.floor(Math.random() * (COLS - first[0].length + 1)), 'A');
+    let stuck = 0;
+    while (placed.length < TARGET && pool.length && stuck < 6) {
+      let progress = false;
+      for (const cand of pool.slice()) {
+        const [w, clue] = cand, options = [], seen = new Set();
+        for (const [r, c] of filled) {               // only positions that cross a letter already on the grid
+          const ch = g[r][c];
+          for (let i = 0; i < w.length; i++) {
+            if (w[i] !== ch) continue;
+            for (const d of ['A', 'D']) {
+              const r0 = d === 'D' ? r - i : r, c0 = d === 'A' ? c - i : c, id = d + r0 + ',' + c0;
+              if (seen.has(id)) continue;
+              seen.add(id);
+              const k = canPlace(g, w, r0, c0, d);
+              if (k >= 1) options.push([k, r0, c0, d]);
+            }
+          }
+        }
+        if (!options.length) continue;
+        options.sort(() => Math.random() - 0.5); options.sort((x, y) => y[0] - x[0]);
+        const [, r, c, d] = Math.random() < 0.7 ? options[0] : options[Math.floor(Math.random() * options.length)];
+        put(w, clue, r, c, d);
+        pool.splice(pool.indexOf(cand), 1);
+        progress = true;
+        if (placed.length >= TARGET) break;
+      }
+      stuck = progress ? 0 : stuck + 1;
+      pool.sort(() => Math.random() - 0.5);
+    }
+    return placed;
+  }
+  function validLayout(entries) {               // every run of 2+ letters must be one of the placed words
+    const g = Array.from({ length: ROWS }, () => Array(COLS).fill(''));
+    for (const e of entries) for (const [i, [r, c]] of cellList(e.word, e.row, e.col, e.dir).entries()) { if (g[r][c] && g[r][c] !== e.word[i]) return false; g[r][c] = e.word[i]; }
+    const words = new Set(entries.map((e) => e.word + '@' + e.row + ',' + e.col + e.dir));
+    for (const d of ['A', 'D']) for (let a = 0; a < ROWS; a++) {
+      let run = '', sr = 0, sc = 0;
+      for (let b = 0; b <= COLS; b++) {
+        const r = d === 'A' ? a : b, c = d === 'A' ? b : a, ch = b < COLS ? g[r][c] : '';
+        if (ch) { if (!run) { sr = r; sc = c; } run += ch; }
+        else { if (run.length >= 2 && !words.has(run + '@' + sr + ',' + sc + d)) return false; run = ''; }
+      }
+    }
+    return true;
+  }
+  function numbered(entries) {                  // clue numbers in reading order of the start cells
+    const starts = [...new Set(entries.map((e) => e.row + ',' + e.col))].map((k) => k.split(',').map(Number)).sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+    const nums = new Map(starts.map((p, i) => [p.join(','), i + 1]));
+    for (const e of entries) e.num = nums.get(e.row + ',' + e.col);
+    return entries.sort((p, q) => (p.dir === q.dir ? p.num - q.num : p.dir < q.dir ? -1 : 1));
+  }
+  function layout() {
+    const t0 = performance.now();
+    for (let k = 0; k < 400 && performance.now() - t0 < 1500; k++) {
+      const placed = attempt();
+      if (placed.length < TARGET || !validLayout(placed)) continue;
+      const across = placed.filter((e) => e.dir === 'A').length;
+      if (Math.min(across, placed.length - across) >= 6) return numbered(placed);
+    }
+    return numbered(FALLBACK.map((e) => Object.assign({}, e)));
+  }
   const WORD_POINTS = 50, HINT_COST = 20, TIME_BONUS_MAX = 600;
-  const cells = {};            // 'r,c' -> { letter, num, el, entries: [] }
+  let cells = {};              // 'r,c' -> { letter, num, el, entries: [] }
   const key = (r, c) => r + ',' + c;
-  for (const e of DATA.entries) {
-    for (let i = 0; i < e.word.length; i++) {
-      const r = e.row + (e.dir === 'D' ? i : 0), c = e.col + (e.dir === 'A' ? i : 0), k = key(r, c);
-      const cell = cells[k] || (cells[k] = { r, c, letter: e.word[i], entries: [], num: 0 });
-      if (cell.letter !== e.word[i]) throw new Error('crossword conflict at ' + k);
-      cell.entries.push(e);
-      if (i === 0) cell.num = cell.num ? Math.min(cell.num, e.num) : e.num;
+  function indexCells() {
+    cells = {};
+    for (const e of DATA.entries) {
+      for (let i = 0; i < e.word.length; i++) {
+        const r = e.row + (e.dir === 'D' ? i : 0), c = e.col + (e.dir === 'A' ? i : 0), k = key(r, c);
+        const cell = cells[k] || (cells[k] = { r, c, letter: e.word[i], entries: [], num: 0 });
+        if (cell.letter !== e.word[i]) throw new Error('crossword conflict at ' + k);
+        cell.entries.push(e);
+        if (i === 0) cell.num = cell.num ? Math.min(cell.num, e.num) : e.num;
+      }
     }
   }
+  function relayout() { DATA.entries = layout(); indexCells(); build(); }
   let user = {}, sel = null, dir = 'A', open = false, startAt = 0, hints = 0, timer = 0, done = false, checked = {};
   let solved = {}, locked = {}, pts = 0;   // solved entries (by id), their cells (locked green), running points
   let wrongShown = {}, toastTimer = 0;      // a filled-but-wrong word is flagged once until one of its letters changes
@@ -214,12 +339,14 @@
       .catch(() => { /* kept on this device only */ });
   }
   function start() {
+    relayout();
     user = {}; checked = {}; solved = {}; locked = {}; wrongShown = {}; pts = 0; hints = 0; done = false; startAt = performance.now();
     clearTimeout(toastTimer); $('xw-toast').hidden = true;
     $('xw-done').hidden = true;
     $('xw-status').textContent = 'Klik petak atau petunjuk, kemudian taip. Klik petak yang sama untuk tukar arah.';
-    dir = 'A';
-    select(cells[key(1, 1)], false);
+    const first = DATA.entries.slice().sort((p, q) => p.num - q.num)[0];
+    dir = first.dir;
+    select(cells[key(first.row, first.col)], false);
     clearInterval(timer);
     timer = setInterval(tick, 250);
     tick();
@@ -238,7 +365,7 @@
     window.LaksaArcade.showGames();
   }
   function wire() {
-    build();
+    relayout();
     $('xw-check').addEventListener('click', check);
     $('xw-hint').addEventListener('click', hint);
     $('xw-exit').addEventListener('click', close);
@@ -258,5 +385,5 @@
       } else if (k === 'Escape') { close(); e.preventDefault(); }
     });
   }
-  window.LaksaCrossword = { open: openGame, close, wire, DATA, select: (r, c, d) => { dir = d || dir; select(cells[key(r, c)], false); }, type: typeChar, get points() { return total(); } };
+  window.LaksaCrossword = { open: openGame, close, wire, DATA, layout, select: (r, c, d) => { dir = d || dir; select(cells[key(r, c)], false); }, type: typeChar, get points() { return total(); } };
 })();

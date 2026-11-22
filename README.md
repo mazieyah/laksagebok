@@ -11,7 +11,7 @@ the player lands on the games screen ("PILIH PERMAINAN") and picks:
    daun kesum, bunga kantan, sambal). Five different ingredients complete one
    bowl; each level has a bowl mission (2 / 3 / 4 bowls) and the laksa stall at
    the end only accepts the player once the mission is done.
-3. **Teka Silang Laksa** – a 12×12 crossword with 15 clues (7 across, 8 down) drawn from the Maklumat Laksa Gebok pages
+3. **Teka Silang Laksa** – a 12×12 crossword: 15 clues from a pool of 30 drawn from the Maklumat Laksa Gebok pages, laid out at random every play
    about laksa, gebuk and Pahang.
 4. **Cari Kata Laksa** – a word search: 14 words from the Maklumat Laksa Gebok pages hidden in a 12×12
    letter grid that is generated fresh every play.
@@ -202,7 +202,9 @@ and presses MULA BERMAIN. A pop-up with a loading bar ("Menyemak…") runs for
 `signIn.checkSeconds` (config.js, 2 s). A name already on record
 (case-insensitive) gets "Nama Pemain Telah Mendaftar" for `signIn.noticeSeconds`
 (2 s), which closes by itself and reveals the "Alamat E-Mel" field for
-confirmation: SAHKAN & MULA accepts only the e-mail the record was registered
+confirmation: SAHKAN & MULA (green) accepts only the e-mail the record was
+registered with, and a red BATAL beside it returns to the name step without
+signing in; it accepts only the e-mail the record was registered
 with ("Pengesahan Berjaya", then the games menu); any other e-mail gets the
 "E-Mel Salah" pop-up and no sign-in. A new name gets "Daftar Maklumat Pemain"
 with an OK button that reveals the same field, asked once; DAFTAR & MULA shows

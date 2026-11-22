@@ -580,11 +580,11 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 
 /* ---- Teka Silang Kata ---- */
 .crossword { align-items: safe center; }
-.xw-card { width: min(980px, 100%); gap: 10px; padding: 18px 18px 16px; }
+.xw-card { width: min(880px, 100%); gap: 8px; padding: 14px 16px 12px; }
 .xw-head { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; flex-wrap: wrap; }
-.xw-head .title { font-size: clamp(26px, 5vw, 38px); }
+.xw-head .title { font-size: clamp(22px, 4vw, 30px); }
 .xw-meta { display: flex; gap: 8px; flex-wrap: wrap; }
-.xw-score { font-family: var(--font-display); font-weight: 800; font-size: 18px; background: var(--gold); color: #3a2a05; border-radius: 999px; padding: 4px 14px; font-variant-numeric: tabular-nums; }
+.xw-score { font-family: var(--font-display); font-weight: 800; font-size: 15px; background: var(--gold); color: #3a2a05; border-radius: 999px; padding: 4px 12px; font-variant-numeric: tabular-nums; }
 .xw-score.pop { animation: pop .4s ease-out; }
 .xw-cell.locked { background: #e6f6e4; }
 .xw-cell.locked .xw-letter { color: #2b7a3a; }
@@ -610,8 +610,8 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .xw-toast-text strong { font-size: 18px; }
 .xw-toast-text span { font-size: 13px; font-weight: 800; opacity: .95; }
 @media (prefers-reduced-motion: reduce) { .xw-cell.bad, .xw-toast { animation: none; } }
-.xw-timer, .xw-progress { font-family: var(--font-display); font-weight: 800; font-size: 18px; background: var(--panel-line); border-radius: 999px; padding: 6px 14px; font-variant-numeric: tabular-nums; }
-.xw-wrap { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(220px, .9fr); gap: 16px; width: 100%; align-items: start; }
+.xw-timer, .xw-progress { font-family: var(--font-display); font-weight: 800; font-size: 15px; background: var(--panel-line); border-radius: 999px; padding: 4px 12px; font-variant-numeric: tabular-nums; }
+.xw-wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(210px, .95fr); gap: 12px; width: 100%; align-items: start; }
 .xw-left { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .xw-grid { display: grid; gap: 2px; width: 100%; aspect-ratio: 1; background: #3a2210; padding: 3px; border-radius: 8px; border: 3px solid var(--wood); user-select: none; -webkit-user-select: none; }
 .xw-cell { position: relative; background: #fff8e6; border-radius: 2px; display: grid; place-items: center; cursor: pointer; color: #2a1a0a; min-width: 0; }
@@ -621,21 +621,23 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .xw-cell.ok .xw-letter { color: #2b7a3a; }
 .xw-cell.wrong .xw-letter { color: #d9442c; text-decoration: line-through; }
 .xw-num { position: absolute; left: 2px; top: 0; font-size: clamp(7px, 1.1vw, 10px); font-weight: 800; color: #7a5a2c; line-height: 1.2; }
-.xw-letter { font-family: var(--font-display); font-weight: 800; font-size: clamp(12px, 2.6vw, 24px); line-height: 1; }
-.xw-clues { text-align: left; font-size: 14px; line-height: 1.35; max-height: min(62vh, 560px); overflow-y: auto; padding-right: 4px; }
-.xw-clues h3 { margin: 0 0 4px; font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
-.xw-clues ol { margin: 0 0 12px; padding-left: 28px; display: flex; flex-direction: column; gap: 3px; }
-.xw-clues li { cursor: pointer; padding: 3px 6px; border-radius: 8px; }
+.xw-letter { font-family: var(--font-display); font-weight: 800; font-size: clamp(11px, 2.2vw, 20px); line-height: 1; }
+.xw-clues { text-align: left; font-size: 12.5px; line-height: 1.3; max-height: min(56vh, 470px); overflow-y: auto; padding-right: 4px; }
+.xw-clues h3 { margin: 0 0 3px; font-family: var(--font-display); font-weight: 800; font-size: 13px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
+.xw-clues ol { margin: 0 0 10px; padding-left: 26px; display: flex; flex-direction: column; gap: 2px; }
+.xw-clues li { cursor: pointer; padding: 2px 6px; border-radius: 8px; }
 .xw-clues li::marker { font-weight: 800; }
 .xw-clues li:hover { background: var(--panel-line); }
 .xw-clues li.active { background: rgba(242, 182, 60, .35); font-weight: 800; }
 .xw-clues li.solved { color: var(--muted); text-decoration: line-through; }
 .xw-keys { display: flex; flex-direction: column; gap: 5px; align-items: center; }
 .xw-keyrow { display: flex; gap: 4px; justify-content: center; width: 100%; }
-.xw-key { flex: 1 1 0; max-width: 44px; min-width: 0; height: 38px; border-radius: 8px; border: 2px solid var(--panel-line); background: var(--panel-line); color: var(--fg); font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; padding: 0; }
-.xw-key.wide { max-width: 70px; flex-basis: 70px; }
+.xw-key { flex: 1 1 0; max-width: 40px; min-width: 0; height: 34px; border-radius: 8px; border: 2px solid var(--panel-line); background: var(--panel-line); color: var(--fg); font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; padding: 0; }
+.xw-key.wide { max-width: 64px; flex-basis: 64px; }
+.crossword .btn-row .btn { font-size: 18px; padding: 10px 26px; }
+.crossword .btn-row .btn.secondary { padding: 8px 20px; }
 .xw-key:active { background: var(--gold); }
-.xw-status { margin: 0; font-size: 13px; color: var(--muted); min-height: 1.4em; }
+.xw-status { margin: 0; font-size: 12px; color: var(--muted); min-height: 1.4em; }
 /* ---- Cari Kata ---- */
 .ws-wrap { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(180px, .8fr); gap: 16px; width: 100%; align-items: start; }
 .ws-grid { display: grid; gap: 3px; width: 100%; aspect-ratio: 1; background: #3a2210; padding: 4px; border-radius: 8px; border: 3px solid var(--wood); user-select: none; -webkit-user-select: none; touch-action: none; cursor: pointer; }
@@ -1018,6 +1020,17 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
   text-shadow: 0 2px 0 #7a1d0b, 0 0 6px rgba(0, 0, 0, .35);
 }
 .play-btn:active { transform: translateY(5px); box-shadow: 0 0 0 2px #6e1a09, 0 2px 0 #8d1308, 0 2px 0 2px #4a0f05, inset 0 2px 0 rgba(255, 255, 255, .45); }
+.login-btns { display: flex; gap: 12px; width: 100%; margin-top: 10px; }
+.login-btns .play-btn { flex: 1 1 0; min-width: 0; margin-top: 0; white-space: nowrap; }
+.login-btns .cancel-btn { flex: 0 0 auto; width: auto; padding-inline: 22px; }   /* width: auto beats the full-width play-btn default */
+.play-btn.green {                       /* SAHKAN & MULA: confirming is the safe, go-ahead action */
+  background: linear-gradient(180deg, #86e493 0%, #2fb34a 48%, #1b8a32 100%); border-color: #cdf7d2;
+  box-shadow: 0 0 0 2px #0f4a1c, 0 7px 0 #176b2a, 0 7px 0 2px #0a3a14, 0 16px 26px rgba(0, 0, 0, .4), inset 0 2px 0 rgba(255, 255, 255, .45);
+  text-shadow: 0 2px 0 #176b2a, 0 0 6px rgba(0, 0, 0, .35);
+}
+.play-btn.green .play-tri { filter: drop-shadow(0 2px 0 #176b2a); }
+.play-btn.green:active { box-shadow: 0 0 0 2px #0f4a1c, 0 2px 0 #176b2a, 0 2px 0 2px #0a3a14, inset 0 2px 0 rgba(255, 255, 255, .45); }
+@media (max-width: 480px) { .login-btns { gap: 8px; } .login-btns .cancel-btn { padding-inline: 14px; } }
 .play-btn:disabled { filter: saturate(.6) brightness(.9); cursor: wait; }
 .login-popup {                           /* sign-in notices: checking bar, registered / new player */
   position: fixed; inset: 0; z-index: 6;
