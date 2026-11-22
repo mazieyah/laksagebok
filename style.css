@@ -1438,6 +1438,7 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .xw-pill-label { font-size: 12px; opacity: .9; }
 .xw-pill-val { font-size: 17px; }
 .xw-pill.pop { animation: pop .4s ease-out; }
+.xw-pill.low { background: linear-gradient(180deg, #d64532, #8e1c12); border-color: #ffd0a8; }
 .xw .xw-wrap { grid-template-columns: minmax(0, .92fr) minmax(300px, 1fr); gap: 14px; }
 .xw .xw-left { max-width: 520px; margin: 0 auto; width: 100%; }   /* keeps the board inside one screen height on laptops */
 .xw .xw-grid { background: #3a2210; border: 4px solid var(--login-gold); box-shadow: 0 0 0 2px var(--login-wood-dark), inset 0 0 0 2px #2a1608; border-radius: 12px; gap: 3px; padding: 5px; }
@@ -1531,6 +1532,7 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .rs-history .rs-h-game { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rs-history .rs-h-when { color: rgba(255, 233, 189, .75); font-size: 12px; white-space: nowrap; }
 .rs-history .rs-h-score { font-family: var(--font-display); font-weight: 800; font-size: 16px; color: #ffe27a; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rs-history .rs-h-time { font-variant-numeric: tabular-nums; white-space: nowrap; color: #fff; }
 .rs-history .rs-h-won { color: #8df09a; } .rs-history .rs-h-lost { color: #ffb3a7; }
 .rs-empty { color: rgba(255, 233, 189, .8); font-size: 13px; font-weight: 700; padding: 6px 0; text-align: center; }
 @media (max-width: 640px) {
@@ -1566,3 +1568,101 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .st-about-text ul { margin: 4px 0 6px; padding-left: 18px; font-size: 12.5px; color: #5a3a1a; }
 .st-version { font-size: 12px; color: #7a5a30; font-weight: 700; }
 @media (max-width: 640px) { .st-about-body { grid-template-columns: 1fr; } .st-about-logo { max-width: 160px; } }
+
+/* ---- Teka Silang Laksa: the Tahniah card ---- */
+.xw-done { z-index: 8; background: rgba(28, 12, 2, .55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.done-card {
+  --gold: #f6c445; --wood: #8a4e18; --wood-dark: #5a2c0c;
+  position: relative; width: min(500px, 100%); padding: 20px 16px 16px; border-radius: 36px; overflow: visible;
+  color: #3a2208; text-align: center;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 220, 140, .35), transparent 18%),
+    linear-gradient(180deg, #c9843a 0%, #a35a1c 18%, #8a4514 70%, #6d3410 100%);
+  border: 6px solid var(--gold);
+  box-shadow: inset 0 0 0 4px #c47a22, inset 0 0 0 8px #f8d56a, 0 24px 50px rgba(0, 0, 0, .5);
+  display: flex; flex-direction: column; align-items: center; gap: 12px; animation: popup-in .3s ease-out;
+}
+.done-card::before, .done-card::after {
+  content: ''; position: absolute; left: 18px; right: 18px; height: 10px; border-radius: 8px;
+  background: linear-gradient(#ffe08a, #e0a020); pointer-events: none;
+}
+.done-card::before { top: 10px; } .done-card::after { bottom: 10px; }
+.done-parchment {
+  position: relative; width: 100%; padding: 26px 16px 18px; border-radius: 22px; overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 248, 228, 0) 58%, rgba(196, 132, 48, .18) 100%),
+    linear-gradient(#fff8e4, #f4e2b8);
+  border: 3px solid #f0c14a;
+  box-shadow: inset 0 0 0 2px #fff6dc, 0 4px 0 rgba(90, 40, 8, .15);
+}
+.done-parchment::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 72px; pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent, rgba(244, 214, 150, .2)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 440 72'%3E%3Cg fill='%23d7a15a' opacity='.45'%3E%3Cpath d='M0 52h440v20H0z'/%3E%3Cpath d='M18 52V34h8l10 10 10-16h8v24zM70 52V28l14 12 12-20 12 20 10-12v24zM160 52V38h22l8-14 8 14h20v14zM250 52V30l16 14 14-22 16 22v8zM340 52V36h16l10-16 12 16h18v16z'/%3E%3C/g%3E%3C/svg%3E") center bottom / 100% 72px no-repeat;
+}
+.done-head { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; margin: -92px 0 -20px; }
+.done-logo { width: min(500px, 112%); height: auto; display: block; filter: drop-shadow(0 6px 8px rgba(62, 28, 8, .35)); }
+.done-ribbon {
+  margin-top: -6px; padding: 6px 28px 8px; color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 18px; line-height: 1;
+  background: linear-gradient(180deg, #ff5d3a, #d02318 55%, #a81410);
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%);
+  text-shadow: 0 2px 0 #7a120c; box-shadow: 0 4px 0 #7a120c;
+}
+.done-title {
+  position: relative; z-index: 1; margin: 6px 0 0; display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(46px, 10vw, 64px); line-height: .9;
+  color: #ffd23a; -webkit-text-stroke: 2px #e07a12; paint-order: stroke fill;
+  text-shadow: 0 3px 0 #c45112, 0 6px 0 #8a2c0c, 0 10px 16px rgba(90, 30, 0, .28);
+}
+.done-star { font-size: .42em; color: #ffd23a; -webkit-text-stroke: 1px #e08a14; text-shadow: 0 2px 0 #c45a12; }
+.done-text { position: relative; z-index: 1; margin: 4px 0 0; font-weight: 800; font-size: 16px; line-height: 1.35; color: #6a3412; max-width: 32ch; }
+.done-stats { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; margin-top: 10px; }
+.done-stat {
+  display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 8px; border-radius: 16px;
+  border: 3px solid #f0c14a; background: linear-gradient(#fffdf6, #f7e7c4); box-shadow: inset 0 0 0 2px #fff8e4, 0 3px 0 #e0a020;
+}
+.done-stat-ico { width: 46px; height: 46px; flex: none; filter: drop-shadow(0 2px 1px rgba(90, 40, 8, .25)); }
+.done-stat-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
+.done-stat-label { font-family: var(--font-display); font-weight: 800; font-size: 16px; color: #5a3010; }
+.done-stat strong { font-family: var(--font-display); font-weight: 800; font-size: 34px; color: #6a140c; font-variant-numeric: tabular-nums; }
+.done-btns { display: flex; flex-direction: column; align-items: center; gap: 10px; width: min(320px, 100%); margin-top: 2px; }
+.done-again, .done-home {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; border: 0; cursor: pointer;
+  font-family: var(--font-display); font-weight: 800; letter-spacing: .4px; border-radius: 999px;
+}
+.done-again {
+  padding: 8px 18px 10px; font-size: 26px; color: #fff; text-shadow: 0 2px 0 #8a140e;
+  background: linear-gradient(180deg, #ff6a4a, #e42722 55%, #c41614);
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.45), 0 5px 0 #8e120e, 0 10px 16px rgba(120, 16, 8, .35);
+}
+.done-play {
+  width: 34px; height: 34px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 2px 0 rgba(120, 16, 8, .25);
+}
+.done-play::before {
+  content: ''; width: 0; height: 0; margin-left: 3px;
+  border-left: 12px solid #e0231c; border-top: 8px solid transparent; border-bottom: 8px solid transparent;
+}
+.done-home {
+  padding: 8px 18px 10px; font-size: 22px; color: #fff6e4; text-shadow: 0 2px 0 #4a2208;
+  background: linear-gradient(180deg, #c47a32, #8a4a16 55%, #6a3210);
+  border: 3px solid #f0c14a; box-shadow: inset 0 2px 0 rgba(255,255,255,.25), 0 4px 0 #4a2208;
+}
+.done-home svg { width: 22px; height: 22px; fill: #fff6e4; }
+.done-again:hover, .done-home:hover { filter: brightness(1.06); }
+.done-again:active { transform: translateY(3px); box-shadow: inset 0 2px 0 rgba(255,255,255,.45), 0 2px 0 #8e120e; }
+.done-home:active { transform: translateY(3px); box-shadow: inset 0 2px 0 rgba(255,255,255,.25), 0 1px 0 #4a2208; }
+.done-leaf {
+  position: absolute; bottom: 18px; width: 54px; height: 46px; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 52'%3E%3Cpath fill='%233cae3a' d='M8 40c8-18 22-30 40-34-6 16-4 28 6 38-16 2-30 0-46-4z'/%3E%3Cpath fill='%232f8a28' d='M18 36c10-12 22-20 34-24-8 10-8 18-2 26-12 0-22-1-32-2z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.done-leaf.left { left: 4px; transform: rotate(-18deg); }
+.done-leaf.right { right: 4px; transform: scaleX(-1) rotate(-18deg); }
+@media (max-width: 480px) {
+  .done-card { padding: 16px 10px 12px; }
+  .done-head { margin-top: -64px; }
+  .done-stat strong { font-size: 26px; }
+  .done-stat-ico { width: 36px; height: 36px; }
+  .done-again { font-size: 20px; }
+  .done-home { font-size: 18px; }
+}

@@ -245,7 +245,7 @@
     const g = p.games || {};
     return { username: p.username || '', bestScore: st.bestScore || 0, levels: (p.completed || []).filter(Boolean).length,
       platformBest: (g.platform || {}).best || 0, platformPlays: (g.platform || {}).plays || 0,
-      crosswordBest: (g.crossword || {}).best || 0, crosswordPlays: (g.crossword || {}).plays || 0,
+      crosswordBest: (g.crossword || {}).best || 0, crosswordPlays: (g.crossword || {}).plays || 0, crosswordTime: (g.crossword || {}).bestTime || 0,
       wordsearchBest: (g.wordsearch || {}).best || 0, wordsearchPlays: (g.wordsearch || {}).plays || 0,
       gebuk: st.totalGebuk || 0, runs: st.runs || 0, updatedAt: p.lastPlayedAt || p.updatedAt || '' };
   }
@@ -293,6 +293,7 @@
     const g = p.games[game] || (p.games[game] = { plays: 0, best: 0, last: null });
     g.plays += 1;
     g.best = Math.max(g.best || 0, rec.score || 0);
+    if (rec.result === 'won' && typeof rec.time === 'number') g.bestTime = g.bestTime ? Math.min(g.bestTime, rec.time) : rec.time;
     g.last = rec.at;
     const st = p.stats || (p.stats = emptyStats());
     st.runs += 1;

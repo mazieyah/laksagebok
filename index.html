@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=31">
+<link rel="stylesheet" href="style.css?v=37">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -234,7 +234,7 @@
       <h2 class="xw-sign"><span class="xw-sign-ico" aria-hidden="true">✏️</span>Teka Silang Laksa</h2>
       <div class="xw-hud">
         <span id="xw-score" class="xw-pill xw-pill-score"><span class="xw-pill-ico" aria-hidden="true">⭐</span><span class="xw-pill-label">Skor</span><span id="xw-score-val" class="xw-pill-val">0</span></span>
-        <span class="xw-pill"><span class="xw-pill-ico" aria-hidden="true">⏱️</span><span id="xw-timer" class="xw-pill-val">00:00</span></span>
+        <span id="xw-clock" class="xw-pill"><span class="xw-pill-ico" aria-hidden="true">⏱️</span><span class="xw-pill-label">Cabaran</span><span id="xw-timer" class="xw-pill-val">05:00</span></span>
         <span class="xw-pill"><span class="xw-pill-ico" aria-hidden="true">🧩</span><span id="xw-progress" class="xw-pill-val">0/15</span></span>
       </div>
     </div>
@@ -259,14 +259,31 @@
       </div>
     </div>
   </div>
-  <div id="xw-done" class="pf-overlay" hidden>
-    <div class="card">
-      <h2 class="title small">TAHNIAH!</h2>
-      <p class="tagline">Semua 15 perkataan warisan laksa Pahang berjaya diteka.</p>
-      <dl id="xw-stats" class="stats"></dl>
-      <div class="btn-row">
-        <button id="xw-again" class="btn" type="button">MAIN SEMULA</button>
-        <button id="xw-back" class="btn secondary" type="button">PERMAINAN</button>
+  <div id="xw-done" class="pf-overlay xw-done" hidden>
+    <div class="done-card">
+      <span class="done-leaf left" aria-hidden="true"></span>
+      <span class="done-leaf right" aria-hidden="true"></span>
+      <div class="done-head">
+        <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
+        <span class="done-ribbon">Teka Silang Laksa</span>
+      </div>
+      <div class="done-parchment">
+        <h2 class="done-title"><span class="done-star" aria-hidden="true">★</span><span id="xw-done-title">Tahniah!</span><span class="done-star" aria-hidden="true">★</span></h2>
+        <p id="xw-done-text" class="done-text">Semua 15 perkataan warisan Laksa Pahang berjaya diteka.</p>
+        <div class="done-stats">
+          <div class="done-stat">
+            <svg class="done-stat-ico" viewBox="0 0 64 64" aria-hidden="true"><path fill="#f6c445" d="M18 10h28l-3 16a14 14 0 0 1-22 0z"/><path fill="#e39a16" d="M20 12h24l-2.4 12.6A12 12 0 0 1 22.4 24.6z"/><path fill="#ffe27a" d="M30 14h4v10h-4z"/><circle cx="32" cy="14" r="4" fill="#fff3c4"/><path fill="#c98412" d="M26 40h12v4H26zM22 46h20v5H22z"/><path fill="#f0b429" d="M24 36h16l2 8H22z"/><path fill="#fff0b0" d="M29 18l2 6 2-6z"/></svg>
+            <span class="done-stat-text"><span class="done-stat-label">Skor</span><strong id="xw-done-score">0</strong></span>
+          </div>
+          <div class="done-stat">
+            <svg class="done-stat-ico" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="36" r="18" fill="#f4b22a"/><circle cx="32" cy="36" r="14" fill="#fff8ea"/><circle cx="32" cy="36" r="2.2" fill="#6a1a0b"/><path d="M32 36V26" stroke="#6a1a0b" stroke-width="2.4" stroke-linecap="round"/><path d="M32 36l7 4" stroke="#c45a12" stroke-width="2.2" stroke-linecap="round"/><rect x="27" y="12" width="10" height="6" rx="2" fill="#e23b2f"/><path d="M24 16h16" stroke="#f6c445" stroke-width="3" stroke-linecap="round"/></svg>
+            <span class="done-stat-text"><span class="done-stat-label">Masa</span><strong id="xw-done-time">0:00</strong></span>
+          </div>
+        </div>
+      </div>
+      <div class="done-btns">
+        <button id="xw-again" class="done-again" type="button"><span class="done-play" aria-hidden="true"></span>MAIN SEMULA</button>
+        <button id="xw-back" class="done-home" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-5.2v-6.2H10.2V21H5a1 1 0 0 1-1-1z"/></svg>PERMAINAN</button>
       </div>
     </div>
   </div>
@@ -638,12 +655,12 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="config.js"></script>
-<script src="store.js"></script>
+<script src="store.js?v=2"></script>
 <script src="admin.js"></script>
 <script src="platform.js"></script>
 <script src="platformer.js"></script>
-<script src="crossword.js"></script>
+<script src="crossword.js?v=2"></script>
 <script src="wordsearch.js"></script>
-<script src="game.js?v=29"></script>
+<script src="game.js?v=30"></script>
 </body>
 </html>

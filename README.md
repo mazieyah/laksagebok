@@ -43,7 +43,9 @@ admin page shows the best score of every game per player.
 
 Each correctly completed word plays a chime, locks its cells green and adds
 50 points at once; the running total (words minus hints) shows as "SKOR" next
-to the timer, and the final score adds the time bonus. A word filled in
+to the timer and is the final score (no time bonus). The Tahniah card shows
+the logo with a "Teka Silang Laksa" ribbon, the score and the time, with
+MAIN SEMULA and PERMAINAN. A word filled in
 completely but wrong buzzes and shakes red; both verdicts also show as a
 one-second green or red toast over the grid ("BETUL! KUNYIT · +50 mata",
 "SALAH · Cuba lagi"). BANTUAN (−20) is greyed out while the running score is

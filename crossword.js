@@ -214,7 +214,8 @@
     }
     return numbered(FALLBACK.map((e) => Object.assign({}, e)));
   }
-  const WORD_POINTS = 50, HINT_WORD_POINTS = 25, HINT_COST = 20, TIME_BONUS_MAX = 600;   // a word completed with a hinted letter earns half
+  const WORD_POINTS = 50, HINT_WORD_POINTS = 25, HINT_COST = 20;   // a word completed with a hinted letter earns half; no time bonus
+  const LIMIT = 5 * 60;   // the challenge: finish the crossword within 5 minutes
   let cells = {};              // 'r,c' -> { letter, num, el, entries: [] }
   const key = (r, c) => r + ',' + c;
   function indexCells() {
@@ -392,27 +393,53 @@
     if (DATA.entries.every(isSolved)) finish();
   }
   function elapsed() { return (performance.now() - startAt) / 1000; }
-  function tick() { if (!open || done) return; const t = Math.floor(elapsed()); $('xw-timer').textContent = String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); }
-  function score(t) { return Math.max(0, pts + Math.max(0, TIME_BONUS_MAX - Math.floor(t)) - hints * HINT_COST); }   // words + time bonus − hints
-  function finish() {
-    done = true;
-    const t = elapsed(), s = score(t);
-    const stats = $('xw-stats');
-    stats.replaceChildren();
-    for (const [label, val] of [['Skor', s.toLocaleString()], ['Mata perkataan', (pts - hints * HINT_COST).toLocaleString()], ['Bonus masa', String(Math.max(0, TIME_BONUS_MAX - Math.floor(t)))], ['Masa', Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0')], ['Perkataan', DATA.entries.length + ' / ' + DATA.entries.length], ['Bantuan', String(hints)]]) {
-      const d = document.createElement('div'); const dt = document.createElement('dt'); dt.textContent = label; const dd = document.createElement('dd'); dd.textContent = val; d.append(dt, dd); stats.append(d);
-    }
+  function clock(t) { t = Math.max(0, Math.floor(t)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); }
+  function tick() {
+    if (!open || done) return;
+    const remain = LIMIT - elapsed();
+    if (remain <= 0) { $('xw-timer').textContent = '00:00'; $('xw-clock').classList.add('low'); timeUp(); return; }
+    const t = Math.ceil(remain);
+    $('xw-timer').textContent = String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+    $('xw-clock').classList.toggle('low', remain <= 30);
+  }
+  function score() { return total(); }   // the final score is the word points minus hints: what the SKOR pill showed all along
+  function showCard(won, t) {
+    $('xw-done-title').textContent = won ? 'Tahniah!' : 'Masa Tamat';
+    for (const star of document.querySelectorAll('#xw-done .done-star')) star.hidden = !won;
+    $('xw-done-text').textContent = won
+      ? 'Semua 15 perkataan warisan Laksa Pahang berjaya diteka.'
+      : 'Cabaran 5 minit sudah tamat sebelum semua perkataan diteka.';
+    $('xw-done-score').textContent = score().toLocaleString();
+    $('xw-done-time').textContent = clock(t);   // minutes actually used, not the time left
     $('xw-done').hidden = false;
-    if (window.GebokRun) window.GebokRun.sfx.fanfare();
-    GebokStore.recordGame('crossword', { at: new Date().toISOString(), level: 1, result: 'won', score: s, time: +t.toFixed(1), hints, words: DATA.entries.length })
+  }
+  function record(result, t) {
+    GebokStore.recordGame('crossword', { at: new Date().toISOString(), level: 1, result, score: score(), time: +t.toFixed(1), hints, words: DATA.entries.length })
       .catch(() => { /* kept on this device only */ });
+    if (window.LaksaArcade) window.LaksaArcade.renderBests();
+  }
+  function finish() {
+    if (done) return;
+    done = true;
+    const t = Math.min(elapsed(), LIMIT);
+    showCard(true, t);
+    if (window.GebokRun) window.GebokRun.sfx.fanfare();
+    record('won', t);
+  }
+  function timeUp() {
+    if (done) return;
+    done = true;
+    showCard(false, LIMIT);
+    if (window.GebokRun) window.GebokRun.sfx.gameover();
+    record('timeout', LIMIT);
   }
   function start() {
     relayout();
     user = {}; checked = {}; solved = {}; locked = {}; hinted = {}; wrongShown = {}; pts = 0; hints = 0; done = false; startAt = performance.now();
     clearTimeout(toastTimer); $('xw-toast').hidden = true;
     $('xw-done').hidden = true;
-    $('xw-status').textContent = 'Klik pada petak, taip jawapan dan lengkapkan semua teka silang. Klik petak yang sama untuk tukar arah.';
+    $('xw-clock').classList.remove('low');
+    $('xw-status').textContent = 'Cabaran: selesaikan dalam 5 minit. Klik pada petak, taip jawapan dan lengkapkan semua teka silang.';
     const first = DATA.entries.slice().sort((p, q) => p.num - q.num)[0];
     dir = first.dir;
     select(cells[key(first.row, first.col)], false);

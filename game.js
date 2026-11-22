@@ -1621,7 +1621,7 @@
   function lbSub(r) {
     const plays = (n) => (n || 0) + ' kali main';
     if (lbKey === 'platformBest') return 'Laksa Quest | ' + plays(r.platformPlays);
-    if (lbKey === 'crosswordBest') return 'Teka Silang Laksa | ' + plays(r.crosswordPlays);
+    if (lbKey === 'crosswordBest') return 'Teka Silang Laksa | ' + plays(r.crosswordPlays) + (r.crosswordTime ? ' | ' + fmtClock(r.crosswordTime) : '');
     if (lbKey === 'wordsearchBest') return 'Cari Kata Laksa | ' + plays(r.wordsearchPlays);
     return (r.levels || 0) + '/3 level | ' + (r.gebuk || 0) + ' gebuk | ' + (r.runs || 0) + ' run';
   }
@@ -1705,6 +1705,7 @@
         const gg = games[g.key] || {};
         best = gg.best || 0; plays = gg.plays || 0;
         extra = gg.last ? 'Terakhir ' + whenText(gg.last) : 'Belum dimainkan';
+        if (g.key === 'crossword' && gg.bestTime) extra += ' · terpantas ' + fmtClock(gg.bestTime);
       }
       const bestEl = el('div', 'rs-best'); bestEl.append(el('small', '', 'Skor terbaik'), document.createTextNode(best.toLocaleString()));
       const meta = el('div', 'rs-meta'); meta.append(document.createTextNode(plays + ' kali main · ' + extra));
@@ -1721,6 +1722,7 @@
       li.append(el('span', 'rs-h-game', gameName(r.game) + (r.game ? '' : ' · Level ' + (r.level || 1))),
         el('span', 'rs-h-when', whenText(r.at)),
         el('span', 'rs-h-score', (r.score || 0).toLocaleString()),
+        el('span', 'rs-h-time', typeof r.time === 'number' ? fmtClock(r.time) : ''),
         el('span', won ? 'rs-h-won' : 'rs-h-lost', won ? '✓' : '✗'));
       ui.rsHistory.append(li);
     }
