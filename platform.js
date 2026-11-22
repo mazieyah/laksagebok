@@ -25,6 +25,7 @@
     $('game-platform').addEventListener('click', () => window.LaksaQuest.open());
     $('game-crossword').addEventListener('click', () => window.LaksaCrossword.open());
     $('game-wordsearch').addEventListener('click', () => window.LaksaWordSearch.open());
+    $('games-info').addEventListener('click', () => window.GebokRun.intro());   // the heritage pages again
     $('games-lb').addEventListener('click', () => window.GebokRun.leaderboard());
     $('games-settings').addEventListener('click', () => window.GebokRun.settings());
     $('games-achv').addEventListener('click', () => window.GebokRun.achievements());

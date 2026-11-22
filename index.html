@@ -28,7 +28,7 @@
   </symbol>
 </svg>
 
-<button id="mute" class="icon-btn" aria-label="Toggle sound" title="Toggle sound">🔊</button>
+<button id="mute" class="icon-btn" aria-label="Bunyi" title="Bunyi hidup / mati" aria-pressed="false">🔊</button>
 
 <div id="hud" hidden>
   <div class="hud-top">
@@ -94,6 +94,30 @@
   </div>
 </div>
 
+<div id="intro" class="intro" role="dialog" aria-modal="true" aria-labelledby="intro-plaque" hidden>
+  <div class="intro-card">
+    <h2 id="intro-plaque" class="intro-plaque">Maklumat Laksa Gebok</h2>
+    <aside class="intro-side">
+      <img class="intro-logo" src="laksa-arcade-logo.png" alt="">
+      <nav id="intro-tabs" class="intro-tabs" aria-label="Halaman maklumat"></nav>
+      <svg class="intro-house" viewBox="0 0 200 140" aria-hidden="true">
+        <path d="M100 4 14 62h172z"/>
+        <rect x="34" y="60" width="132" height="44"/>
+        <rect x="60" y="70" width="22" height="20" fill="#f3e3bf" fill-opacity=".55"/>
+        <rect x="118" y="70" width="22" height="20" fill="#f3e3bf" fill-opacity=".55"/>
+        <rect x="42" y="104" width="8" height="32"/><rect x="78" y="104" width="8" height="32"/><rect x="114" y="104" width="8" height="32"/><rect x="150" y="104" width="8" height="32"/>
+        <path d="M34 100H20l-14 36h10l9-24h9z"/>
+      </svg>
+    </aside>
+    <div id="intro-body" class="intro-body" tabindex="0"></div>
+    <div class="intro-foot">
+      <button id="intro-back" class="intro-back" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 3 12l8 7v-4.5h4c3 0 5 1.5 6 4.5.3-5-2-9-8-9h-2z"/></svg><span>KEMBALI</span></button>
+      <div class="intro-progress"><span id="intro-dots" class="intro-dots" aria-hidden="true"></span><span id="intro-pager" class="intro-pager">1 / 3</span></div>
+      <button id="intro-next" class="btn play-btn intro-next" type="button"><span id="intro-next-text">SETERUSNYA</span><svg class="play-tri" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.2v17.6L20.5 12z"/></svg></button>
+    </div>
+  </div>
+</div>
+
 <div id="games" class="screen hub games" hidden>
   <div class="games-scene" aria-hidden="true"><img src="laksa-scene.jpg" alt=""></div>
   <div class="heritage-side left" aria-hidden="true">
@@ -112,6 +136,7 @@
       <img src="laksa-arcade-logo.png" alt="Laksa Arcade · Pilih Permainan · Warisan Laksa Pahang · Synexis Digital">
     </div>
     <nav class="top-nav games-nav" aria-label="Arcade">
+      <button id="games-info" class="round-btn" type="button" aria-label="Maklumat Laksa Gebok" title="Maklumat Laksa Gebok"><img src="nav-info.png" alt=""></button>
       <button id="games-achv" class="round-btn" type="button" aria-label="Pencapaian" title="Pencapaian"><img src="nav-medal.png" alt=""></button>
       <button id="games-lb" class="round-btn" type="button" aria-label="Papan kedudukan" title="Papan kedudukan"><img src="nav-trophy.png" alt=""></button>
       <button id="games-settings" class="round-btn" type="button" aria-label="Tetapan" title="Tetapan"><img src="nav-gear.png" alt=""></button>

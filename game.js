@@ -62,7 +62,8 @@
     'over', 'new-best', 'final-score', 'final-laksa', 'final-gebuk', 'final-dist', 'final-mission', 'final-rank', 'again', 'over-menu', 'over-lb',
     'final', 'f-score', 'f-laksa', 'f-gebuk', 'final-replay', 'final-story', 'final-lb',
     'timer', 'b-time', 'hub-start', 'c-timeleft', 'c-total', 'i-level', 'f-time', 'f-lives',
-    'hub-achv', 'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-sound', 'settings-switch', 'settings-back', 'achv', 'achv-list', 'achv-back'];
+    'hub-achv', 'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-sound', 'settings-switch', 'settings-back', 'achv', 'achv-list', 'achv-back',
+    'intro', 'intro-tabs', 'intro-body', 'intro-back', 'intro-dots', 'intro-pager', 'intro-next', 'intro-next-text'];
   const ui = {};
   for (const id of ids) {
     ui[id.replace(/-([a-z])/g, (m, c) => c.toUpperCase())] = $(id);
@@ -1050,6 +1051,7 @@
   })();
   function syncSoundLabels() {
     ui.mute.textContent = sfx.muted ? '🔇' : '🔊';
+    ui.mute.setAttribute('aria-pressed', sfx.muted ? 'true' : 'false');
     ui.hubSound.textContent = sfx.muted ? '🔇' : '🔊';
     ui.gamesSound.classList.toggle('is-muted', sfx.muted);
     ui.gamesSound.setAttribute('aria-pressed', sfx.muted ? 'true' : 'false');
@@ -1152,8 +1154,28 @@
       get loop() { return node ? { loop: node.loop, start: node.loopStart, end: +node.loopEnd.toFixed(3) } : null; },
     };
   })();
+  // iPhone / iPad: Web Audio is silenced by the ring/silent switch unless a media element is playing, so a silent
+  // looping <audio> started on the first gesture lets the music through (the same trick as unmute.js).
+  const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  let iosUnmute = null;
+  function silentWavUrl(seconds, rate) {
+    const n = Math.floor(seconds * rate), ab = new ArrayBuffer(44 + n * 2), v = new DataView(ab);
+    const str = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+    str(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); str(8, 'WAVE'); str(12, 'fmt '); v.setUint32(16, 16, true);
+    v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true);
+    v.setUint16(32, 2, true); v.setUint16(34, 16, true); str(36, 'data'); v.setUint32(40, n * 2, true);
+    return URL.createObjectURL(new Blob([ab], { type: 'audio/wav' }));
+  }
+  function iosUnlock() {
+    if (!isIOS || iosUnmute) return;
+    try {
+      iosUnmute = new Audio(silentWavUrl(0.5, 8000));
+      iosUnmute.loop = true;
+      iosUnmute.play().catch(() => { iosUnmute = null; });   // not in a gesture yet: try again on the next one
+    } catch (e) { iosUnmute = null; }
+  }
   // Browsers only start audio after a tap or key press: unlock the context on the first one so the menu music can begin.
-  const unlockAudio = () => { sfx.unlock(); music.poke(); };
+  const unlockAudio = () => { sfx.unlock(); iosUnlock(); music.poke(); };
   ['pointerdown', 'keydown', 'touchend'].forEach((ev) => document.addEventListener(ev, unlockAudio, { passive: true }));
 
   /* ----------------------------------------------------------- actions */
@@ -1182,7 +1204,7 @@
   let pausedFrom = 'playing';
 
   /* --------------------------------------------------------- game flow */
-  function hideScreens() { for (const id of SCREENS) ui[id].hidden = true; }
+  function hideScreens() { for (const id of SCREENS) ui[id].hidden = true; ui.intro.hidden = true; }
   // startLives: the hearts this attempt begins with (a fresh CFG.lives, or the hearts carried over).
   function resetRun(startLives) {
     clearList(obstacles); clearList(laksas); clearList(powerups); clearList(gebuks);
@@ -1688,7 +1710,95 @@
     level = 0;
     music.restart();                       // the menu page opens with the theme from the top
     window.LaksaArcade.showGames();
+    intro.show(true);                      // the heritage pages cover the menu until the last one is read
   }
+  // Heritage intro (CFG.heritageIntro): "Maklumat Laksa Gebok" over the games menu. show(true) right after sign-in, when every
+  // page must be turned before the menu; show(false) from the menu's "i" button, when the tabs are free and KEMBALI on page 1 closes.
+  const intro = (() => {
+    const pages = CFG.heritageIntro || [];
+    let i = 0, seen = 0, required = false;
+    const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+    function list(items, ordered) { const l = el(ordered ? 'ol' : 'ul'); for (const t of items || []) l.append(el('li', '', t)); return l; }
+    function img(src, alt) { const m = el('img'); m.src = src; m.alt = alt || ''; m.loading = 'lazy'; return m; }
+    function tabs() {
+      ui.introTabs.replaceChildren(...pages.map((p, k) => {
+        const b = el('button', 'intro-tab' + (k === i ? ' on' : ''));
+        b.type = 'button';
+        b.disabled = required && k > seen;         // after sign-in the pages open in order
+        b.setAttribute('aria-current', k === i ? 'page' : 'false');
+        b.append(el('span', 'intro-tab-ico', p.icon || ''), el('span', 'intro-tab-label', p.tab || p.title));
+        b.addEventListener('click', () => go(k));
+        return b;
+      }));
+    }
+    function render() {
+      const p = pages[i];
+      const body = ui.introBody;
+      body.replaceChildren();
+      const title = el('h3', 'intro-title'); title.append(el('span', '', p.title)); body.append(title);
+      const page = el('div', 'intro-page' + (p.figure ? '' : ' no-figure'));
+      if (p.figure) {
+        const fig = el('figure', 'intro-figure');
+        fig.append(img(p.figure.image, p.figure.alt));
+        if (p.figure.label) fig.append(el('span', 'intro-brush', p.figure.label));
+        if (p.figure.caption) fig.append(el('figcaption', '', p.figure.caption));
+        page.append(fig);
+      }
+      const text = el('div', 'intro-text');
+      const pointRows = (arr) => { for (const pt of arr || []) { const row = el('div', 'intro-point'); row.append(el('span', 'intro-ico', pt.icon || '•'), el('p', '', pt.text)); text.append(row); } };
+      if (p.lead) text.append(el('p', 'intro-lead', p.lead));
+      pointRows(p.points);
+      if (p.steps) { const steps = list(p.steps, true); steps.className = 'intro-steps'; text.append(steps); }
+      if (p.gallery) {                         // captioned photos of the steps
+        const g = el('div', 'intro-gallery');
+        for (const ph of p.gallery) { const f = el('figure'); f.append(img(ph.image, ph.caption || '')); if (ph.caption) f.append(el('figcaption', '', ph.caption)); g.append(f); }
+        text.append(g);
+      }
+      pointRows(p.more);
+      if (p.callout) {
+        const c = el('div', 'intro-callout');
+        if (p.callout.image) c.append(img(p.callout.image, ''));
+        c.append(el('p', '', p.callout.text));
+        text.append(c);
+      }
+      if (text.childElementCount) page.append(text);
+      if (p.columns) {
+        const cols = el('div', 'intro-cols');
+        for (const c of p.columns) {
+          const col = el('section', 'intro-col');
+          col.append(el('h3', '', c.heading), list(c.items, c.ordered));
+          if (c.note) col.append(el('p', 'intro-note', c.note));
+          cols.append(col);
+        }
+        page.append(cols);
+      }
+      if (p.photo) {                           // a picture under the text, e.g. the handwritten recipe board
+        const f = el('figure', 'intro-photo');
+        f.append(img(p.photo.image, p.photo.alt));
+        if (p.photo.caption) f.append(el('figcaption', '', p.photo.caption));
+        page.append(f);
+      }
+      if (p.source) {
+        const src = el('p', 'intro-source');
+        if (p.sourceUrl) { const a = el('a', '', p.source); a.href = p.sourceUrl; a.target = '_blank'; a.rel = 'noopener'; src.append(a); }
+        else src.textContent = p.source;
+        page.append(src);
+      }
+      body.append(page);
+      body.scrollTop = 0;
+      tabs();
+      ui.introDots.replaceChildren(...pages.map((_, k) => el('i', k === i ? 'on' : '')));
+      ui.introPager.textContent = (i + 1) + ' / ' + pages.length;
+      ui.introBack.disabled = i === 0 && required;
+      ui.introNextText.textContent = i < pages.length - 1 ? 'SETERUSNYA' : required ? 'MULA BERMAIN' : 'SELESAI';
+    }
+    function go(k) { if (k < 0 || k >= pages.length) return; i = k; seen = Math.max(seen, i); render(); }
+    function show(mustFinish) { if (!pages.length) return; required = !!mustFinish; i = 0; seen = 0; render(); ui.intro.hidden = false; ui.introNext.focus(); }
+    function hide() { ui.intro.hidden = true; }
+    function next() { if (i < pages.length - 1) { go(i + 1); ui.introNext.focus(); } else hide(); }
+    function back() { if (i > 0) go(i - 1); else if (!required) hide(); }
+    return { show, hide, next, back, go, get open() { return !ui.intro.hidden; }, get page() { return i; }, get required() { return required; } };
+  })();
   // Sign-in pop-ups (CFG.signIn): a checking bar, then "telah mendaftar" (auto-close -> menu) or "Daftar Maklumat Pemain" (OK -> e-mail field).
   let popupOk = null;
   function popupShow(o) {                      // o.kind: 'wait' (spinner) | 'ok' (green tick) | 'error' (red cross) | 'info' (blue i)
@@ -2156,6 +2266,8 @@
   ui.registerForm.addEventListener('submit', onRegister);
   ui.registerLb.addEventListener('click', () => { backTo = 'register'; showLeaderboard(); });   // Kedudukan Terkini
   ui.loginPopupOk.addEventListener('click', () => { if (popupOk) popupOk(); });
+  ui.introNext.addEventListener('click', () => intro.next());
+  ui.introBack.addEventListener('click', () => intro.back());
   ui.username.addEventListener('input', () => { fieldState(ui.username.parentElement, ''); ui.registerError.hidden = true; });
   ui.email.addEventListener('input', () => { fieldState(ui.emailField, ''); ui.registerError.hidden = true; });
   ui.hubSwitch.addEventListener('click', showRegister);
@@ -2235,6 +2347,7 @@
     leaderboard() { backTo = 'games'; showLeaderboard(); },
     settings() { backTo = 'games'; showSettings(); },
     achievements() { backTo = 'games'; showAchievements(); },
+    intro() { intro.show(false); },                  // the heritage pages again, from the menu's Maklumat button
     register: showRegister,
     pauseRender(on) { renderPaused = !!on; if (!on) last = performance.now(); },
     setStage, sfx,
@@ -2285,7 +2398,7 @@
     move, jump, roll, start: (l) => startGame(typeof l === 'number' ? l : undefined), nextLevel, showHub, showRegister, showLeaderboard, showStory, showFinal,
     register: (u, e) => GebokStore.register(u, e).then((p) => { useProfile(p); return p; }),
     store: window.GebokStore, player, sfx, applyPowerup,
-    showGames: () => window.LaksaArcade.showGames(), setLbTab, goBack,
+    showGames: () => window.LaksaArcade.showGames(), setLbTab, goBack, intro,
     music: () => ({ playing: music.playing, wanted: music.wanted, loaded: music.loaded, failed: music.failed, mode: music.mode,
       position: +music.position().toFixed(2), duration: +music.duration.toFixed(2), loop: music.loop, ctx: sfx.ctx ? sfx.ctx.state : null, config: music.config }),
     musicSync: (want, fromTop) => music.sync(want, fromTop), musicRestart: () => music.restart(),   // tests: the frame loop drives this normally

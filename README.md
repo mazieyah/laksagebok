@@ -132,6 +132,39 @@ enters the games hub after signing in and whenever a menu returns after a run
 or a mini-game; switching sound off or hiding the tab only pauses it. Browsers
 only start audio after a tap or key press, so on a fresh page the music begins
 at the first interaction.
+## Menu music
+
+`audio/menu-theme.mp4` plays on the registration screen, the games hub, the
+runner's menu and every menu sub-screen (how to play, story, leaderboard,
+settings, achievements). It plays from the top, then loops the section from
+0:10 to the end of the file (`music` in `config.js`: `src`, `startAt`,
+`loopStart`, `volume`, `fade`). It starts from the top again when the player
+enters the games hub after signing in and whenever a menu returns after a run
+or a mini-game; switching sound off or hiding the tab only pauses it. Browsers
+only start audio after a tap or key press, so on a fresh page the music begins
+at the first interaction.
+
+The speaker button at the top right mutes everything, music included, and the
+choice is remembered by the browser. On iPhone and iPad a silent looping
+`<audio>` element is started on the first tap so the music is heard even with the
+ring/silent switch on.
+
+## Heritage intro ("Maklumat Laksa Gebok")
+
+Right after sign-in, a wooden information panel covers the games menu: a
+plaque title, a sidebar with the logo and three tabs (Asal-Usul, Proses
+Pembuatan, Resepi), and a parchment page with a brush-stroke title, a framed
+figure with a red label, icon-led paragraphs or numbered steps, a yellow
+callout and a source line. SETERUSNYA and KEMBALI turn the pages; after sign-in
+the tabs unlock in order and MULA BERMAIN on page 3 reveals the menu. The round
+"i" button (`nav-info.png`) in the menu's top bar opens the same panel with
+every tab free, KEMBALI on page 1 or SELESAI on page 3 closing it. The page
+data lives in `config.js` (`heritageIntro`: tab, icon, title, figure, points,
+lead, steps, gallery, more, callout, columns, photo, source, sourceUrl) with
+`brass-gebok.png`, the eight `proses-*.jpg` photos (from the blog
+fiezabard.blogspot.com, credited on the page), `laksa-bowl.png` and
+`golden-gebok.png`. On phones the tabs become a row above the page and the
+five round menu buttons sit in their own row under the welcome sign.
 
 ## Players, leaderboard, admin
 
@@ -240,6 +273,7 @@ load needs a connection.
 - `platformer.js` – Laksa Quest, the platformer (`window.LaksaQuest`)
 - `crossword.js` – Teka Silang Laksa (`window.LaksaCrossword`)
 - `wordsearch.js` – Cari Kata Laksa, the word search (`window.LaksaWordSearch`)
+- `proses-1-uli.jpg` … `proses-8-ulam.jpg` – heritage intro photos of the making process
 - `audio/menu-theme.mp4` – the menu music (AAC in an MP4 container, 23 s; `music` in `config.js` sets the loop point)
 - `supabase.sql` – the online database: tables, functions and grants to run once in the Supabase SQL editor
 
