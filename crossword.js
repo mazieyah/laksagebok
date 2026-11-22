@@ -453,6 +453,21 @@
     open = true;
     $('crossword').hidden = false;
     start();
+    showRules();                              // the rules first; the clock starts on OK
+  }
+  function showRules() {
+    done = true; clearInterval(timer);        // no typing, no hints, no clock, until OK
+    $('xw-timer').textContent = '05:00';
+    $('xw-rules').hidden = false;
+    $('xw-rules-ok').focus();
+  }
+  function rulesOk() {
+    $('xw-rules').hidden = true;
+    done = false; startAt = performance.now();
+    clearInterval(timer);
+    timer = setInterval(tick, 250);
+    tick();
+    render();
   }
   function close() {
     open = false;
@@ -463,6 +478,7 @@
   function wire() {
     relayout();
     $('xw-hint').addEventListener('click', hint);
+    $('xw-rules-ok').addEventListener('click', rulesOk);
     $('xw-exit').addEventListener('click', close);
     $('xw-again').addEventListener('click', start);
     $('xw-back').addEventListener('click', close);
@@ -480,5 +496,5 @@
       } else if (k === 'Escape') { close(); e.preventDefault(); }
     });
   }
-  window.LaksaCrossword = { open: openGame, close, wire, DATA, layout, select: (r, c, d) => { dir = d || dir; select(cells[key(r, c)], false); }, type: typeChar, get points() { return total(); } };
+  window.LaksaCrossword = { open: openGame, close, wire, DATA, layout, select: (r, c, d) => { dir = d || dir; select(cells[key(r, c)], false); }, type: typeChar, rulesOk, get points() { return total(); } };
 })();

@@ -37,9 +37,12 @@ admin page shows the best score of every game per player.
 
 - Click a cell or a clue, then type (physical or on-screen keyboard); click the
   selected cell again to switch between across and down; arrows move.
-- SEMAK marks wrong letters in red; BANTUAN fills the selected letter for −20.
-- Score: 15 words × 50 + a time bonus (600 − seconds, not below 0) − 20 per hint.
-  The timer starts when the puzzle opens.
+- BANTUAN fills the selected letter for −20.
+- Score: 50 per word (25 for a word with a hinted letter) − 20 per hint; no
+  time bonus. 5 minutes per puzzle, counted down in the HUD.
+- Opening the puzzle from the hub first shows "Syarat Permainan" (`#xw-rules`,
+  `.rules-card`): six rules and an OK button. The grid is drawn behind it, but
+  typing, hints and the clock wait for OK (`rulesOk()`). MAIN SEMULA skips it.
 
 Each correctly completed word plays a chime, locks its cells green and adds
 50 points at once; the running total (words minus hints) shows as "SKOR" next
@@ -79,7 +82,7 @@ out, and an answer with several clues appears once per layout with one of them.
   positions and directions (8 directions, `r0,c0 → r1,c1`) are generated every
   play. MAIN SEMULA draws the next panel.
 - Opening the game from the hub first shows "Syarat Permainan" (`#ws-rules`,
-  same card design as the done card): the rules in six lines and an OK button.
+  `.rules-card`, same card design as the done card): the rules in six lines and an OK button.
   The grid is already drawn behind it, but nothing can be selected and the
   clock starts only on OK (`rulesOk()`). MAIN SEMULA skips the rules.
 - The player sees the clues, not the words: "n. clue (length)". A found word

@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=41">
+<link rel="stylesheet" href="style.css?v=42">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -259,6 +259,28 @@
       </div>
     </div>
   </div>
+  <div id="xw-rules" class="pf-overlay xw-done" hidden>
+    <div class="done-card rules-card">
+      <div class="done-head">
+        <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
+        <span class="done-ribbon">Teka Silang Laksa</span>
+      </div>
+      <div class="done-parchment rules-parch">
+        <h2 class="rules-title">Syarat Permainan</h2>
+        <ul class="rules-list">
+          <li>Lengkapkan 15 perkataan dalam grid mengikut petunjuk Melintang dan Menurun.</li>
+          <li>Ketik petak, kemudian taip huruf. Jawapan disemak secara automatik.</li>
+          <li>Had masa 5 minit. Masa yang diambil direkodkan.</li>
+          <li>Setiap perkataan betul 50 mata. Perkataan yang ada huruf daripada BANTUAN hanya dapat 25 mata.</li>
+          <li>BANTUAN mendedahkan satu huruf: tolak 20 mata.</li>
+          <li>Skor akhir ialah mata perkataan ditolak bantuan.</li>
+        </ul>
+      </div>
+      <div class="done-btns">
+        <button id="xw-rules-ok" class="done-again" type="button">OK</button>
+      </div>
+    </div>
+  </div>
   <div id="xw-done" class="pf-overlay xw-done" hidden>
     <div class="done-card">
       <span class="done-leaf left" aria-hidden="true"></span>
@@ -309,14 +331,14 @@
     </div>
   </div>
   <div id="ws-rules" class="pf-overlay xw-done" hidden>
-    <div class="done-card ws-rules-card">
+    <div class="done-card rules-card">
       <div class="done-head">
         <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
         <span class="done-ribbon">Cari Kata Laksa</span>
       </div>
-      <div class="done-parchment ws-rules-parch">
-        <h2 class="ws-rules-title">Syarat Permainan</h2>
-        <ul class="ws-rules-list">
+      <div class="done-parchment rules-parch">
+        <h2 class="rules-title">Syarat Permainan</h2>
+        <ul class="rules-list">
           <li>Cari 10 perkataan tersembunyi dalam grid 12×12 mengikut petunjuk yang diberi.</li>
           <li>Perkataan boleh mendatar, menegak atau menyerong, ke hadapan atau ke belakang.</li>
           <li>Seret merentasi huruf, atau ketik huruf pertama kemudian huruf terakhir.</li>
@@ -692,7 +714,7 @@
 <script src="admin.js"></script>
 <script src="platform.js"></script>
 <script src="platformer.js"></script>
-<script src="crossword.js?v=2"></script>
+<script src="crossword.js?v=3"></script>
 <script src="wordsearch.js?v=5"></script>
 <script src="game.js?v=31"></script>
 </body>
