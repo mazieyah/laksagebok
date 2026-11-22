@@ -50,7 +50,7 @@
   /* ------------------------------------------------------------------ DOM */
   const ids = ['hud', 'score', 'dist', 'level-label', 'missions', 'm-gebuk', 'm-gebuk-n', 'm-laksa', 'm-laksa-n', 'achievements', 'c-ach', 'i-laksa-target', 'f-ach',
     'power-magnet', 'power-magnet-fill', 'power-shield', 'power-boost', 'power-boost-fill', 'pause-btn', 'banner', 'countdown', 'hint', 'hitflash', 'mute',
-    'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'register-btn-text', 'register-lb', 'store-status', 'admin-link',
+    'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'register-btn-text', 'register-lb', 'store-status', 'admin-link', 'name-hint',
     'login-popup', 'login-popup-card', 'login-popup-title', 'login-popup-text', 'login-popup-bar', 'login-popup-fill', 'login-popup-ok',
     'hub', 'hub-player', 'hub-switch', 'hub-howto', 'hub-story', 'hub-lb', 'hub-games', 'reset', 'admin-link-hub', 'games', 'games-sound', 'platform', 'crossword', 'wordsearch', 'lb-tabs',
     'howto', 'howto-back', 'best-start', 'story', 'story-cards', 'story-note', 'story-back',
@@ -63,7 +63,7 @@
     'final', 'f-score', 'f-laksa', 'f-gebuk', 'final-replay', 'final-story', 'final-lb',
     'timer', 'b-time', 'hub-start', 'c-timeleft', 'c-total', 'i-level', 'f-time', 'f-lives',
     'hub-achv', 'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-sound', 'settings-switch', 'settings-back', 'achv', 'achv-list', 'achv-back',
-    'intro', 'intro-tabs', 'intro-body', 'intro-back', 'intro-dots', 'intro-pager', 'intro-next', 'intro-next-text'];
+    'intro', 'intro-tabs', 'intro-body', 'intro-back', 'intro-dots', 'intro-pager', 'intro-skip', 'intro-next', 'intro-next-text'];
   const ui = {};
   for (const id of ids) {
     ui[id.replace(/-([a-z])/g, (m, c) => c.toUpperCase())] = $(id);
@@ -1602,34 +1602,36 @@
     }).catch(() => { /* no rank shown */ });
   }
   let lbTimer = 0, lbKey = 'bestScore';
-  const LB_EMPTY = { bestScore: 'No scores yet. Finish a run to appear here.', platformBest: 'Belum ada skor Laksa Quest. Tamatkan satu level untuk muncul di sini.', crosswordBest: 'Belum ada skor Teka Silang Laksa. Lengkapkan teka silang kata untuk muncul di sini.', wordsearchBest: 'Belum ada skor Cari Kata Laksa. Jumpai semua perkataan untuk muncul di sini.' };
+  const LB_EMPTY = { bestScore: 'Belum ada skor Gebok Run. Tamatkan satu larian untuk muncul di sini.', platformBest: 'Belum ada skor Laksa Quest. Tamatkan satu level untuk muncul di sini.', crosswordBest: 'Belum ada skor Teka Silang Laksa. Lengkapkan teka silang kata untuk muncul di sini.', wordsearchBest: 'Belum ada skor Cari Kata Laksa. Jumpai semua perkataan untuk muncul di sini.' };
   function lbSub(r) {
-    if (lbKey === 'platformBest') return 'Laksa Quest · ' + (r.platformPlays || 0) + ' play' + (r.platformPlays === 1 ? '' : 's');
-    if (lbKey === 'crosswordBest') return 'Teka Silang Laksa · ' + (r.crosswordPlays || 0) + ' play' + (r.crosswordPlays === 1 ? '' : 's');
-    if (lbKey === 'wordsearchBest') return 'Cari Kata Laksa · ' + (r.wordsearchPlays || 0) + ' play' + (r.wordsearchPlays === 1 ? '' : 's');
-    return r.levels + '/3 levels · ' + (r.gebuk || 0) + ' gebuk · ' + (r.runs || 0) + ' run' + (r.runs === 1 ? '' : 's');
+    const plays = (n) => (n || 0) + ' kali main';
+    if (lbKey === 'platformBest') return 'Laksa Quest | ' + plays(r.platformPlays);
+    if (lbKey === 'crosswordBest') return 'Teka Silang Laksa | ' + plays(r.crosswordPlays);
+    if (lbKey === 'wordsearchBest') return 'Cari Kata Laksa | ' + plays(r.wordsearchPlays);
+    return (r.levels || 0) + '/3 level | ' + (r.gebuk || 0) + ' gebuk | ' + (r.runs || 0) + ' run';
   }
+  const hueOf = (t) => { let h = 7; for (const ch of t) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; };   // one avatar colour per name
   function renderLeaderboard(lb) {
     const me = GebokStore.current();
     ui.lbList.replaceChildren();
     if (!lb.rows.length) { const li = document.createElement('li'); li.className = 'lb-empty'; li.textContent = LB_EMPTY[lbKey] || LB_EMPTY.bestScore; ui.lbList.append(li); }
-    const medals = ['🥇', '🥈', '🥉'];
     lb.rows.forEach((r, i) => {
       const li = document.createElement('li');
       li.className = 'lb-row' + (me && r.id === me.id ? ' me' : '');
-      const rank = document.createElement('span'); rank.className = 'lb-rank' + (i < 3 ? ' top' : ''); rank.textContent = i < 3 ? medals[i] : String(i + 1);
-      const who = document.createElement('span');
-      const name = document.createElement('div'); name.className = 'lb-name'; name.textContent = r.username || '(no name)';
-      const sub = document.createElement('div'); sub.className = 'lb-sub';
-      sub.textContent = lbSub(r);
+      const rank = document.createElement('span'); rank.className = 'lb-rank' + (i < 3 ? ' r' + (i + 1) : ''); rank.textContent = String(i + 1);
+      const nm = (r.username || '').trim();
+      const av = document.createElement('span'); av.className = 'lb-avatar'; av.style.setProperty('--hue', String(hueOf(nm))); av.textContent = (nm.charAt(0) || '?').toUpperCase();
+      const who = document.createElement('span'); who.className = 'lb-who';
+      const name = document.createElement('div'); name.className = 'lb-name'; name.textContent = nm || '(tiada nama)';
+      const sub = document.createElement('div'); sub.className = 'lb-sub'; sub.textContent = lbSub(r);
       who.append(name, sub);
       const sc = document.createElement('span'); sc.className = 'lb-score'; sc.textContent = (r[lbKey] || 0).toLocaleString();
-      li.append(rank, who, sc);
+      li.append(rank, av, who, sc);
       ui.lbList.append(li);
     });
     const i = me ? lb.all.findIndex((r) => r.id === me.id) : -1;
     ui.lbMe.hidden = i < 0;
-    if (i >= 0) ui.lbMe.textContent = 'You (' + me.username + '): rank #' + (i + 1) + ' of ' + lb.all.length + ' · best ' + (lb.all[i][lbKey] || 0).toLocaleString();
+    if (i >= 0) ui.lbMe.textContent = 'Anda (' + me.username + '): kedudukan #' + (i + 1) + ' daripada ' + lb.all.length + ' · terbaik ' + (lb.all[i][lbKey] || 0).toLocaleString();
   }
   function setLbTab(key) {
     lbKey = key;
@@ -1637,16 +1639,16 @@
     loadLeaderboard();
   }
   function loadLeaderboard() {
-    ui.lbStatus.textContent = 'Loading…';
+    ui.lbStatus.textContent = 'Memuatkan…';
     clearTimeout(lbTimer);
-    lbTimer = setTimeout(() => { ui.lbStatus.textContent = 'The database has not answered yet. Scores may be out of date.'; }, 10000);
+    lbTimer = setTimeout(() => { ui.lbStatus.textContent = 'Pangkalan data belum menjawab. Skor mungkin belum terkini.'; }, 10000);
     const key = lbKey;
     lastLog.then(() => GebokStore.fetchLeaderboard(10, key)).then((lb) => {
       if (key !== lbKey) return;
       clearTimeout(lbTimer);
       renderLeaderboard(lb);
-      ui.lbStatus.textContent = 'Top ' + lb.rows.length + ' of ' + lb.all.length + ' player' + (lb.all.length === 1 ? '' : 's') + ' · updated ' + new Date().toLocaleTimeString();
-    }).catch(() => { clearTimeout(lbTimer); ui.lbStatus.textContent = 'Could not load the leaderboard.'; });
+      ui.lbStatus.textContent = 'Top ' + lb.rows.length + ' daripada ' + lb.all.length + ' pemain · dikemas kini ' + new Date().toLocaleTimeString();
+    }).catch(() => { clearTimeout(lbTimer); ui.lbStatus.textContent = 'Papan kedudukan tidak dapat dimuatkan.'; });
   }
   function showLeaderboard() {
     menuState();
@@ -1669,6 +1671,7 @@
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const NAME_MAX = (CFG.signIn && CFG.signIn.nameMaxLength) || 9;   // player names are short: they must fit the welcome sign
   ui.username.maxLength = NAME_MAX;
+  ui.nameHint.textContent = 'Nama pemain maksimum ' + NAME_MAX + ' aksara sahaja.';
   const normText = (t) => (t || '').trim().toLowerCase();
   let stepMode = 'name', pendingProfile = null;   // pendingProfile: the registered record waiting for its e-mail
   let signInRun = 0;                               // bumped by showRegister(): a sign-in flow from before the reset stops quietly
@@ -1707,19 +1710,19 @@
     registerStep('name');
     refreshStore();
   }
-  function useProfile(p) {
+  function useProfile(p, firstTime) {       // firstTime: just registered, so the heritage pages cannot be skipped
     GebokStore.select(p);
     progress = { unlocked: Math.min(FREE, Math.max(0, p.unlocked | 0)), completed: LEVELS.map((_, i) => !!(p.completed && p.completed[i])) };
     level = 0;
     music.restart();                       // the menu page opens with the theme from the top
     window.LaksaArcade.showGames();
-    intro.show(true);                      // the heritage pages cover the menu until the last one is read
+    intro.show(true, !firstTime);          // the heritage pages cover the menu until the last one is read (LANGKAU for returning players)
   }
   // Heritage intro (CFG.heritageIntro): "Maklumat Laksa Gebok" over the games menu. show(true) right after sign-in, when every
   // page must be turned before the menu; show(false) from the menu's "i" button, when the tabs are free and KEMBALI on page 1 closes.
   const intro = (() => {
     const pages = CFG.heritageIntro || [];
-    let i = 0, seen = 0, required = false;
+    let i = 0, seen = 0, required = false, skippable = false;
     const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
     function list(items, ordered) { const l = el(ordered ? 'ol' : 'ul'); for (const t of items || []) l.append(el('li', '', t)); return l; }
     function img(src, alt) { const m = el('img'); m.src = src; m.alt = alt || ''; m.loading = 'lazy'; return m; }
@@ -1793,14 +1796,15 @@
       ui.introDots.replaceChildren(...pages.map((_, k) => el('i', k === i ? 'on' : '')));
       ui.introPager.textContent = (i + 1) + ' / ' + pages.length;
       ui.introBack.disabled = i === 0 && required;
+      ui.introSkip.hidden = !(required && skippable);
       ui.introNextText.textContent = i < pages.length - 1 ? 'SETERUSNYA' : required ? 'MULA BERMAIN' : 'SELESAI';
     }
     function go(k) { if (k < 0 || k >= pages.length) return; i = k; seen = Math.max(seen, i); render(); }
-    function show(mustFinish) { if (!pages.length) return; required = !!mustFinish; i = 0; seen = 0; render(); ui.intro.hidden = false; ui.introNext.focus(); }
+    function show(mustFinish, allowSkip) { if (!pages.length) return; required = !!mustFinish; skippable = !!allowSkip; i = 0; seen = 0; render(); ui.intro.hidden = false; ui.introNext.focus(); }
     function hide() { ui.intro.hidden = true; }
     function next() { if (i < pages.length - 1) { go(i + 1); ui.introNext.focus(); } else hide(); }
     function back() { if (i > 0) go(i - 1); else if (!required) hide(); }
-    return { show, hide, next, back, go, get open() { return !ui.intro.hidden; }, get page() { return i; }, get required() { return required; } };
+    return { show, hide, next, back, go, get open() { return !ui.intro.hidden; }, get page() { return i; }, get required() { return required; }, get skippable() { return skippable; } };
   })();
   // Sign-in pop-ups (CFG.signIn): a checking bar, then "telah mendaftar" (auto-close -> menu) or "Daftar Maklumat Pemain" (OK -> e-mail field).
   let popupOk = null;
@@ -1848,13 +1852,13 @@
       popupHide();
       await sleep(60);                           // the Enter that pressed OK must not reach the input that gets focus next
     };
-    const enter = async (title, text, p) => {    // a green closing notice, then the games menu
+    const enter = async (title, text, p, firstTime) => {   // a green closing notice, then the games menu
       popupShow({ kind: 'ok', title, text: text + ', ' + p.username + '! Membuka menu utama…' });
       await sleep(noticeMs);
       popupHide();
       ui.username.value = ''; ui.email.value = '';
       pendingProfile = null;
-      useProfile(p);
+      useProfile(p, firstTime);
     };
     try {
       if (mode === 'verify') {                   // a registered name: only its own e-mail logs in
@@ -1895,7 +1899,7 @@
           ui.email.focus();
         } else if (p) {
           fieldState(ui.emailField, 'ok');
-          await enter('Pendaftaran Berjaya', 'Selamat datang', p);
+          await enter('Pendaftaran Berjaya', 'Selamat datang', p, true);
         } else if (byName) {                     // the name was taken while the e-mail was typed
           await notice('error', 'Nama Telah Berdaftar', 'Nama pemain "' + username + '" baru sahaja didaftarkan oleh pemain lain. Sila gunakan nama lain.');
           if (stale()) return;
@@ -2272,6 +2276,7 @@
   ui.loginPopupOk.addEventListener('click', () => { if (popupOk) popupOk(); });
   ui.introNext.addEventListener('click', () => intro.next());
   ui.introBack.addEventListener('click', () => intro.back());
+  ui.introSkip.addEventListener('click', () => intro.hide());
   ui.username.addEventListener('input', () => { fieldState(ui.username.parentElement, ''); ui.registerError.hidden = true; });
   ui.email.addEventListener('input', () => { fieldState(ui.emailField, ''); ui.registerError.hidden = true; });
   ui.hubSwitch.addEventListener('click', showRegister);

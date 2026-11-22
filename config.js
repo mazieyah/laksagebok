@@ -20,8 +20,13 @@ window.GebokConfig = {
     { id: 'flawless', icon: '💎', name: 'Tanpa langgaran', desc: 'Finish the level without losing a heart' },
   ],
   powerups: { magnet: 8, boost: 5, boostMultiplier: 1.45, chance: 0.09 },
-  signIn: { checkSeconds: 2, noticeSeconds: 2, nameMaxLength: 9 },
-  // Heritage pages ("Maklumat Laksa Gebok") shown right after sign-in, before the games menu, and again from the menu's "i" button.; names are at most nameMaxLength characters
+  signIn: { checkSeconds: 2, noticeSeconds: 2, nameMaxLength: 9 },   // sign-in pop-ups and the player-name limit
+  music: { src: 'audio/menu-theme.mp4', startAt: 0, loopStart: 10, volume: 0.4, fade: 0.6 },  // menu theme: plays once from startAt (s), then loops loopStart → end; on the register, hub and menu screens only
+  // Online player database (Supabase). Run supabase.sql once in the project's SQL editor, then paste the
+  // project URL and the anon public key (or the newer publishable key) from Project Settings → API Keys. Both empty = the artifact's database on
+  // claude.ai, or this browser's storage anywhere else.
+  supabase: { url: 'https://mosmfzlqoecydvtrdrnk.supabase.co', anonKey: 'sb_publishable_Jo05kO4k9O-qLJnTiLmfNw_3HSLP2g5' },
+  // Heritage pages ("Maklumat Laksa Gebok") shown right after sign-in, before the games menu, and again from the menu's "i" button.
   // SETERUSNYA / KEMBALI turn the pages; the last page's button opens the menu. Text follows the project's poster and the recipe
   // board photographed at Muzium Sultan Abu Bakar, Pekan. Each page: tab + icon (sidebar), title, figure, points / steps / columns, callout,
   // photo (a picture under the text), lead (a paragraph before the steps), gallery (captioned photos after the steps), more (icon paragraphs

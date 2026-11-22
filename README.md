@@ -156,7 +156,9 @@ plaque title, a sidebar with the logo and three tabs (Asal-Usul, Proses
 Pembuatan, Resepi), and a parchment page with a brush-stroke title, a framed
 figure with a red label, icon-led paragraphs or numbered steps, a yellow
 callout and a source line. SETERUSNYA and KEMBALI turn the pages; after sign-in
-the tabs unlock in order and MULA BERMAIN on page 3 reveals the menu. The round
+the tabs unlock in order and MULA BERMAIN on page 3 reveals the menu; a
+returning player also gets a LANGKAU (skip) button, a newly registered one
+does not. The round
 "i" button (`nav-info.png`) in the menu's top bar opens the same panel with
 every tab free, KEMBALI on page 1 or SELESAI on page 3 closing it. The page
 data lives in `config.js` (`heritageIntro`: tab, icon, title, figure, points,
@@ -166,9 +168,20 @@ fiezabard.blogspot.com, credited on the page), `laksa-bowl.png` and
 `golden-gebok.png`. On phones the tabs become a row above the page and the
 five round menu buttons sit in their own row under the welcome sign.
 
+## Kedudukan Terkini (leaderboard)
+
+The leaderboard is a wooden board over the village scene: a red ribbon with
+the trophy, four icon tabs (Gebok Run, Laksa Quest, Teka Silang Laksa, Cari
+Kata Laksa), cream rows with a gold / silver / bronze rank badge, an initial
+avatar coloured from the name, the name and a sub-line ("1/3 level | 3 gebuk |
+1 run" or "n kali main"), and the score; KEMBALI (red) and REFRESH (blue)
+below. It opens from "Kedudukan Terkini" on the sign-in page, the menu's trophy
+button and the runner's screens.
+
 ## Players, leaderboard, admin
 
-Player names are at most `signIn.nameMaxLength` characters (config.js, 9).
+Player names are at most `signIn.nameMaxLength` characters (config.js, 9); the
+sign-in page says so under the name field.
 The game opens with a sign-in page drawn after the project's mockup: the
 village scene with the Traveller and a laksa spread around a wooden panel
 (logo, "Jom Main & Terokai Warisan Laksa Pahang!", the four games, the

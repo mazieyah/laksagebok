@@ -76,6 +76,7 @@
     <ul class="login-games" aria-label="Permainan"><li>Laksa Gebok Run</li><li>Laksa Quest</li><li>Teka Silang Laksa</li><li>Cari Kata Laksa</li></ul>
     <form id="register-form" class="form login-form" novalidate>
       <label class="field login-field"><span><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.2"/><path d="M4 21c0-4.4 3.6-7.5 8-7.5s8 3.1 8 7.5z"/></svg>Nama Pemain</span><input id="username" type="text" maxlength="9" autocomplete="nickname" placeholder="cth. Along" required></label>
+      <p id="name-hint" class="field-hint">Nama pemain maksimum 9 aksara sahaja.</p>
       <label id="email-field" class="field login-field" hidden><span><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5h18v12H3z"/><path d="M3 7l9 6 9-6" fill="none" stroke="#7a2a0c" stroke-width="2"/></svg>Alamat E-Mel</span><input id="email" type="email" maxlength="80" autocomplete="email" placeholder="anda@contoh.com"></label>
       <p id="register-note" class="form-note" hidden></p>
       <p id="register-error" class="form-error" hidden></p>
@@ -111,7 +112,10 @@
     </aside>
     <div id="intro-body" class="intro-body" tabindex="0"></div>
     <div class="intro-foot">
-      <button id="intro-back" class="intro-back" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 3 12l8 7v-4.5h4c3 0 5 1.5 6 4.5.3-5-2-9-8-9h-2z"/></svg><span>KEMBALI</span></button>
+      <div class="intro-left">
+        <button id="intro-skip" class="intro-skip" type="button" hidden>LANGKAU <span aria-hidden="true">»</span></button>
+        <button id="intro-back" class="intro-back" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 3 12l8 7v-4.5h4c3 0 5 1.5 6 4.5.3-5-2-9-8-9h-2z"/></svg><span>KEMBALI</span></button>
+      </div>
       <div class="intro-progress"><span id="intro-dots" class="intro-dots" aria-hidden="true"></span><span id="intro-pager" class="intro-pager">1 / 3</span></div>
       <button id="intro-next" class="btn play-btn intro-next" type="button"><span id="intro-next-text">SETERUSNYA</span><svg class="play-tri" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.2v17.6L20.5 12z"/></svg></button>
     </div>
@@ -398,22 +402,29 @@
   </div>
 </div>
 
-<div id="leaderboard" class="screen" hidden>
-  <div class="card">
-    <h2 class="title small">PAPAN KEDUDUKAN</h2>
-    <p class="tagline">Skor tertinggi semua pemain, mengikut permainan.</p>
-    <div id="lb-tabs" class="lb-tabs" role="tablist">
-      <button class="lb-tab active" data-key="bestScore" type="button" role="tab" aria-selected="true">Gebok Run</button>
-      <button class="lb-tab" data-key="platformBest" type="button" role="tab" aria-selected="false">Laksa Quest</button>
-      <button class="lb-tab" data-key="crosswordBest" type="button" role="tab" aria-selected="false">Teka Silang Laksa</button>
-      <button class="lb-tab" data-key="wordsearchBest" type="button" role="tab" aria-selected="false">Cari Kata Laksa</button>
+<div id="leaderboard" class="screen login lb" hidden>
+  <div class="login-scene" aria-hidden="true"><img src="laksa-scene.jpg" alt=""></div>
+  <img class="login-boy" src="traveler-menu.png" alt="" aria-hidden="true">
+  <img class="login-food" src="laksa-quest-bowl.png" alt="" aria-hidden="true">
+  <div class="lb-panel">
+    <img class="register-brand lb-brand" src="laksa-arcade-logo.png" alt="Laksa Arcade">
+    <div class="lb-ribbon">
+      <img class="lb-trophy" src="nav-trophy.png" alt="">
+      <h2 class="lb-title">Kedudukan Terkini</h2>
     </div>
-    <p id="lb-status" class="store-status">Loading…</p>
+    <p class="lb-tagline">Skor tertinggi semua pemain, mengikut permainan.</p>
+    <div id="lb-tabs" class="lb-tabs" role="tablist">
+      <button class="lb-tab active" data-key="bestScore" type="button" role="tab" aria-selected="true"><span class="lb-tab-ico" aria-hidden="true">🏃</span>Gebok Run</button>
+      <button class="lb-tab" data-key="platformBest" type="button" role="tab" aria-selected="false"><span class="lb-tab-ico" aria-hidden="true">🍜</span>Laksa Quest</button>
+      <button class="lb-tab" data-key="crosswordBest" type="button" role="tab" aria-selected="false"><span class="lb-tab-ico" aria-hidden="true">🧩</span>Teka Silang Laksa</button>
+      <button class="lb-tab" data-key="wordsearchBest" type="button" role="tab" aria-selected="false"><span class="lb-tab-ico" aria-hidden="true">🔍</span>Cari Kata Laksa</button>
+    </div>
+    <p id="lb-status" class="lb-status">Memuatkan…</p>
     <ol id="lb-list" class="lb-list"></ol>
-    <p id="lb-me" class="player-line" hidden></p>
-    <div class="btn-row">
-      <button id="lb-back" class="btn" type="button">KEMBALI</button>
-      <button id="lb-refresh" class="btn secondary" type="button">REFRESH</button>
+    <p id="lb-me" class="lb-me" hidden></p>
+    <div class="lb-btns">
+      <button id="lb-back" class="btn play-btn lb-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 3 12l8 7v-4.5h4c3 0 5 1.5 6 4.5.3-5-2-9-8-9h-2z"/></svg>KEMBALI</button>
+      <button id="lb-refresh" class="btn play-btn lb-btn lb-btn-blue" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 0 1 6.3 4H16v2h6V5h-2v2.2A9 9 0 0 0 3 12h2a7 7 0 0 1 7-7zm7 7a7 7 0 0 1-13.3 3H8v-2H2v6h2v-2.2A9 9 0 0 0 21 12z"/></svg>REFRESH</button>
     </div>
   </div>
 </div>
