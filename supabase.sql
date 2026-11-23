@@ -147,3 +147,143 @@ notify pgrst, 'reload schema';
 -- The admin page (#admin) asks for this key and keeps it in that browser.
 -- insert into public.app_settings (key, value) values ('admin_key', 'tukar-kepada-rahsia-yang-panjang')
 --   on conflict (key) do update set value = excluded.value;
+
+-- ======================================================================
+-- Per-game run tables: one row per play, for analysis per mini game
+-- (time taken, performance). The game only appends through
+-- gebok_record_run; players.data keeps its own copy of the last 300 runs
+-- as before, so nothing else changes. Deleting a player removes their rows.
+-- Safe to run on a project that already has the tables above.
+-- ======================================================================
+
+create table if not exists public.runner_runs (            -- Laksa Gebok Run (3D runner): one row per level played
+  id             bigint generated always as identity primary key,
+  player_id      text not null references public.players(id) on delete cascade,
+  username       text not null,
+  played_at      timestamptz not null default now(),
+  level          integer not null default 1,
+  result         text not null default '',                 -- won / crashed / incomplete
+  score          integer not null default 0,               -- this level's score
+  campaign_score integer,                                  -- the run total so far
+  laksa          integer,  laksa_target integer,
+  gebuk          integer,  gebuk_need   integer,
+  distance       integer,                                  -- metres
+  time_s         numeric,                                  -- seconds played on this level
+  time_limit     integer,  time_left numeric, time_bonus integer,
+  max_speed      numeric,
+  lives_lost     integer,  lives_start integer,
+  mission_done   boolean,  finished boolean,
+  achievements   text[] not null default '{}',
+  details        jsonb not null default '{}'::jsonb         -- the record exactly as the game sent it
+);
+create table if not exists public.quest_runs (             -- Laksa Quest (platformer): one row per 3-minute run
+  id          bigint generated always as identity primary key,
+  player_id   text not null references public.players(id) on delete cascade,
+  username    text not null,
+  played_at   timestamptz not null default now(),
+  result      text not null default '',                    -- timeout (clock ran out) / crashed (no hearts left)
+  score       integer not null default 0,
+  bowls       integer,
+  time_s      numeric,                                     -- seconds played (180 on timeout)
+  lives_left  integer,
+  coins       integer, ingredients integer, rares integer, hits integer, stomps integer,
+  details     jsonb not null default '{}'::jsonb
+);
+create table if not exists public.crossword_runs (         -- Teka Silang Laksa: one row per puzzle
+  id          bigint generated always as identity primary key,
+  player_id   text not null references public.players(id) on delete cascade,
+  username    text not null,
+  played_at   timestamptz not null default now(),
+  result      text not null default '',                    -- won / timeout
+  score       integer not null default 0,
+  time_s      numeric,                                     -- seconds to finish (the limit on timeout)
+  hints       integer,
+  words       integer,
+  details     jsonb not null default '{}'::jsonb
+);
+create table if not exists public.wordsearch_runs (        -- Cari Kata Laksa: one row per panel played
+  id          bigint generated always as identity primary key,
+  player_id   text not null references public.players(id) on delete cascade,
+  username    text not null,
+  played_at   timestamptz not null default now(),
+  panel       integer,                                     -- which of the 10 word panels (1–10)
+  result      text not null default '',                    -- won / timeout
+  score       integer not null default 0,
+  time_s      numeric,                                     -- seconds to finish (300 on timeout)
+  hints       integer,
+  words       integer, found integer,
+  details     jsonb not null default '{}'::jsonb
+);
+create index if not exists runner_runs_player_idx     on public.runner_runs (player_id, played_at desc);
+create index if not exists quest_runs_player_idx      on public.quest_runs (player_id, played_at desc);
+create index if not exists crossword_runs_player_idx  on public.crossword_runs (player_id, played_at desc);
+create index if not exists wordsearch_runs_player_idx on public.wordsearch_runs (player_id, played_at desc);
+create index if not exists runner_runs_played_idx     on public.runner_runs (played_at desc);
+create index if not exists quest_runs_played_idx      on public.quest_runs (played_at desc);
+create index if not exists crossword_runs_played_idx  on public.crossword_runs (played_at desc);
+create index if not exists wordsearch_runs_played_idx on public.wordsearch_runs (played_at desc);
+
+alter table public.runner_runs     enable row level security;
+alter table public.quest_runs      enable row level security;
+alter table public.crossword_runs  enable row level security;
+alter table public.wordsearch_runs enable row level security;
+revoke all on table public.runner_runs, public.quest_runs, public.crossword_runs, public.wordsearch_runs from anon, authenticated;
+
+-- JSON field readers that never fail on a missing or oddly typed value.
+create or replace function public.gebok_jint(r jsonb, k text) returns integer
+language sql immutable as $$ select case when jsonb_typeof(r->k) = 'number' then round((r->>k)::numeric)::integer end $$;
+create or replace function public.gebok_jnum(r jsonb, k text) returns numeric
+language sql immutable as $$ select case when jsonb_typeof(r->k) = 'number' then (r->>k)::numeric end $$;
+create or replace function public.gebok_jbool(r jsonb, k text) returns boolean
+language sql immutable as $$ select case when jsonb_typeof(r->k) = 'boolean' then (r->>k)::boolean end $$;
+
+-- Appends one play to the game's table (p_game: runner / platform / crossword / wordsearch; p_rec: the
+-- record the game keeps in players.data.runs). Returns the new row id, null when the player no longer exists.
+create or replace function public.gebok_record_run(p_id text, p_game text, p_rec jsonb) returns bigint
+language plpgsql security definer set search_path = public as $$
+declare
+  u text;
+  n bigint;
+  r jsonb := coalesce(p_rec, '{}'::jsonb);
+  t timestamptz := now();
+begin
+  select username into u from public.players where id = p_id;
+  if not found then return null; end if;
+  if pg_column_size(r) > 100000 then raise exception 'record too large' using errcode = '22023'; end if;
+  begin
+    t := coalesce(nullif(r->>'at', '')::timestamptz, now());
+  exception when others then
+    t := now();
+  end;
+  if p_game = 'runner' then
+    insert into public.runner_runs (player_id, username, played_at, level, result, score, campaign_score, laksa, laksa_target, gebuk, gebuk_need, distance,
+                                    time_s, time_limit, time_left, time_bonus, max_speed, lives_lost, lives_start, mission_done, finished, achievements, details)
+    values (p_id, u, t, coalesce(public.gebok_jint(r, 'level'), 1), coalesce(r->>'result', ''), coalesce(public.gebok_jint(r, 'score'), 0),
+            public.gebok_jint(r, 'campaignScore'), public.gebok_jint(r, 'laksa'), public.gebok_jint(r, 'laksaTarget'), public.gebok_jint(r, 'gebuk'), public.gebok_jint(r, 'need'), public.gebok_jint(r, 'distance'),
+            public.gebok_jnum(r, 'time'), public.gebok_jint(r, 'timeLimit'), public.gebok_jnum(r, 'timeLeft'), public.gebok_jint(r, 'timeBonus'), public.gebok_jnum(r, 'maxSpeed'),
+            public.gebok_jint(r, 'livesLost'), public.gebok_jint(r, 'livesStart'), public.gebok_jbool(r, 'missionDone'), public.gebok_jbool(r, 'finished'),
+            coalesce((select array_agg(x) from jsonb_array_elements_text(case when jsonb_typeof(r->'achievements') = 'array' then r->'achievements' else '[]'::jsonb end) as x), '{}'::text[]), r)
+    returning id into n;
+  elsif p_game = 'platform' then
+    insert into public.quest_runs (player_id, username, played_at, result, score, bowls, time_s, lives_left, coins, ingredients, rares, hits, stomps, details)
+    values (p_id, u, t, coalesce(r->>'result', ''), coalesce(public.gebok_jint(r, 'score'), 0), public.gebok_jint(r, 'bowls'), public.gebok_jnum(r, 'time'), public.gebok_jint(r, 'lives'),
+            public.gebok_jint(r, 'coins'), public.gebok_jint(r, 'ingredients'), public.gebok_jint(r, 'rares'), public.gebok_jint(r, 'hits'), public.gebok_jint(r, 'stomps'), r)
+    returning id into n;
+  elsif p_game = 'crossword' then
+    insert into public.crossword_runs (player_id, username, played_at, result, score, time_s, hints, words, details)
+    values (p_id, u, t, coalesce(r->>'result', ''), coalesce(public.gebok_jint(r, 'score'), 0), public.gebok_jnum(r, 'time'), public.gebok_jint(r, 'hints'), public.gebok_jint(r, 'words'), r)
+    returning id into n;
+  elsif p_game = 'wordsearch' then
+    insert into public.wordsearch_runs (player_id, username, played_at, panel, result, score, time_s, hints, words, found, details)
+    values (p_id, u, t, public.gebok_jint(r, 'panel'), coalesce(r->>'result', ''), coalesce(public.gebok_jint(r, 'score'), 0), public.gebok_jnum(r, 'time'),
+            public.gebok_jint(r, 'hints'), public.gebok_jint(r, 'words'), public.gebok_jint(r, 'found'), r)
+    returning id into n;
+  else
+    raise exception 'unknown game' using errcode = '22023';
+  end if;
+  return n;
+end $$;
+
+revoke execute on function public.gebok_jint(jsonb, text), public.gebok_jnum(jsonb, text), public.gebok_jbool(jsonb, text) from public, anon, authenticated;
+grant execute on function public.gebok_record_run(text, text, jsonb) to anon, authenticated;
+notify pgrst, 'reload schema';

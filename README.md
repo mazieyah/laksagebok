@@ -390,9 +390,11 @@ shares one player database, so a player name signs in from any device.
 
 1. Create a project at supabase.com. In the dashboard open SQL Editor → New
    query, paste the whole of `supabase.sql` and run it. It creates the
-   `players` and `app_settings` tables and the `gebok_*` functions; the tables
-   have row-level security on and no policies, so the public anon key can only
-   call those functions.
+   `players` and `app_settings` tables, the four per-game run tables and the
+   `gebok_*` functions; the tables have row-level security on and no
+   policies, so the public anon key can only call those functions. Running
+   the file again after an update is safe (an existing project only gains
+   what is new).
 2. Pick a long admin key and run (replace the value):
 
        insert into public.app_settings (key, value) values ('admin_key', 'tukar-kepada-rahsia-yang-panjang')
@@ -413,6 +415,40 @@ database or this browser's storage and says so under the form.
 the artifact database), `players.entry` the public leaderboard entry; both are
 updated by `gebok_save` after every run. `gebok_admin_players(key)` returns all
 profiles with e-mails for the admin page and CSV export.
+
+### Per-game run tables (analysis)
+
+Every play is also appended as one row to the table of its game, so time
+taken and performance can be analysed per mini game with plain SQL or a CSV
+export from the Table Editor. `player_id` references `players.id` (rows go
+with a deleted player) and `username` is copied in for convenience; every
+table also has `played_at`, `result`, `score`, `time_s` (seconds) and
+`details` (the record exactly as the game sent it).
+
+| Table | Game | Own columns |
+|---|---|---|
+| `runner_runs` | Laksa Gebok Run, one row per level played | `level`, `campaign_score`, `laksa`, `laksa_target`, `gebuk`, `gebuk_need`, `distance`, `time_limit`, `time_left`, `time_bonus`, `max_speed`, `lives_lost`, `lives_start`, `mission_done`, `finished`, `achievements` |
+| `quest_runs` | Laksa Quest, one row per 3-minute run (`timeout` / `crashed`) | `bowls`, `lives_left`, `coins`, `ingredients`, `rares`, `hits`, `stomps` |
+| `crossword_runs` | Teka Silang Laksa (`won` / `timeout`) | `hints`, `words` |
+| `wordsearch_runs` | Cari Kata Laksa (`won` / `timeout`) | `panel` (1–10), `hints`, `words`, `found` |
+
+store.js calls `gebok_record_run(p_id, p_game, p_rec)` right after
+`gebok_save` in `recordRun` (runner) and `recordGame` (the other three);
+`p_game` is `runner`, `platform`, `crossword` or `wordsearch`. The function
+copies the known fields into columns (missing or oddly typed values become
+NULL, never an error) and keeps the whole record in `details`. A failure
+(the tables not installed yet, offline) is ignored: the profile already
+holds its own copy of the run, so the game never notices. The tables are
+never read by the game. Examples:
+
+    -- time taken and performance per Cari Kata panel
+    select panel, count(*) as plays, round(avg(time_s)) as avg_s, round(avg(score)) as avg_score,
+           round(avg(hints), 2) as avg_hints, round(100.0 * avg((result = 'won')::int)) as won_pct
+      from public.wordsearch_runs group by panel order by panel;
+
+    -- one player's Laksa Quest runs, newest first
+    select played_at, result, score, bowls, time_s, hits
+      from public.quest_runs where username = 'maziah' order by played_at desc;
 
 ### GitHub Pages
 

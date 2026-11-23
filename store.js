@@ -150,6 +150,14 @@
     d.profiles[p.id] = body;
     writeLocal(d);
   }
+  // Supabase only: one row per play in the game's own table (runner_runs, quest_runs, crossword_runs,
+  // wordsearch_runs in supabase.sql) for analysis per game. The profile keeps its own copy of the run,
+  // so a failure here (tables not installed yet, offline) is ignored.
+  async function logRunRow(p, game, rec) {
+    if (S.mode !== 'supabase' || !p || !p.id) return null;
+    try { return await rpc('gebok_record_run', { p_id: p.id, p_game: game, p_rec: rec }); }
+    catch (e) { return null; }
+  }
   // The account document is what the admin page lists, so it must exist.
   async function touchAccount() {
     if (S.mode !== 'cloud') return;
@@ -234,6 +242,7 @@
     p.unlocked = progress.unlocked;
     p.completed = progress.completed.slice();
     await writeProfile(p);
+    await logRunRow(p, 'runner', run);
     await touchAccount();
     await syncLeaderboard();
   }
@@ -301,6 +310,7 @@
     p.runs = (p.runs || []).concat([Object.assign({ game }, rec)]).slice(-MAX_RUNS);
     p.lastPlayedAt = rec.at;
     await writeProfile(p);
+    await logRunRow(p, game, rec);
     await touchAccount();
     await syncLeaderboard();
   }
