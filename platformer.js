@@ -301,7 +301,7 @@
   };
   const ATLAS = new Image();
   let atlasOk = false;
-  ATLAS.onload = () => { atlasOk = true; if (open) hud(); };
+  ATLAS.onload = () => { atlasOk = true; paintRuleIcons(); if (open) hud(); };
   ATLAS.src = 'laksa-quest-atlas.webp';
   const BOAR = new Image();
   let boarOk = false;
@@ -348,6 +348,16 @@
     const f = FR[name];
     if (f && atlasOk) { const g = c.getContext('2d'); const s = Math.min(size / f[2], size / f[3]); const w = f[2] * s, h = f[3] * s; g.drawImage(ATLAS, f[0], f[1], f[2], f[3], (size - w) / 2, (size - h) / 2, w, h); }
     return c;
+  }
+  function paintRuleIcons() {                                   // atlas frames on the "Syarat Permainan" card: <span data-spr="name" data-size="px">
+    if (!atlasOk) return;
+    for (const el of document.querySelectorAll('#pf-rules [data-spr]')) {
+      if (el.firstChild) continue;
+      const size = +el.dataset.size || 44;
+      const c = sprCanvas(el.dataset.spr, size * 2);                // drawn at 2x for sharp edges on retina screens
+      c.style.width = c.style.height = size + 'px';
+      el.append(c);
+    }
   }
   const canvas = $('pf-canvas');
   const ctx = canvas.getContext('2d');
@@ -468,8 +478,10 @@
   }
   function showRules() {
     started = false;                                            // the world is drawn behind the card; the clock waits for OK
+    paintRuleIcons();
     $('pf-rules').hidden = false;
-    $('pf-rules-ok').focus();
+    $('pf-rules').scrollTop = 0;                                 // a tall card opens at its logo, not at the OK button
+    $('pf-rules-ok').focus({ preventScroll: true });
   }
   function rulesOk() {
     $('pf-rules').hidden = true;

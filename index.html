@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=56">
+<link rel="stylesheet" href="style.css?v=57">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -237,21 +237,63 @@
   </div>
   <div class="pf-keys">← → bergerak · ↑ / SPACE lompat · tekan 2× untuk lompat berganda · P rehat</div>
   <div id="pf-rules" class="pf-overlay xw-done" hidden>
-    <div class="done-card rules-card">
+    <div class="done-card rules-card qr-card">
       <div class="done-head">
         <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
         <span class="done-ribbon">Laksa Quest</span>
       </div>
-      <div class="done-parchment rules-parch">
-        <h2 class="rules-title">Syarat Permainan</h2>
-        <ul class="rules-list">
-          <li>Lari ke kanan dan lompat atasi halangan: kayu balak, sungai, batu jatuh, perangkap buluh dan babi hutan. Lompat ke atas babi hutan untuk menewaskannya.</li>
-          <li>Kutip 6 bahan untuk semangkuk Laksa Gebok: mi laksa, ikan, santan, rempah, daun kesum dan ulam, dalam apa-apa susunan. Setiap mangkuk siap 100 mata.</li>
-          <li>Bahan tambahan 10 mata, syiling emas 5 mata, Lesung Batu (jarang) 20 mata. Almari simpan hingga 3 salinan setiap bahan: tekan 🧺 Almari atau I untuk melihatnya.</li>
-          <li>Kuasa: Alat Gebok (bahan ×2), Senduk Sakti (perlindungan), Bakul (simpan bahan lebihan) dan Hati (+1 nyawa).</li>
-          <li>Had masa 3 minit dengan 3 nyawa. Hilang 1 nyawa, kembali ke permulaan. Masa tetap berjalan.</li>
-          <li>Kawalan: ← → bergerak, ↑ atau SPACE lompat (tekan dua kali untuk lompat berganda), P rehat. Di telefon gunakan butang pada skrin.</li>
-        </ul>
+      <div class="done-parchment rules-parch qr-parch">
+        <h2 class="rules-title qr-title"><span>Syarat Permainan</span></h2>
+        <ol class="qr-rows">
+          <li class="qr-row">
+            <span class="qr-num">1</span>
+            <span class="qr-ico" data-spr="run1" data-size="50"></span>
+            <p class="qr-text qr-bar"><b>Lari</b> ke kanan dan <b>lompat</b> atas halangan: kayu balak, sungai, batu jatuh, perangkap buluh dan babi hutan. Lompat ke atas babi hutan untuk menewaskannya.</p>
+            <span class="qr-art"><span class="qr-spr" data-spr="log" data-size="46"></span><span class="qr-spr" data-spr="rock" data-size="38"></span><span class="qr-spr" data-spr="boar1" data-size="54"></span></span>
+          </li>
+          <li class="qr-row">
+            <span class="qr-num">2</span>
+            <span class="qr-ico" data-spr="bowl3" data-size="54"></span>
+            <p class="qr-text qr-bar"><b>Kutip 6 bahan</b> untuk semangkuk Laksa Gebok: mi laksa, ikan, santan, rempah, daun kesum dan ulam, dalam apa-apa susunan. Setiap mangkuk siap <mark class="qr-pts">100 mata.</mark></p>
+            <span class="qr-art qr-tiles"><span class="qr-tile" data-spr="noodles" data-size="34"></span><span class="qr-tile" data-spr="fish" data-size="34"></span><span class="qr-tile" data-spr="santan" data-size="34"></span><span class="qr-tile" data-spr="belacan" data-size="34"></span><span class="qr-tile" data-spr="kesum" data-size="34"></span><span class="qr-tile" data-spr="ulam" data-size="34"></span></span>
+          </li>
+          <li class="qr-row qr-wide">
+            <span class="qr-num">3</span>
+            <span class="qr-ico qr-star" aria-hidden="true">★</span>
+            <p class="qr-text"><b>Bahan tambahan untuk tambah skor:</b>
+              <span class="qr-line"><span class="qr-spr sm" data-spr="coin" data-size="20"></span> Kumpul <strong>Syiling Emas</strong> = <mark class="qr-pts">5 mata</mark></span>
+              <span class="qr-line"><span class="qr-spr sm" data-spr="mortar" data-size="20"></span> Kumpul <strong>Lesung Batu</strong> (jarang) = <mark class="qr-pts">20 mata</mark></span></p>
+          </li>
+          <li class="qr-row">
+            <span class="qr-num">4</span>
+            <img class="qr-ico qr-img" src="golden-gebok.png" alt="">
+            <div class="qr-text qr-bar"><b>Kuasa (Power-Up):</b>
+              <ul class="qr-bul">
+                <li><strong>Alat Gebok</strong> (bahan ×2)</li>
+                <li><strong>Senduk Sakti</strong> (perlindungan)</li>
+                <li><strong>Bakul</strong> (simpan bahan lebihan)</li>
+                <li><strong>Hati</strong> (+1 nyawa)</li>
+              </ul></div>
+            <span class="qr-art"><span class="qr-spr" data-spr="spoon" data-size="46"></span><span class="qr-spr" data-spr="basket" data-size="46"></span><span class="qr-spr" data-spr="heart" data-size="42"></span></span>
+          </li>
+          <li class="qr-row">
+            <span class="qr-num">5</span>
+            <span class="qr-ico qr-emoji" aria-hidden="true">⏳</span>
+            <p class="qr-text qr-bar"><b>Had masa: 3 minit</b> dengan <b>3 nyawa.</b><br>Hilang 1 nyawa, kembali ke permulaan. Masa tetap berjalan.</p>
+            <span class="qr-art"><span class="qr-spr" data-spr="heart" data-size="42"></span><span class="qr-spr" data-spr="heart" data-size="42"></span><span class="qr-spr" data-spr="heart" data-size="42"></span></span>
+          </li>
+          <li class="qr-row qr-ctrl">
+            <span class="qr-num">6</span>
+            <div class="qr-ctrl-body">
+              <b class="qr-ctrl-h">Kawalan Permainan (Komputer):</b>
+              <div class="qr-groups">
+                <span class="qr-grp"><kbd class="qr-key">←</kbd><kbd class="qr-key">→</kbd><span>: Bergerak</span></span>
+                <span class="qr-grp"><kbd class="qr-key">SPACE</kbd><span>: Lompat<small>(tekan dua kali untuk lompat berganda)</small></span></span>
+                <span class="qr-grp"><kbd class="qr-key">P</kbd><span>: Rehat (Pause)</span></span>
+              </div>
+            </div>
+          </li>
+        </ol>
       </div>
       <div class="done-btns">
         <button id="pf-rules-ok" class="done-again" type="button">OK</button>
@@ -804,7 +846,7 @@
 <script src="store.js?v=4"></script>
 <script src="admin.js"></script>
 <script src="platform.js"></script>
-<script src="platformer.js?v=19"></script>
+<script src="platformer.js?v=20"></script>
 <script src="crossword.js?v=3"></script>
 <script src="wordsearch.js?v=5"></script>
 <script src="game.js?v=36"></script>

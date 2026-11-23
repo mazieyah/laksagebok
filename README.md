@@ -55,6 +55,20 @@ load, the drawn sky, hills, signboards and scenery stand in.
 
 - Opening the game shows "Syarat Permainan" (`#pf-rules`, OK button); the
   world is drawn behind it and the clock starts on OK. MAIN SEMULA skips it.
+  The card follows the user's illustrated mockups: a yellow pill title and
+  six compact cream rows (`.qr-row`), each with a red number, an icon, the
+  rule text behind an orange bar with red lead words, and pictures on the
+  right (obstacles, the six ingredient tiles, the power-ups, three hearts).
+  Row 3 shows the coin and mortar lines with yellow point pills, and row 6
+  "Kawalan Permainan (Komputer)" has three key-cap groups (arrows, SPACE,
+  P) separated by orange bars; there is no phone note. The pictures are
+  atlas frames: `<span data-spr="name" data-size="px">` placeholders that
+  `paintRuleIcons()` fills with a 2x `sprCanvas` when the atlas loads and
+  when the card opens; row 4's icon is the golden gebok picture
+  (`golden-gebok.png`). The card is `min(700px, 100%)` wide with auto
+  margins, so on a short screen it scrolls from the logo (the OK button is
+  focused with `preventScroll`); under 600px the pictures move below the
+  text and the key groups stack.
 - Controls: ← → (or A/D) run, ↑ / W / SPACE jump (coyote time, jump buffer,
   short hop on release; a second press in the air is a double jump at 88% of
   the first, one per flight), P / Escape pause; on touch screens three buttons.
