@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=57">
+<link rel="stylesheet" href="style.css?v=58">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -247,15 +247,15 @@
         <ol class="qr-rows">
           <li class="qr-row">
             <span class="qr-num">1</span>
-            <span class="qr-ico" data-spr="run1" data-size="50"></span>
+            <span class="qr-ico" data-spr="run1" data-size="44"></span>
             <p class="qr-text qr-bar"><b>Lari</b> ke kanan dan <b>lompat</b> atas halangan: kayu balak, sungai, batu jatuh, perangkap buluh dan babi hutan. Lompat ke atas babi hutan untuk menewaskannya.</p>
-            <span class="qr-art"><span class="qr-spr" data-spr="log" data-size="46"></span><span class="qr-spr" data-spr="rock" data-size="38"></span><span class="qr-spr" data-spr="boar1" data-size="54"></span></span>
+            <span class="qr-art"><span class="qr-spr" data-spr="log" data-size="40"></span><span class="qr-spr" data-spr="rock" data-size="34"></span><span class="qr-spr" data-spr="boar1" data-size="48"></span></span>
           </li>
           <li class="qr-row">
             <span class="qr-num">2</span>
-            <span class="qr-ico" data-spr="bowl3" data-size="54"></span>
+            <span class="qr-ico" data-spr="bowl3" data-size="48"></span>
             <p class="qr-text qr-bar"><b>Kutip 6 bahan</b> untuk semangkuk Laksa Gebok: mi laksa, ikan, santan, rempah, daun kesum dan ulam, dalam apa-apa susunan. Setiap mangkuk siap <mark class="qr-pts">100 mata.</mark></p>
-            <span class="qr-art qr-tiles"><span class="qr-tile" data-spr="noodles" data-size="34"></span><span class="qr-tile" data-spr="fish" data-size="34"></span><span class="qr-tile" data-spr="santan" data-size="34"></span><span class="qr-tile" data-spr="belacan" data-size="34"></span><span class="qr-tile" data-spr="kesum" data-size="34"></span><span class="qr-tile" data-spr="ulam" data-size="34"></span></span>
+            <span class="qr-art qr-tiles"><span class="qr-tile" data-spr="noodles" data-size="32"></span><span class="qr-tile" data-spr="fish" data-size="32"></span><span class="qr-tile" data-spr="santan" data-size="32"></span><span class="qr-tile" data-spr="belacan" data-size="32"></span><span class="qr-tile" data-spr="kesum" data-size="32"></span><span class="qr-tile" data-spr="ulam" data-size="32"></span></span>
           </li>
           <li class="qr-row qr-wide">
             <span class="qr-num">3</span>
@@ -274,13 +274,13 @@
                 <li><strong>Bakul</strong> (simpan bahan lebihan)</li>
                 <li><strong>Hati</strong> (+1 nyawa)</li>
               </ul></div>
-            <span class="qr-art"><span class="qr-spr" data-spr="spoon" data-size="46"></span><span class="qr-spr" data-spr="basket" data-size="46"></span><span class="qr-spr" data-spr="heart" data-size="42"></span></span>
+            <span class="qr-art"><span class="qr-spr" data-spr="spoon" data-size="42"></span><span class="qr-spr" data-spr="basket" data-size="42"></span><span class="qr-spr" data-spr="heart" data-size="38"></span></span>
           </li>
           <li class="qr-row">
             <span class="qr-num">5</span>
             <span class="qr-ico qr-emoji" aria-hidden="true">⏳</span>
             <p class="qr-text qr-bar"><b>Had masa: 3 minit</b> dengan <b>3 nyawa.</b><br>Hilang 1 nyawa, kembali ke permulaan. Masa tetap berjalan.</p>
-            <span class="qr-art"><span class="qr-spr" data-spr="heart" data-size="42"></span><span class="qr-spr" data-spr="heart" data-size="42"></span><span class="qr-spr" data-spr="heart" data-size="42"></span></span>
+            <span class="qr-art"><span class="qr-spr" data-spr="heart" data-size="38"></span><span class="qr-spr" data-spr="heart" data-size="38"></span><span class="qr-spr" data-spr="heart" data-size="38"></span></span>
           </li>
           <li class="qr-row qr-ctrl">
             <span class="qr-num">6</span>
@@ -376,21 +376,49 @@
     </div>
   </div>
   <div id="xw-rules" class="pf-overlay xw-done" hidden>
-    <div class="done-card rules-card">
+    <div class="done-card rules-card qr-card">
       <div class="done-head">
         <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
         <span class="done-ribbon">Teka Silang Laksa</span>
       </div>
-      <div class="done-parchment rules-parch">
-        <h2 class="rules-title">Syarat Permainan</h2>
-        <ul class="rules-list">
-          <li>Lengkapkan 15 perkataan dalam grid mengikut petunjuk Melintang dan Menurun.</li>
-          <li>Ketik petak, kemudian taip huruf. Jawapan disemak secara automatik.</li>
-          <li>Had masa 5 minit. Masa yang diambil direkodkan.</li>
-          <li>Setiap perkataan betul 50 mata. Perkataan yang ada huruf daripada BANTUAN hanya dapat 25 mata.</li>
-          <li>BANTUAN mendedahkan satu huruf: tolak 20 mata.</li>
-          <li>Skor akhir ialah mata perkataan ditolak bantuan.</li>
-        </ul>
+      <div class="done-parchment rules-parch qr-parch">
+        <h2 class="rules-title qr-title"><span>Syarat Permainan</span></h2>
+        <ol class="qr-rows">
+          <li class="qr-row">
+            <span class="qr-num">1</span>
+            <span class="qr-ico qr-grid" aria-hidden="true"><i>L</i><i>A</i><i>K</i><i class="blk"></i><i>S</i><i class="blk"></i><i class="blk"></i><i>A</i><i class="blk"></i></span>
+            <p class="qr-text qr-bar"><b>Lengkapkan 15 perkataan</b> dalam grid mengikut petunjuk <b>Melintang</b> dan <b>Menurun</b>.</p>
+            <span class="qr-art qr-chips"><span class="qr-chip">→ Melintang</span><span class="qr-chip">↓ Menurun</span></span>
+          </li>
+          <li class="qr-row">
+            <span class="qr-num">2</span>
+            <span class="qr-ico qr-emoji" aria-hidden="true">👆</span>
+            <p class="qr-text qr-bar"><b>Ketik petak</b>, kemudian <b>taip huruf</b>. Jawapan disemak secara automatik.</p>
+            <span class="qr-art"><kbd class="qr-key">L</kbd><kbd class="qr-key">A</kbd><kbd class="qr-key">K</kbd><kbd class="qr-key">S</kbd><kbd class="qr-key">A</kbd></span>
+          </li>
+          <li class="qr-row">
+            <span class="qr-num">3</span>
+            <span class="qr-ico qr-emoji" aria-hidden="true">⏳</span>
+            <p class="qr-text qr-bar"><b>Had masa: 5 minit.</b><br>Masa yang diambil direkodkan.</p>
+            <span class="qr-art"><span class="qr-clock"><small>MASA</small>05:00</span></span>
+          </li>
+          <li class="qr-row qr-wide">
+            <span class="qr-num">4</span>
+            <span class="qr-ico qr-star" aria-hidden="true">★</span>
+            <p class="qr-text qr-bar"><b>Setiap perkataan betul</b> = <mark class="qr-pts">50 mata</mark><br>Perkataan yang ada huruf daripada BANTUAN hanya dapat <mark class="qr-pts">25 mata</mark></p>
+          </li>
+          <li class="qr-row qr-wide">
+            <span class="qr-num">5</span>
+            <span class="qr-ico qr-emoji" aria-hidden="true">💡</span>
+            <p class="qr-text qr-bar"><b>BANTUAN</b> mendedahkan satu huruf: tolak <mark class="qr-pts">20 mata</mark></p>
+          </li>
+          <li class="qr-row">
+            <span class="qr-num">6</span>
+            <span class="qr-ico qr-emoji" aria-hidden="true">🏆</span>
+            <p class="qr-text qr-bar"><b>Skor akhir</b> ialah mata perkataan ditolak bantuan.</p>
+            <span class="qr-art qr-formula"><span class="qr-chip">Perkataan</span><em>−</em><span class="qr-chip">Bantuan</span><em>=</em><span class="qr-chip sum">Skor</span></span>
+          </li>
+        </ol>
       </div>
       <div class="done-btns">
         <button id="xw-rules-ok" class="done-again" type="button">OK</button>
@@ -447,21 +475,50 @@
     </div>
   </div>
   <div id="ws-rules" class="pf-overlay xw-done" hidden>
-    <div class="done-card rules-card">
+    <div class="done-card rules-card qr-card">
       <div class="done-head">
         <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
         <span class="done-ribbon">Cari Kata Laksa</span>
       </div>
-      <div class="done-parchment rules-parch">
-        <h2 class="rules-title">Syarat Permainan</h2>
-        <ul class="rules-list">
-          <li>Cari 10 perkataan tersembunyi dalam grid 12×12 mengikut petunjuk yang diberi.</li>
-          <li>Perkataan boleh mendatar, menegak atau menyerong, ke hadapan atau ke belakang.</li>
-          <li>Seret merentasi huruf, atau ketik huruf pertama kemudian huruf terakhir.</li>
-          <li>Had masa 5 minit. Masa yang diambil direkodkan.</li>
-          <li>Setiap perkataan 40 mata. BANTUAN menunjukkan huruf pertama satu perkataan: tolak 20 mata, dan perkataan itu hanya dapat 20 mata.</li>
-          <li>Skor akhir ialah mata perkataan ditolak bantuan.</li>
-        </ul>
+      <div class="done-parchment rules-parch qr-parch">
+        <h2 class="rules-title qr-title"><span>Syarat Permainan</span></h2>
+        <ol class="qr-rows">
+          <li class="qr-row">
+            <span class="qr-num">1</span>
+            <span class="qr-ico qr-emoji" aria-hidden="true">🔍</span>
+            <p class="qr-text qr-bar"><b>Cari 10 perkataan</b> tersembunyi dalam grid <b>12×12</b> mengikut petunjuk yang diberi.</p>
+            <span class="qr-art qr-word"><i class="hit">L</i><i class="hit">A</i><i class="hit">K</i><i class="hit">S</i><i class="hit">A</i></span>
+          </li>
+          <li class="qr-row">
+            <span class="qr-num">2</span>
+            <span class="qr-ico qr-grid" aria-hidden="true"><i class="hit">L</i><i>B</i><i>M</i><i>D</i><i class="hit">A</i><i>R</i><i>P</i><i>T</i><i class="hit">K</i></span>
+            <p class="qr-text qr-bar">Perkataan boleh <b>mendatar, menegak atau menyerong</b>, ke hadapan atau ke belakang.</p>
+            <span class="qr-art"><kbd class="qr-key">→</kbd><kbd class="qr-key">↓</kbd><kbd class="qr-key">↘</kbd><kbd class="qr-key">←</kbd></span>
+          </li>
+          <li class="qr-row">
+            <span class="qr-num">3</span>
+            <span class="qr-ico qr-emoji" aria-hidden="true">👆</span>
+            <p class="qr-text qr-bar"><b>Seret</b> merentasi huruf, atau <b>ketik</b> huruf pertama kemudian huruf terakhir.</p>
+            <span class="qr-art qr-word"><i class="hit">I</i><i>K</i><i>A</i><i class="hit">N</i></span>
+          </li>
+          <li class="qr-row">
+            <span class="qr-num">4</span>
+            <span class="qr-ico qr-emoji" aria-hidden="true">⏳</span>
+            <p class="qr-text qr-bar"><b>Had masa: 5 minit.</b><br>Masa yang diambil direkodkan.</p>
+            <span class="qr-art"><span class="qr-clock"><small>MASA</small>05:00</span></span>
+          </li>
+          <li class="qr-row qr-wide">
+            <span class="qr-num">5</span>
+            <span class="qr-ico qr-star" aria-hidden="true">★</span>
+            <p class="qr-text qr-bar"><b>Setiap perkataan</b> = <mark class="qr-pts">40 mata</mark><br><b>BANTUAN</b> menunjukkan huruf pertama satu perkataan: tolak <mark class="qr-pts">20 mata</mark>, dan perkataan itu hanya dapat <mark class="qr-pts">20 mata</mark></p>
+          </li>
+          <li class="qr-row">
+            <span class="qr-num">6</span>
+            <span class="qr-ico qr-emoji" aria-hidden="true">🏆</span>
+            <p class="qr-text qr-bar"><b>Skor akhir</b> ialah mata perkataan ditolak bantuan.</p>
+            <span class="qr-art qr-formula"><span class="qr-chip">Perkataan</span><em>−</em><span class="qr-chip">Bantuan</span><em>=</em><span class="qr-chip sum">Skor</span></span>
+          </li>
+        </ol>
       </div>
       <div class="done-btns">
         <button id="ws-rules-ok" class="done-again" type="button">OK</button>
@@ -846,9 +903,9 @@
 <script src="store.js?v=4"></script>
 <script src="admin.js"></script>
 <script src="platform.js"></script>
-<script src="platformer.js?v=20"></script>
-<script src="crossword.js?v=3"></script>
-<script src="wordsearch.js?v=5"></script>
-<script src="game.js?v=36"></script>
+<script src="platformer.js?v=22"></script>
+<script src="crossword.js?v=4"></script>
+<script src="wordsearch.js?v=6"></script>
+<script src="game.js?v=37"></script>
 </body>
 </html>

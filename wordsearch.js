@@ -335,7 +335,8 @@
     done = true; clearInterval(timer);        // no play, no clock, until OK
     $('ws-timer').textContent = '05:00';
     $('ws-rules').hidden = false;
-    $('ws-rules-ok').focus();
+    $('ws-rules').scrollTop = 0;                                 // a tall card opens at its logo, not at the OK button
+    $('ws-rules-ok').focus({ preventScroll: true });
   }
   function rulesOk() {
     $('ws-rules').hidden = true;

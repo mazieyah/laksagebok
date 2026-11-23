@@ -53,6 +53,19 @@
     '################',
     '################',
     '################']);
+  const GATE_DOOR_COL = 3;                                       // the portal door stands on this column of the gate strip
+  const GATE = C('gate', [                                       // the end of every setting: flat ground, two coins, the portal door; the strip beyond the door is never walked
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '.cc.............',
+    '################',
+    '################',
+    '################']);
   const CHUNKS = [
     C('safe', [
       '................',
@@ -364,6 +377,7 @@
   const sfx = () => window.GebokRun.sfx;
   let open = false, raf = 0, last = 0, started = false;
   let map = [], cols = 0, solids = new Set(), colZone = [], zoneMarks = [], zoneIdx = 0, chunkN = 0, lastChunk = null, needIdx = 0;
+  let gates = [], warp = null;                                  // portal doors at the end of each setting, and the fade while passing through one
   let player, items = [], enemies = [], hazards = [], rocks = [], deco = [], parts = [], floats = [], spawn = { x: 2 * T, y: 6 * T }, lastSafe;
   let lives, score, bowls, inv = {}, extraInv = {}, coins, ingredients, extras, rares, hits, stomps, powerT = { G: 0, S: 0, B: 0 }, bowlAnimT = 0, hurtT = 0, movers = [];
   let camX, time, runTime, invT, banner = '', bannerT = 0, over = false, paused = false, almariOpen = false, lastSec = -1, curZone = -1, pruneN = 0, bumps = [];
@@ -405,12 +419,18 @@
     }
     for (let c = 0; c < ch.w; c++) colZone.push(zoneIdx);
     cols += ch.w;
-    if (ch !== START && zone.deco && zone.deco.length && !(zone.bg && zone.bg.complete)) { const d = zone.deco[Math.floor(Math.random() * zone.deco.length)]; deco.push({ x: (base + 2 + Math.random() * (ch.w - 5)) * T, name: d[0], scale: d[1] }); }
-    if (ch !== START) addJumpPlanks(base, ch.w);
+    if (ch !== START && ch !== GATE && zone.deco && zone.deco.length && !(zone.bg && zone.bg.complete)) { const d = zone.deco[Math.floor(Math.random() * zone.deco.length)]; deco.push({ x: (base + 2 + Math.random() * (ch.w - 5)) * T, name: d[0], scale: d[1] }); }
+    if (ch !== START && ch !== GATE) addJumpPlanks(base, ch.w);
     detachMover(base, ch.w, zone);
     for (const o of standing) { const g = groundBelow(o.x + o.w / 2, o.y); if (g > 0) o.y = g * T - o.h; }
+    if (ch === GATE) return;                                    // the gate strip is not one of the setting's chunks
     chunkN += 1;
-    if (chunkN % ZONE_CHUNKS === 0) { zoneIdx = (zoneIdx + 1) % ZONES.length; zoneMarks.push({ x: cols * T, zone: zoneIdx }); }
+    if (chunkN % ZONE_CHUNKS === 0) {                           // the setting ends: a flat strip with the portal door, then the next setting begins
+      appendChunk(GATE);
+      const next = (zoneIdx + 1) % ZONES.length;
+      gates.push({ x: (cols - GATE.w + GATE_DOOR_COL) * T, from: zoneIdx, to: next, land: cols * T, used: false });
+      zoneIdx = next; zoneMarks.push({ x: cols * T, zone: zoneIdx });
+    }
   }
   function addJumpPlanks(base, w) {                          // a plank within one jump of the path, plus a higher one on long chunks
     const place = (r, c0, n) => {
@@ -464,7 +484,7 @@
     invT = 1.5;
   }
   function startRun() {
-    map = Array.from({ length: ROWS }, () => []); cols = 0; solids = new Set(); colZone = []; zoneMarks = [{ x: 0, zone: 0 }]; zoneIdx = 0; chunkN = 0; lastChunk = null; needIdx = 0;
+    map = Array.from({ length: ROWS }, () => []); cols = 0; solids = new Set(); colZone = []; zoneMarks = [{ x: 0, zone: 0 }]; zoneIdx = 0; chunkN = 0; lastChunk = null; needIdx = 0; gates = []; warp = null;
     items = []; enemies = []; hazards = []; rocks = []; movers = []; deco = []; parts = []; floats = []; bumps = [];
     score = 0; lives = 3; bowls = 0; inv = {}; extraInv = {}; coins = 0; ingredients = 0; extras = 0; rares = 0; hits = 0; stomps = 0; powerT = { G: 0, S: 0, B: 0 }; bowlAnimT = 0; hurtT = 0;
     camX = 0; time = 0; runTime = 0; lastSec = -1; over = false; paused = false; almariOpen = false; curZone = -1; pruneN = 0;
@@ -557,12 +577,12 @@
   }
   function openAlmari() {
     if (!started || over || almariOpen) return;
-    almariOpen = true; renderAlmari();
+    almariOpen = true; renderAlmari(); sfx().click();
     $('pf-almari').hidden = false;
     $('pf-almari-close').focus();
   }
   function closeAlmari() {
-    almariOpen = false;
+    almariOpen = false; sfx().click();
     $('pf-almari').hidden = true;
     last = performance.now();
   }
@@ -572,6 +592,7 @@
     lastSec = s;
     $('pf-timer').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
     $('pf-timer').classList.toggle('low', rem <= 30);
+    if (started && !over && s > 0 && s <= 10) sfx().tick(s <= 3);
   }
   function say(text, secs) { banner = text; bannerT = secs || 2; }
   function spark(x, y, color, n) { for (let i = 0; i < (n || 8); i++) parts.push({ x, y, vx: (Math.random() - 0.5) * 260, vy: -Math.random() * 260, t: 0.5 + Math.random() * 0.3, color }); }
@@ -586,7 +607,7 @@
       hud(); return;
     }
     lives -= 1; hits += 1; hurtT = 0.5;
-    sfx().crash();
+    if (from === 'fall') sfx().splash(); else sfx().crash();
     spark(p.x + 17, p.y + 28, '#ff5a5a', 14);
     if (lives <= 0) { over = true; hud(); endRun('crashed'); return; }
     resetPlayer(spawn);                                         // back to the start, but the 3-minute clock keeps running
@@ -597,22 +618,22 @@
   function collect(it) {
     it.got = true;
     const cx = it.x + 14, cy = it.y + 14, t = it.type;
-    if (t === 'c') { coins += 1; score += SC.coin; floater(cx, cy, '+' + SC.coin, '#ffe08a', 0.7); spark(cx, cy, '#ffd45a', 4); sfx().collect(1); hud(); return; }
-    if (t === '$') { rares += 1; ingredients += 1; score += SC.rare; floater(cx, cy, RARE[0] + ' +' + SC.rare, '#fff0b0'); spark(cx, cy, '#ff9ad4', 10); say(RARE[1] + ' jarang! +' + SC.rare, 1.3); sfx().power(); hud(); return; }
-    if (t === 'h') { lives = Math.min(3, lives + 1); score += SC.life; floater(cx, cy, '❤️ +1'); spark(cx, cy, '#ff6b8a'); say('❤️ Nyawa dipulihkan!', 1.3); sfx().power(); hud(); return; }
+    if (t === 'c') { coins += 1; score += SC.coin; floater(cx, cy, '+' + SC.coin, '#ffe08a', 0.7); spark(cx, cy, '#ffd45a', 4); sfx().coin(); hud(); return; }
+    if (t === '$') { rares += 1; ingredients += 1; score += SC.rare; floater(cx, cy, RARE[0] + ' +' + SC.rare, '#fff0b0'); spark(cx, cy, '#ff9ad4', 10); say(RARE[1] + ' jarang! +' + SC.rare, 1.3); sfx().rare(); hud(); return; }
+    if (t === 'h') { lives = Math.min(3, lives + 1); score += SC.life; floater(cx, cy, '❤️ +1'); spark(cx, cy, '#ff6b8a'); say('❤️ Nyawa dipulihkan!', 1.3); sfx().life(); hud(); return; }
     if (POWER[t]) { score += SC.power; powerT[t] = PW[t]; floater(cx, cy, POWER[t][0] + ' +' + SC.power); spark(cx, cy, '#9ad4ff', 10); say(POWER[t][0] + ' ' + POWER[t][1] + ': ' + POWER[t][2] + ' (' + PW[t] + ' s)', 2); sfx().boost(); hud(); return; }
     const boost = powerT.G > 0 ? 2 : 1;
-    if (EXTRA[t]) { ingredients += 1; extras += 1; extraInv[t] = (extraInv[t] || 0) + 1; const gain = SC.extra * boost; score += gain; floater(cx, cy, EXTRA[t][0] + ' +' + gain, '#d8ffd0', 0.9); spark(cx, cy, '#b8f0a0', 5); sfx().collect(2); hud(); return; }
+    if (EXTRA[t]) { ingredients += 1; extras += 1; extraInv[t] = (extraInv[t] || 0) + 1; const gain = SC.extra * boost; score += gain; floater(cx, cy, EXTRA[t][0] + ' +' + gain, '#d8ffd0', 0.9); spark(cx, cy, '#b8f0a0', 5); sfx().extra(); hud(); return; }
     ingredients += 1;                                           // a component of the bowl
     const have = inv[t] || 0, cap = powerT.B > 0 ? CAP_BAKUL : CAP;
-    if (have >= cap) { score += SC.dup; floater(cx, cy, '+' + SC.dup, '#ffe08a', 0.7); sfx().collect(1); hud(); return; }   // the almari is full of this one: points only
+    if (have >= cap) { score += SC.dup; floater(cx, cy, '+' + SC.dup, '#ffe08a', 0.7); sfx().full(); hud(); return; }   // the almari is full of this one: points only
     inv[t] = have + 1;
     const gain = SC.item * boost;
     score += gain;
     floater(cx, cy, NEED[t][0] + ' +' + gain, '#fff');
     spark(cx, cy, '#ffd45a');
     const filled = filledCount();
-    sfx().collect(filled);
+    sfx().pick(filled);
     if (filled === TYPES.length) completeBowl(); else say(NEED[t][1] + ' ' + filled + '/6', 1.1);
     hud();
   }
@@ -621,9 +642,9 @@
     bumps.push({ c, r, t: 0.3 });
     const x = c * T, y = (r - 1) * T;
     let t = Math.random() < 0.45 ? 'c' : randomPickup();
-    if (t === 'c') { coins += 1; score += SC.coin; floater(x + 24, y + 10, '+' + SC.coin, '#ffe08a', 0.8); spark(x + 24, y + 30, '#ffd45a', 8); sfx().collect(1); hud(); return; }
+    sfx().bump();
+    if (t === 'c') { coins += 1; score += SC.coin; floater(x + 24, y + 10, '+' + SC.coin, '#ffe08a', 0.8); spark(x + 24, y + 30, '#ffd45a', 8); setTimeout(() => sfx().coin(), 120); hud(); return; }
     items.push(Object.assign(item(x, y), { type: t, pop: 0.6 }));
-    sfx().power();
   }
   function completeBowl() {
     for (const k of TYPES) inv[k] -= 1;                         // spare copies stay for the next bowl
@@ -631,7 +652,7 @@
     say('🍜 Semangkuk Laksa Gebok siap! +' + SC.bowl, 2.2);
     floater(player.x + 17, player.y - 14, '+' + SC.bowl, '#ffe27a', 1.6);
     spark(player.x + 17, player.y + 20, '#ffd45a', 18);
-    sfx().gebuk();
+    sfx().bowl();
   }
   const clock = (t) => { t = Math.max(0, Math.floor(t)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
   function endRun(result) {
@@ -675,7 +696,9 @@
     if (hurtT > 0) hurtT -= dt;
     if (bowlAnimT > 0) { bowlAnimT -= dt; if (bowlAnimT <= 0) hud(); }
     let pwChanged = false;
+    const wasOn = { G: powerT.G > 0, S: powerT.S > 0, B: powerT.B > 0 };
     for (const k of ['G', 'S', 'B']) if (powerT[k] > 0) { const before = Math.ceil(powerT[k]); powerT[k] = Math.max(0, powerT[k] - dt); if (Math.ceil(powerT[k]) !== before) pwChanged = true; if (powerT[k] === 0) say(POWER[k][0] + ' ' + POWER[k][1] + ' tamat', 1); }
+    for (const k of ['G', 'S', 'B']) if (wasOn[k] && powerT[k] <= 0) sfx().powerEnd();
     if (pwChanged) hud();
     ensure(Math.floor((camX + W) / T) + 24);
     for (const m of movers) {
@@ -683,6 +706,7 @@
       const s = Math.sin(m.phase);
       if (m.axis === 'y') m.y = m.originY + s * m.amp; else m.x = m.originX + s * m.amp;
     }
+    if (warp) { warpStep(dt); return; }
     const p = player;
     const ax = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
     p.vx = ax * RUN;
@@ -694,7 +718,7 @@
     if (jumpBuf > 0 && coyote > 0) { p.vy = JUMP; p.ground = false; coyote = 0; jumpBuf = 0; sfx().jump(); }
     else if (pressed && !p.ground && coyote <= 0 && doubleOk) {   // the double jump: a second press in the air
       doubleOk = false; p.vy = JUMP * 0.88; jumpBuf = 0;
-      spark(p.x + p.w / 2, p.y + p.h, '#ffffff', 10); sfx().jump();
+      spark(p.x + p.w / 2, p.y + p.h, '#ffffff', 10); sfx().jump2();
     }
     if (!keys.jump && p.vy < -250) p.vy = -250;
     held.jump = keys.jump;
@@ -704,12 +728,14 @@
     for (const [r, c] of tilesAround(p)) if (solidAt(c, r) && overlaps(p, { x: c * T, y: r * T, w: T, h: T })) {
       if (p.vx > 0) p.x = c * T - p.w; else if (p.vx < 0) p.x = c * T + T;
     }
+    const fallV = p.vy, wasAir = !p.ground;
     p.y += p.vy * dt;
     p.ground = false;
     for (const [r, c] of tilesAround(p)) if (solidAt(c, r) && overlaps(p, { x: c * T, y: r * T, w: T, h: T })) {
       if (p.vy > 0) { p.y = r * T - p.h; p.vy = 0; p.ground = true; }
       else if (p.vy < 0) { p.y = r * T + T; p.vy = 0; if (map[r][c] === 'Q') bumpBlock(c, r); }
     }
+    if (wasAir && p.ground && fallV > 420) sfx().land();
     if (p.y > ROWS * T + 60) { hurt('fall'); return; }
     rideMovers();
     for (let i = bumps.length - 1; i >= 0; i--) { bumps[i].t -= dt; if (bumps[i].t <= 0) bumps.splice(i, 1); }
@@ -738,7 +764,7 @@
       if (overlaps(p, e)) {
         if (p.vy > 60 && p.y + p.h - e.y < 24) {
           e.alive = false; p.vy = -450; stomps += 1; score += SC.stomp;
-          spark(e.x + 20, e.y + 10, '#f4f4f4', 10); floater(e.x + 20, e.y - 6, '+' + SC.stomp, '#fff'); sfx().smash();
+          spark(e.x + 20, e.y + 10, '#f4f4f4', 10); floater(e.x + 20, e.y - 6, '+' + SC.stomp, '#fff'); sfx().stomp();
           say('Babi hutan lari! +' + SC.stomp, 1); hud();
         } else hurt();
       }
@@ -762,6 +788,10 @@
     for (const it of items) if (!it.got && overlaps(box, it)) collect(it);
     for (let i = parts.length - 1; i >= 0; i--) { const q = parts[i]; q.t -= dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 600 * dt; if (q.t <= 0) parts.splice(i, 1); }
     for (let i = floats.length - 1; i >= 0; i--) { const f = floats[i]; f.t -= dt; f.y -= 42 * dt; if (f.t <= 0) floats.splice(i, 1); }
+    for (const gt of gates) if (!gt.used && p.x + p.w / 2 >= gt.x + T / 2 - 6 && p.x < gt.x + T * 3) {   // into the portal
+      gt.used = true; warp = { t: 0, gate: gt, jumped: false }; keys.left = keys.right = false; sfx().portal(); break;
+    }
+    if (warp) return;
     camX += ((p.x + p.w / 2 - W * 0.4) - camX) * Math.min(1, dt * 6);
     camX = Math.max(0, camX);
     const z = zoneAt(p.x + p.w / 2);
@@ -769,9 +799,23 @@
     if (++pruneN % 120 === 0) {                                 // forget what is far behind
       const lim = camX - 600;
       items = items.filter((it) => !it.got && it.x > lim); enemies = enemies.filter((e) => e.alive && e.x > lim); deco = deco.filter((d) => d.x > lim);
-      rocks = rocks.filter((R) => R.state !== 'done'); hazards = hazards.filter((hz) => hz.x > lim); movers = movers.filter((m) => m.x + m.w > lim);
+      rocks = rocks.filter((R) => R.state !== 'done'); hazards = hazards.filter((hz) => hz.x > lim); movers = movers.filter((m) => m.x + m.w > lim); gates = gates.filter((gt) => gt.x > lim);
     }
     $('pf-score').textContent = String(score).padStart(6, '0');
+  }
+  function warpStep(dt) {                                       // through the portal: fade out, land past the arrival door of the next setting, fade in
+    warp.t += dt;
+    if (!warp.jumped && warp.t >= 0.4) {
+      warp.jumped = true;
+      const gt = warp.gate, p = player;
+      let c = Math.floor(gt.land / T) + 2, g = -1;
+      for (let k = 0; k < 8; k++) { g = groundBelow((c + k + 0.5) * T, 0); if (g > 0) { c += k; break; } }
+      p.x = c * T + 7; p.y = (g > 0 ? g : GROUND) * T - p.h; p.vx = 0; p.vy = 0; p.ground = true; p.face = 1;
+      camX = Math.max(0, p.x + p.w / 2 - W * 0.4);
+      lastSafe = { x: p.x, y: p.y }; invT = Math.max(invT, 0.8);
+      ensure(Math.floor((camX + W) / T) + 24);
+    }
+    if (warp.t >= 0.8) { warp = null; sfx().arrive(); }
   }
   function rideMovers() {
     const p = player;
@@ -916,6 +960,8 @@
         g.fillStyle = '#c08a4a'; g.fillRect(x, y, n * T, T * 0.55); g.fillStyle = '#8a5a2b'; g.fillRect(x, y, n * T, 5); g.fillRect(x, y + T * 0.55 - 5, n * T, 5);
       }
     }
+    for (const gt of gates) if (gt.x > camX - 200 && gt.x < camX + W + 200) drawPortal(g, gt.x + T / 2, ZONES[gt.to], true, gt.used);          // exit doors
+    for (const m of zoneMarks) { const ax = m.x + T * 1.5; if (ax > camX - 200 && ax < camX + W + 200 && groundBelow(ax, 0) === GROUND) drawPortal(g, ax, ZONES[m.zone], false, true); }   // arrival doors
     for (const m of movers) if (m.x + m.w > camX - 80 && m.x < camX + W + 80) {
       g.strokeStyle = '#c9a070'; g.lineWidth = 3;
       g.beginPath(); g.moveTo(m.x + 12, m.y + 4); g.lineTo(m.x + 12, m.y - 48); g.moveTo(m.x + m.w - 12, m.y + 4); g.lineTo(m.x + m.w - 12, m.y - 48); g.stroke();
@@ -999,34 +1045,60 @@
     g.globalAlpha = 1;
     g.restore();
     if (!photo && z.jungle) drawVines(g);
+    if (warp) {                                                 // the portal fade: dark, the destination's name, light again
+      const a = warp.t < 0.4 ? warp.t / 0.4 : Math.max(0, 1 - (warp.t - 0.4) / 0.4);
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.fillStyle = 'rgba(12, 6, 2, ' + a.toFixed(3) + ')'; g.fillRect(0, 0, W, H);
+      if (a > 0.5) {
+        const zn = ZONES[warp.gate.to];
+        g.globalAlpha = (a - 0.5) * 2; g.fillStyle = '#ffe08a'; g.font = "800 30px 'Baloo 2', Nunito, Arial, sans-serif"; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.fillText(zn.icon + '  ' + zn.name, W / 2, H / 2); g.globalAlpha = 1; g.textBaseline = 'alphabetic';
+      }
+    }
+  }
+  function drawPortal(g, cx, zone, exit, closed) {              // a wooden arch on the path; an open exit door glows with the next setting's colours
+    const gy = GROUND * T, w = 70, h = 102, x = cx - w / 2, y = gy - h, r = w / 2;
+    const arch = (inset) => { g.beginPath(); g.moveTo(x + inset, gy); g.lineTo(x + inset, y + r); g.arc(cx, y + r, r - inset, Math.PI, 0); g.lineTo(x + w - inset, gy); g.closePath(); };
+    g.fillStyle = 'rgba(0,0,0,.18)'; g.beginPath(); g.ellipse(cx, gy + 3, w * 0.62, 7, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#4e2a0e'; arch(-6); g.fill();
+    g.fillStyle = '#a86a2a'; arch(0); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(x + 3, y + r, 4, h - r - 2);
+    if (exit && !closed) {
+      arch(8); g.save(); g.clip();
+      const grd = g.createRadialGradient(cx, y + r + 18, 4, cx, y + r + 18, w);
+      grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.35, zone.sky[1]); grd.addColorStop(1, zone.sky[0]);
+      g.fillStyle = grd; g.fillRect(x, y, w, h);
+      g.strokeStyle = 'rgba(255,255,255,.6)'; g.lineWidth = 3;
+      for (let k = 0; k < 3; k++) { const ph = (time * 0.8 + k / 3) % 1; g.globalAlpha = 1 - ph; g.beginPath(); g.ellipse(cx, y + r + 22, 5 + ph * 30, 8 + ph * 48, 0, 0, Math.PI * 2); g.stroke(); }
+      g.globalAlpha = 1; g.restore();
+    } else {
+      arch(8); g.fillStyle = closed && !exit ? '#8a5a2b' : '#6b4a2e'; g.fill();
+      g.fillStyle = 'rgba(0,0,0,.18)'; for (let k = 1; k < 4; k++) g.fillRect(x + 8 + k * (w - 16) / 4 - 1, y + 22, 2, h - 22);
+      g.fillStyle = '#f0c14a'; g.beginPath(); g.arc(cx + 13, y + h * 0.6, 3.5, 0, Math.PI * 2); g.fill();
+    }
+    const label = (exit ? '\u2192 ' : '') + zone.icon + ' ' + (zone.sign || [zone.name.toUpperCase()]).join(' ');
+    g.font = '800 11px Nunito, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    const tw = Math.max(72, g.measureText(label).width + 18), py = y - 28;
+    g.fillStyle = '#6b4a2e'; g.fillRect(cx - 3, py + 10, 6, 14);
+    g.fillStyle = '#4e2a0e'; g.fillRect(cx - tw / 2 - 2, py - 12, tw + 4, 26);
+    g.fillStyle = '#c08a4a'; g.fillRect(cx - tw / 2, py - 10, tw, 22);
+    g.fillStyle = '#3a2208'; g.fillText(label, cx, py + 1);
+    g.textBaseline = 'alphabetic';
   }
   function bgReady(zone) { const img = zone && zone.bg; return !!(img && img.complete && img.naturalWidth); }
-  function zoneSpan(i) {
-    const end = Math.max(cols * T, camX + W + 2);
-    return [zoneMarks[i].x, zoneMarks[i + 1] ? zoneMarks[i + 1].x : end];
-  }
-  function drawBackgrounds(g) {                               // one photo per section, nothing drawn over it
+  function drawBackgrounds(g) {                               // the current setting's painting fills the screen and pans slowly across the setting; no seam between two paintings
     if (!ZONES.some(bgReady)) return false;
     g.fillStyle = '#7ec8ef'; g.fillRect(0, 0, W, H);
-    for (let i = 0; i < zoneMarks.length; i++) {
-      const [x0, x1] = zoneSpan(i);
-      if (x1 < camX - 2 || x0 > camX + W + 2) continue;
-      const zone = ZONES[zoneMarks[i].zone];
-      if (!bgReady(zone)) continue;
-      drawCover(g, zone.bg, x0, x1);
-    }
+    const px = player ? player.x + player.w / 2 : camX;
+    let i = 0;
+    for (let k = 0; k < zoneMarks.length; k++) if (zoneMarks[k].x <= px) i = k;
+    const zone = ZONES[zoneMarks[i].zone];
+    if (!bgReady(zone)) return true;
+    const start = zoneMarks[i].x, end = zoneMarks[i + 1] ? zoneMarks[i + 1].x : start + (ZONE_CHUNKS * 16 + GATE.w) * T;
+    const t = Math.max(0, Math.min(1, (px - start) / Math.max(1, end - start - W * 0.5)));
+    const img = zone.bg, scale = Math.max(W / img.width, H / img.height), dw = img.width * scale, dh = img.height * scale;
+    g.drawImage(img, -(dw - W) * t, H - dh, dw, dh);
     return true;
-  }
-  function drawCover(g, img, x0, x1) {                        // uniform scale, bottom-aligned, clipped to the section
-    const zoneW = Math.max(1, x1 - x0), sl = x0 - camX, sr = x1 - camX;
-    const cl = Math.max(0, sl), cr = Math.min(W, sr);
-    if (cr - cl < 1) return;
-    const scale = Math.max(zoneW / img.width, H / img.height);
-    const dw = img.width * scale, dh = img.height * scale;
-    g.save();
-    g.beginPath(); g.rect(cl, 0, cr - cl, H); g.clip();
-    g.drawImage(img, sl - (dw - zoneW) * 0.5, H - dh, dw, dh);
-    g.restore();
   }
   function drawVines(g) {                                     // jungle vines hanging into the top corners
     g.save();
@@ -1162,9 +1234,11 @@
   }
   for (const zone of ZONES) { const img = new Image(); img.src = zone.img + '?v=2'; zone.bg = img; }
   window.LaksaQuest = {
-    open: openGame, close, wire, start: startRun, rulesOk, openAlmari, closeAlmari, update, draw, keys, LIMIT, NEED, EXTRA, RARE, POWER, ZONES, CHUNKS, SC, FR,
+    open: openGame, close, wire, start: startRun, rulesOk, openAlmari, closeAlmari, update, draw, keys, LIMIT,
+    tp: (x) => { if (!player) return; ensure(Math.floor(x / T) + 40); const g = groundBelow(x + player.w / 2, 0); player.x = x; player.y = (g > 0 ? g : GROUND) * T - player.h; player.vx = player.vy = 0; player.ground = true; camX = Math.max(0, x + player.w / 2 - W * 0.4); },   // test hook: stand the player on the ground at x
+ NEED, EXTRA, RARE, POWER, ZONES, CHUNKS, SC, FR,
     get atlasReady() { return atlasOk; },
-    debug: () => ({ doubleOk, lives, score, bowls, inv: Object.assign({}, inv), extraInv: Object.assign({}, extraInv), coins, ingredients, extras, rares, hits, stomps, powerT: Object.assign({}, powerT), runTime: +runTime.toFixed(2), zone: curZone, cols,
+    debug: () => ({ doubleOk, lives, score, bowls, gates: gates.map((gt) => ({ x: gt.x, to: gt.to, used: gt.used })), warp: warp ? +warp.t.toFixed(2) : null, playerX: player ? Math.round(player.x) : null, camX: Math.round(camX), inv: Object.assign({}, inv), extraInv: Object.assign({}, extraInv), coins, ingredients, extras, rares, hits, stomps, powerT: Object.assign({}, powerT), runTime: +runTime.toFixed(2), zone: curZone, cols,
       player: player && { x: Math.round(player.x), y: Math.round(player.y), ground: player.ground, frame: playerFrame() }, items: items.filter((i) => !i.got).length, enemies: enemies.filter((e) => e.alive).length, rocks: rocks.length,
       started, over, paused, almariOpen, banner, bannerT: +bannerT.toFixed(2), invT: +invT.toFixed(2) }),
     live: () => ({ player, items, enemies, hazards, rocks, map, deco, setLives: (n) => { lives = n; hud(); }, setTime: (t) => { runTime = t; lastSec = -1; timerText(); }, collect, hurt, lastSafe: () => lastSafe }),

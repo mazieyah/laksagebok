@@ -1054,6 +1054,24 @@
       smash() { noise(0.15, 0.3, 1500); tone(200, 0.12, 'square', 0.06, 80); },
       boost() { tone(200, 0.5, 'sawtooth', 0.08, 1200); },
       count(go) { if (go) tone(880, 0.5, 'square', 0.08); else tone(440, 0.12, 'square', 0.07); },
+      // ---- Laksa Quest effects (platformer.js) ----
+      coin() { tone(988, 0.07, 'square', 0.05); setTimeout(() => tone(1319, 0.12, 'square', 0.045), 70); },                 // a bright two-note blip
+      pick(n) { const f = 520 + Math.min(n || 1, 6) * 60; noise(0.03, 0.12, 2600); tone(f, 0.13, 'sine', 0.12, f * 1.25); },   // a bowl component: a pluck that climbs with the bowl's progress
+      extra() { tone(660, 0.1, 'triangle', 0.08, 820); },                                                                  // an extra ingredient: a softer pop
+      full() { tone(300, 0.08, 'triangle', 0.07); setTimeout(() => tone(300, 0.08, 'triangle', 0.06), 90); },             // the almari is full of this one: a dull double tap
+      bowl() { seq([523, 659, 784, 1046, 1318], 80, 0.22, 'triangle', 0.12); setTimeout(() => { noise(0.35, 0.1, 2500); tone(1568, 0.7, 'sine', 0.08); }, 400); },   // a bowl is complete: an arpeggio, then a sizzle and a chime
+      rare() { seq([1046, 1318, 1568, 2093], 50, 0.3, 'sine', 0.09); },                                                      // the Lesung Batu: a sparkle
+      life() { tone(659, 0.25, 'sine', 0.12); setTimeout(() => tone(988, 0.4, 'sine', 0.1), 120); },                        // a heart: two warm notes
+      stomp() { noise(0.12, 0.35, 900); tone(180, 0.15, 'square', 0.08, 60); setTimeout(() => tone(400, 0.12, 'sine', 0.05, 900), 60); },   // a boar squashed, then a little boing
+      bump() { tone(500, 0.12, 'square', 0.07, 700); setTimeout(() => tone(700, 0.1, 'square', 0.05), 80); },               // a question block hit from below
+      portal() { noise(0.6, 0.35, 1800); tone(200, 0.6, 'sine', 0.08, 1600); setTimeout(() => tone(1568, 0.5, 'triangle', 0.06), 250); },   // into the portal: a whoosh with a rising sweep
+      arrive() { tone(784, 0.3, 'sine', 0.1); setTimeout(() => tone(1046, 0.4, 'sine', 0.08), 150); },                     // out of the portal in the next setting
+      splash() { noise(0.4, 0.4, 600); tone(300, 0.35, 'sine', 0.08, 90); },                                                // into the water or a pit
+      tick(last) { tone(last ? 1600 : 1200, 0.05, 'square', 0.05); },                                                        // the last ten seconds
+      click() { noise(0.04, 0.25, 1200); tone(900, 0.05, 'triangle', 0.06, 500); },                                          // the almari opens or closes
+      land() { noise(0.06, 0.18, 500); },                                                                                    // a thud after a long fall
+      jump2() { tone(520, 0.16, 'square', 0.05, 1040); },                                                                    // the double jump, brighter than the first
+      powerEnd() { tone(660, 0.12, 'triangle', 0.07, 520); setTimeout(() => tone(520, 0.16, 'triangle', 0.06, 400), 120); },   // a power-up runs out
       get muted() { return muted; },
       get musicOff() { return musicOff; },
       get allOff() { return muted && musicOff; },

@@ -459,7 +459,8 @@
     done = true; clearInterval(timer);        // no typing, no hints, no clock, until OK
     $('xw-timer').textContent = '05:00';
     $('xw-rules').hidden = false;
-    $('xw-rules-ok').focus();
+    $('xw-rules').scrollTop = 0;                                 // a tall card opens at its logo, not at the OK button
+    $('xw-rules-ok').focus({ preventScroll: true });
   }
   function rulesOk() {
     $('xw-rules').hidden = true;

@@ -43,8 +43,18 @@ by a sign and a shake. The chunk weights are biased per zone (`bias`). Two
 chunks make a zone (`ZONE_CHUNKS`); the zones cycle through Kampung Pahang,
 Sungai & Jambatan (gaps are water), Hutan Tropika and Kampung Laksa Gebok,
 each painted on its own backdrop (`quest-bg-village.jpg`, `quest-bg-river.jpg`,
-`quest-bg-jungle.jpg`, `quest-bg-laksa.jpg`, 1024×341: one picture per zone,
-scaled to cover and bottom-aligned, `drawBackgrounds`). The pictures are
+`quest-bg-jungle.jpg`, `quest-bg-laksa.jpg`, 1024×341). Only the current
+zone's picture is drawn: it fills the screen (cover scale, bottom-aligned)
+and pans slowly across the zone (`drawBackgrounds`), so two paintings never
+meet on screen. Every zone ends with a flat gate strip (`GATE`, 16 columns,
+two coins) whose portal door stands on column 3 (`GATE_DOOR_COL`, `gates[]`);
+touching it starts a warp (`warp`, `warpStep`): 0.4 s fade to dark with the
+next zone's name, the player lands past the arrival door of the next zone
+(`gt.land`, first column with ground, `lastSafe` moved there), 0.4 s fade in.
+Doors are wooden arches (`drawPortal`): an open exit glows in the next zone's
+sky colours with rising rings and carries a plaque "→ icon NAME"; arrival
+doors (at column 1.5 of each zone, zone 0 included) and used exits are closed.
+Losing a life still returns the player to the very start. The pictures are
 scenery only: the path sits on row 9 (`GROUND`), platforms, gaps and hazards
 keep their own collision tiles, gaps are shaded over the picture, and
 `addJumpPlanks` puts a plank within one jump of the path in every chunk.
@@ -127,6 +137,18 @@ load, the drawn sky, hills, signboards and scenery stand in.
   Cedera, Pemburu Jarang 3, Pelompat Handal 5 stomps), MAIN SEMULA, PERMAINAN.
 - Records: `GebokStore.recordGame('platform', { result: 'timeout' | 'crashed',
   score, bowls, lives, time, coins, ingredients, rares, hits, stomps })`.
+- Sound: the quest uses the shared synthesised engine (`GebokRun.sfx`, Web
+  Audio, honoured by the Kesan bunyi switch) with its own set of effects:
+  `coin` (two-note blip), `pick(n)` (a pluck that climbs with the bowl's
+  progress), `extra` (softer pop), `full` (almari full: dull double tap),
+  `bowl` (arpeggio, sizzle and chime), `rare` (Lesung Batu sparkle), `life`
+  (heart chime), `stomp` (boar squashed), `bump` (question block), `portal`
+  (whoosh into the door) and `arrive` (chime out of it), `splash` (water or
+  pit; a hit still uses `crash`), `tick(last)` (each of the last ten seconds,
+  higher in the last three), `click` (almari open/close), `land` (thud after
+  a fall faster than 420 px/s), `jump2` (double jump) and `powerEnd` (a
+  power-up runs out). `jump`, `boost`, `shieldHit`, `smash` (falling rock),
+  `fanfare` and `gameover` are the shared ones.
 - Test hooks: `LaksaQuest.{start, rulesOk, update(dt), draw, keys, debug(),
   live()}`; `live()` exposes the player, the object lists, `collect(item)`,
   `hurt()`, `setLives(n)` and `setTime(seconds)`.
@@ -139,8 +161,12 @@ load, the drawn sky, hills, signboards and scenery stand in.
 - Score: 50 per word (25 for a word with a hinted letter) − 20 per hint; no
   time bonus. 5 minutes per puzzle, counted down in the HUD.
 - Opening the puzzle from the hub first shows "Syarat Permainan" (`#xw-rules`,
-  `.rules-card`): six rules and an OK button. The grid is drawn behind it, but
-  typing, hints and the clock wait for OK (`rulesOk()`). MAIN SEMULA skips it.
+  `.rules-card.qr-card`): the same illustrated card as Laksa Quest, six rows
+  with a mini crossword grid, Melintang/Menurun chips, letter key caps, the
+  purple clock, yellow point pills and a "Perkataan − Bantuan = Skor" chip
+  formula, then an OK button. The grid is drawn behind it, but typing, hints
+  and the clock wait for OK (`rulesOk()`, which opens the card at its logo).
+  MAIN SEMULA skips it.
 
 Each correctly completed word plays a chime, locks its cells green and adds
 50 points at once; the running total (words minus hints) shows as "SKOR" next
@@ -180,7 +206,10 @@ out, and an answer with several clues appears once per layout with one of them.
   positions and directions (8 directions, `r0,c0 → r1,c1`) are generated every
   play. MAIN SEMULA draws the next panel.
 - Opening the game from the hub first shows "Syarat Permainan" (`#ws-rules`,
-  `.rules-card`, same card design as the done card): the rules in six lines and an OK button.
+  `.rules-card.qr-card`, the illustrated card shared with Laksa Quest): six
+  rows with a LAKSA letter-tile word, a 3×3 grid with a diagonal hit, arrow
+  key caps, first/last letter tiles, the clock, point pills and the score
+  formula, then an OK button.
   The grid is already drawn behind it, but nothing can be selected and the
   clock starts only on OK (`rulesOk()`). MAIN SEMULA skips the rules.
 - The player sees the clues, not the words: "n. clue (length)". A found word
