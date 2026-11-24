@@ -53,7 +53,7 @@
     'power-magnet', 'power-magnet-fill', 'power-shield', 'power-boost', 'power-boost-fill', 'pause-btn', 'banner', 'countdown', 'hint', 'hitflash', 'mute',
     'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'register-btn-text', 'register-cancel', 'register-lb', 'store-status', 'name-hint',
     'login-popup', 'login-popup-card', 'login-popup-title', 'login-popup-text', 'login-popup-bar', 'login-popup-fill', 'login-popup-ok',
-    'hub', 'hub-player', 'hub-switch', 'hub-howto', 'hub-story', 'hub-lb', 'hub-games', 'reset', 'games', 'games-sound', 'platform', 'crossword', 'wordsearch', 'lb-tabs',
+    'hub', 'hub-player', 'hub-switch', 'hub-howto', 'hub-games', 'reset', 'games', 'games-sound', 'platform', 'crossword', 'wordsearch', 'lb-tabs',
     'howto', 'howto-back', 'best-start', 'story', 'story-cards', 'story-note', 'story-back',
     'leaderboard', 'lb-list', 'lb-status', 'lb-me', 'lb-back', 'lb-refresh', 'results', 'rs-player', 'rs-cards', 'rs-filters', 'rs-history', 'rs-back',
     'pause', 'resume', 'restart', 'pause-menu', 'pause-sound',
@@ -63,8 +63,8 @@
     'over', 'new-best', 'final-score', 'final-laksa', 'final-gebuk', 'final-dist', 'final-mission', 'final-rank', 'again', 'over-menu', 'over-lb',
     'final', 'f-score', 'f-laksa', 'f-gebuk', 'final-replay', 'final-story', 'final-lb',
     'timer', 'b-time', 'hub-start', 'c-timeleft', 'c-total', 'i-level', 'f-time', 'f-lives',
-    'hub-achv', 'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-music', 'settings-sfx', 'st-tabs', 'settings-switch', 'settings-back', 'settings-player', 'about-studio', 'about-text', 'about-credits', 'about-version', 'achv', 'achv-list', 'achv-back',
-    'intro', 'intro-tabs', 'intro-body', 'intro-back', 'intro-dots', 'intro-pager', 'intro-skip', 'intro-next', 'intro-next-text'];
+    'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-music', 'settings-sfx', 'st-tabs', 'settings-switch', 'settings-back', 'settings-player', 'about-studio', 'about-text', 'about-credits', 'about-version', 'achv', 'achv-list', 'achv-back',
+    'intro', 'intro-tabs', 'intro-body', 'intro-back', 'intro-dots', 'intro-pager', 'intro-skip', 'intro-next', 'intro-next-text', 'menu-scene'];
   const ui = {};
   for (const id of ids) {
     ui[id.replace(/-([a-z])/g, (m, c) => c.toUpperCase())] = $(id);
@@ -142,10 +142,26 @@
       x.fillStyle = '#6fa84f'; x.fillRect(0, 0, w, h);
       for (let i = 0; i < 700; i++) { x.fillStyle = Math.random() < 0.5 ? 'rgba(40,110,40,0.35)' : 'rgba(190,230,120,0.25)'; x.fillRect(Math.random() * w, Math.random() * h, 3, 3); }
     }, 120 / TILE, ROAD_LEN / TILE),
+    grassBright: canvasTexture(128, 128, (x, w, h) => {
+      x.fillStyle = '#3fa84a'; x.fillRect(0, 0, w, h);
+      for (let i = 0; i < 900; i++) { x.fillStyle = Math.random() < 0.5 ? 'rgba(20,110,40,0.28)' : 'rgba(190,240,90,0.35)'; x.fillRect(Math.random() * w, Math.random() * h, 2, 4); }
+    }, 120 / TILE, ROAD_LEN / TILE),
     water: canvasTexture(128, 128, (x, w, h) => {
       x.fillStyle = '#3f8fc9'; x.fillRect(0, 0, w, h);
       for (let i = 0; i < 60; i++) { x.fillStyle = 'rgba(255,255,255,' + (0.08 + Math.random() * 0.15) + ')'; x.fillRect(Math.random() * w, Math.random() * h, 10 + Math.random() * 30, 2); }
     }, RIVER_W / TILE, ROAD_LEN / TILE),
+    waterBright: canvasTexture(128, 128, (x, w, h) => {
+      const g = x.createLinearGradient(0, 0, w, h);
+      g.addColorStop(0, '#1498c4'); g.addColorStop(0.55, '#2ec8d8'); g.addColorStop(1, '#7ee4ef');
+      x.fillStyle = g; x.fillRect(0, 0, w, h);
+      for (let i = 0; i < 70; i++) { x.fillStyle = 'rgba(255,255,255,' + (0.12 + Math.random() * 0.2) + ')'; x.fillRect(Math.random() * w, Math.random() * h, 12 + Math.random() * 36, 2); }
+    }, RIVER_W / TILE, ROAD_LEN / TILE),
+    asphaltMenu: canvasTexture(256, 256, (x, w, h) => {
+      x.fillStyle = '#5c616a'; x.fillRect(0, 0, w, h);
+      for (let i = 0; i < 900; i++) { x.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.1)'; x.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+      x.fillStyle = '#f4f6f8'; x.fillRect(6, 0, 7, h); x.fillRect(w - 13, 0, 7, h);
+      for (let y = 10; y < h; y += 44) x.fillRect(w / 2 - 5, y, 10, 24);
+    }, 1, ROAD_LEN / TILE),
     planks: canvasTexture(256, 256, (x, w, h) => {
       for (let i = 0; i < 8; i++) {
         const shade = 150 + Math.floor(Math.random() * 40);
@@ -257,12 +273,25 @@
   const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(7, 16, 12), new THREE.MeshBasicMaterial({ color: 0xfff3b0, fog: false }));
   sunMesh.position.set(-55, 48, -180);
   skyGroup.add(sunMesh);
+  const rangeGroup = new THREE.Group();
+  skyGroup.add(rangeGroup);
   const mtnMat = new THREE.MeshLambertMaterial({ color: 0x5f8f86 });
   [[-110, 34, 50], [-70, 38, 55], [-25, 30, 40], [20, 42, 60], [65, 32, 45], [100, 36, 50]].forEach(([x, h, r]) => {
     const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 7), mtnMat);
     m.position.set(x, h / 2 - 2, -130);
-    skyGroup.add(m);
+    rangeGroup.add(m);
   });
+  // Menu backdrop: forested ridges behind the kampung, brighter than the level ranges.
+  const menuHills = new THREE.Group();
+  skyGroup.add(menuHills);
+  const hillCols = [0x246b38, 0x1a5830, 0x2f7d44, 0x144828, 0x3a8a4e];
+  [[-130, 70, 96, 1, -210], [-55, 88, 86, 0, -198], [25, 80, 92, 2, -204], [105, 66, 84, 3, -196], [175, 58, 90, 4, -214],
+    [-90, 42, 54, 2, -158], [-15, 48, 58, 4, -152], [70, 40, 52, 0, -156], [145, 36, 48, 1, -150]].forEach(([x, h, r, ci, z]) => {
+    const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 10), new THREE.MeshLambertMaterial({ color: hillCols[ci] }));
+    m.position.set(x, h / 2 - 12, z);
+    menuHills.add(m);
+  });
+  menuHills.visible = false;
   const clouds = [];
 
   /* ------------------------------------------------------ geometry kit */
@@ -601,6 +630,31 @@
   const buntingGeo = merge(buntingParts);
   const palmGeos = [0, 1, 2].map(buildPalmGeo);
   const houseGeos = [0xf2e2c4, 0x8fd1c9, 0xf0b89a, 0xcfe3f5].map(buildHouseGeo);
+  // Menu-only kampung: timber walls, red tiled roof, stilts. Gameplay houses stay as they are.
+  function buildKampungGeo(wall, stiltH, w, d) {
+    const fy = stiltH, wh = 2.15, p = [];
+    for (const x of [-w / 2 + 0.22, w / 2 - 0.22]) for (const z of [-d / 2 + 0.22, d / 2 - 0.22]) p.push(box(0x5a3a22, x, fy / 2, z, 0.2, fy, 0.2));
+    p.push(box(0x8a5a2b, 0, fy, 0, w + 0.5, 0.16, d + 0.45));
+    p.push(box(wall, 0, fy + wh / 2, 0, w, wh, d));
+    for (const x of [-w / 2, w / 2]) for (const z of [-d / 2, d / 2]) p.push(box(0x6b4324, x, fy + wh / 2, z, 0.14, wh + 0.1, 0.14));
+    p.push(box(0x6b4324, 0, fy + wh * 0.55, d / 2, 0.08, wh, 0.08));
+    p.push(box(0x9fd8f5, -w * 0.24, fy + 1.25, d / 2 + 0.02, 0.85, 0.62, 0.05));
+    p.push(box(0x9fd8f5, w * 0.24, fy + 1.25, d / 2 + 0.02, 0.85, 0.62, 0.05));
+    p.push(box(0xf7f3ea, -w * 0.24, fy + 1.25, d / 2 + 0.04, 0.08, 0.64, 0.04));
+    p.push(box(0xf7f3ea, w * 0.24, fy + 1.25, d / 2 + 0.04, 0.08, 0.64, 0.04));
+    p.push(box(0x4a2c14, 0, fy + 0.78, d / 2 + 0.02, 0.62, 1.4, 0.06));
+    for (let i = 0; i < 4; i++) p.push(box(0x7a5636, 0, (i + 1) * fy / 8, d / 2 + 1.15 - i * 0.26, 0.85, (i + 1) * fy / 4, 0.26));
+    p.push(box(0xc4452a, 0, fy + wh + 0.08, 0, w + 1.3, 0.12, d + 1.15));
+    p.push(part(G.pyr, 0xb43322, 0, fy + wh + 0.78, 0, w + 1.7, 1.35, d + 1.45));
+    p.push(box(0x8a2a18, 0, fy + wh + 1.4, 0, 0.28, 0.45, d * 0.35));
+    return merge(p);
+  }
+  const kampungGeos = [[0xf3d7a4, 1.55, 5.4, 4.0], [0xf6e2b8, 1.35, 4.6, 3.6], [0xe7c48a, 1.7, 5.8, 4.2]].map((a) => buildKampungGeo(a[0], a[1], a[2], a[3]));
+  const stiltGeos = [[0xf6e2b8, 2.35, 4.2, 3.4], [0xf3d7a4, 2.6, 4.8, 3.6]].map((a) => buildKampungGeo(a[0], a[1], a[2], a[3]));
+  const railFenceGeo = merge([
+    box(0x6b4324, 0, 0.55, -3.6, 0.16, 1.15, 0.16), box(0x6b4324, 0, 0.55, 0, 0.16, 1.15, 0.16), box(0x6b4324, 0, 0.55, 3.6, 0.16, 1.15, 0.16),
+    box(0x8a5a2b, 0, 0.92, 0, 0.1, 0.1, 7.5), box(0x8a5a2b, 0, 0.48, 0, 0.1, 0.1, 7.5),
+  ]);
   const peopleGeos = [[0x2e63b8, 'songkok'], [0xd0609c, 'tudung'], [0xf2b63c, 'terendak'], [0x3f8f3d, 'songkok']].map(([c, h]) => merge(personParts(0, c, h)));
 
   /* ------------------------------------------------ obstacle catalogue */
@@ -647,9 +701,9 @@
       hemi: [0xffd9a8, 0x3a2a1c, 1.1], sun: [0xffc98a, 0.9], sunPos: [-6, 18, -4], cam: { y: 3.4, z: 7.2, lookY: 1.2 } },   // low camera: the ceiling stays well above it
     market: { sky: 0xf0a060, dome: [0x6a5aa8, 0xf7a35c], fog: [38, 150], road: 'cobble', side: 'paving', river: false, sky3d: true, ceiling: false, mtn: 0x7a5a7a, sunColor: 0xffb070,
       hemi: [0xffe0b3, 0x6b5a3a, 0.85], sun: [0xffcf9a, 1.0], sunPos: [20, 22, -10], cam: { y: 4.7, z: 7.6, lookY: 1.3 } },
-    // the main menu: the village at golden hour, as in the reference art
-    menu: { sky: 0xf6b06a, dome: [0x3f8fd8, 0xf8b26a, 0xf9c98a], fog: [60, 220], road: 'asphalt', side: 'grass', river: true, sky3d: true, ceiling: false, mtn: 0x6b6a8a, sunColor: 0xffd58a,
-      hemi: [0xffe3b8, 0x5f7a3a, 0.9], sun: [0xffcf8a, 1.1], sunPos: [26, 16, -30], cam: { y: 4.7, z: 7.6, lookY: 1.3 } },
+    // the main menu: bright kampung noon — blue sky, green ridges, turquoise lake
+    menu: { sky: 0x8ecff5, dome: [0x1f7fe0, 0x9ad7ff, 0xc5ecff], fog: [140, 360], road: 'asphaltMenu', side: 'grassBright', water: 'waterBright', bank: 0x4eae45, river: true, sky3d: true, ceiling: false, mtn: 0x2f8a46, sunColor: 0xfff6d0,
+      hemi: [0xd8f2ff, 0x3f8f3d, 1.05], sun: [0xfff4d8, 1.25], sunPos: [-16, 38, -20], sunDisc: [48, 78, -230], cam: { y: 4.7, z: 7.6, lookY: 1.3 } },
   };
   let envCam = ENVS.village.cam;
   let envName = '';
@@ -662,12 +716,18 @@
     curRoad = TEX[e.road]; roadPlane.material.map = curRoad; roadPlane.material.needsUpdate = true;
     curSide = TEX[e.side]; sidePlane.material.map = curSide; sidePlane.material.needsUpdate = true;
     waterPlane.visible = sandPlane.visible = e.river;
+    waterPlane.material.map = TEX[e.water || 'water']; waterPlane.material.needsUpdate = true;
+    sandPlane.material.color.setHex(e.bank == null ? 0xd9c79a : e.bank);
     skyGroup.visible = e.sky3d;
     skyDome.visible = e.sky3d;
     setSky(e.dome[0], e.dome[1], e.dome[2]);
     ceiling.visible = e.ceiling;
+    rangeGroup.visible = name !== 'menu';
+    menuHills.visible = name === 'menu';
     mtnMat.color.setHex(e.mtn);
     sunMesh.material.color.setHex(e.sunColor);
+    const disc = e.sunDisc || [-55, 48, -180];
+    sunMesh.position.set(disc[0], disc[1], disc[2]);
     hemi.color.setHex(e.hemi[0]); hemi.groundColor.setHex(e.hemi[1]); hemi.intensity = e.hemi[2];
     sun.color.setHex(e.sun[0]); sun.intensity = e.sun[1]; sun.position.set(e.sunPos[0], e.sunPos[1], e.sunPos[2]);
     envCam = e.cam;
@@ -751,7 +811,7 @@
   // The pair stands on the left of the frame whatever the screen shape: x is a fraction of the
   // visible half-width at each character's depth.
   function stagePose(portrait) {
-    const cam = portrait ? { pos: [0, 2.5, 8.6], look: [0, 2.0, -8] } : { pos: [0, 2.4, 8.6], look: [0, 1.9, -8] };
+    const cam = portrait ? { pos: [0.3, 2.35, 8.2], look: [0.8, 1.7, -16] } : { pos: [0.8, 2.15, 7.6], look: [1.4, 1.45, -22] };
     const tanHalf = Math.tan((camera.fov * Math.PI / 180) / 2) * camera.aspect;
     const ez = portrait ? 2.0 : 3.2, tz = portrait ? 2.6 : 3.8;
     const eHalf = (cam.pos[2] - ez) * tanHalf, tHalf = (cam.pos[2] - tz) * tanHalf;
@@ -953,9 +1013,28 @@
     if (Math.random() < 0.35) addScenery(solid(buntingGeo), SIDE + 1.1, s + 1, 0);
     return 5 + Math.random() * 3;
   }
+  function menuPalm(xBias) {
+    const m = solid(pick(palmGeos));
+    m.scale.setScalar(1.05);
+    return m;
+  }
+  // Still backdrop for the hub: fences along the road, kampung houses to the left, stilt houses on the lake.
+  function spawnMenu(s) {
+    const slot = Math.round(s / 8);
+    addScenery(solid(railFenceGeo), -(ROAD_W / 2 + 0.9), s, 0);
+    addScenery(solid(railFenceGeo), ROAD_W / 2 + 0.9, s, 0);
+    if (slot % 2 === 0) addScenery(solid(kampungGeos[Math.abs(slot) % kampungGeos.length]), -(SIDE + 5.4), s, 0.04);
+    if (slot % 3 === 0) addScenery(menuPalm(slot), -(SIDE + 2.2), s + 3.2, Math.PI);
+    else if (slot % 3 === 1) addScenery(solid(bushGeo), -(SIDE + 1.4), s + 1.5, 0);
+    if (slot % 2 === 1) addScenery(solid(stiltGeos[Math.abs(slot) % stiltGeos.length]), RIVER_X + 4.2 + (Math.abs(slot) % 3) * 1.6, s, -0.08);
+    if (slot % 3 === 2) addScenery(menuPalm(slot + 1), RIVER_X + 0.8, s + 2.4, 0.2);
+    else if (slot % 4 === 1) addScenery(solid(bushGeo), SIDE + 0.45, s + 2, 0);
+    return 8;
+  }
   function spawnScenery(s) {
     if (envName === 'kitchen') return spawnKitchen(s);
     if (envName === 'market') return spawnMarket(s);
+    if (envName === 'menu') return spawnMenu(s);
     return spawnVillage(s);
   }
 
@@ -1243,7 +1322,7 @@
   let pausedFrom = 'playing';
 
   /* --------------------------------------------------------- game flow */
-  function hideScreens() { for (const id of SCREENS) ui[id].hidden = true; ui.intro.hidden = true; }
+  function hideScreens() { for (const id of SCREENS) ui[id].hidden = true; ui.intro.hidden = true; ui.menuScene.hidden = true; }
   // startLives: the hearts this attempt begins with (a fresh CFG.lives, or the hearts carried over).
   function resetRun(startLives) {
     clearList(obstacles); clearList(laksas); clearList(powerups); clearList(gebuks);
@@ -1552,6 +1631,7 @@
     renderLevelSelect();
     ui.mute.hidden = true;                 // the menu has its own sound button
     ui.hub.hidden = false;
+    ui.menuScene.hidden = false;          // the painted 2D kampung, in place of the 3D stage
   }
   function settingsTab(name) {                 // Bunyi | Akaun | Tentang
     for (const b of ui.stTabs.querySelectorAll('.lb-tab')) { const on = b.dataset.tab === name; b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); }
@@ -1618,7 +1698,6 @@
     svg.append(path); st.replaceChildren(svg);
   }
   function renderLevelSelect() {
-    const got = ((GebokStore.current() || {}).achievements) || {};
     ui.cards.forEach((b) => {
       const i = +b.dataset.level;
       const done = progress.completed[i], locked = i > progress.unlocked;
@@ -1629,8 +1708,8 @@
       b.classList.toggle('selected', i === selectedLevel && !locked);
       b.setAttribute('aria-pressed', i === selectedLevel ? 'true' : 'false');
       st.classList.toggle('lock', locked);
-      if (locked) statusLock(st);
-      else { const n = done ? (got[String(i + 1)] || []).length : 0; statusStars(st, !done ? 0 : n >= ACH.length ? 3 : n >= 3 ? 2 : 1); }
+      if (locked) { statusLock(st); st.hidden = false; }
+      else { st.replaceChildren(); st.hidden = true; }
       b.title = locked ? 'Selesaikan level ' + i + ' dahulu' : LEVELS[i].need + ' gebuk · ' + LEVELS[i].laksaTarget + ' laksa · ' + LEVELS[i].theme;
     });
     const L = LEVELS[selectedLevel];
@@ -2466,8 +2545,6 @@
   ui.email.addEventListener('input', () => { fieldState(ui.emailField, ''); ui.registerError.hidden = true; });
   ui.hubSwitch.addEventListener('click', showRegister);
   ui.hubHowto.addEventListener('click', showHowto);
-  ui.hubStory.addEventListener('click', showStory);
-  ui.hubLb.addEventListener('click', showLeaderboard);
   ui.howtoBack.addEventListener('click', showHub);
   ui.storyBack.addEventListener('click', showHub);
   ui.lbBack.addEventListener('click', goBack);
@@ -2477,7 +2554,6 @@
   ui.lbRefresh.addEventListener('click', loadLeaderboard);
   ui.cards.forEach((b) => b.addEventListener('click', () => selectLevel(+b.dataset.level)));
   ui.hubStart.addEventListener('click', startSelected);
-  ui.hubAchv.addEventListener('click', showAchievements);
   ui.hubSettings.addEventListener('click', showSettings);
   ui.hubSound.addEventListener('click', () => { sfx.toggle(); syncSoundLabels(); ui.hubSound.blur(); });
   ui.gamesSound.addEventListener('click', () => { sfx.toggle(); syncSoundLabels(); ui.gamesSound.blur(); });

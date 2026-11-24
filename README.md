@@ -302,23 +302,25 @@ The pause menu offers resume, restart level, main menu and sound.
 
 ## Main menu
 
-The menu is drawn over the live 3D scene: the village at golden hour with both
-characters from the animation standing on the left (the Traveller and Lelaki
-Misteri, the hooded elder with the glowing stone, both procedural models).
-The layout follows the user's mockup: the title (LAKSA over a wooden GEBOK RUN
-board, the golden gebok and a laksa bowl either side, leaves behind) with the
-red "Run, Collect & Discover Pahang Heritage!" ribbon under it; the big yellow
-MULA LARIAN pill with a red play disc in the middle, three small wooden chips
-under it (CARA BERMAIN, KISAH WARISAN, PENCAPAIAN); the PILIH LEVEL wooden
-frame on the right with three thumbnail cards: an unlocked card can be selected
-as the run's starting level (the run still has one 120 s clock and 3 hearts),
-locked cards turn grey with a padlock pill, open cards show a green pill with
-three stars lit by the badges earned there. Top right: the wooden icon buttons
-from the games hub (trophy = papan kedudukan, gear = tetapan, speaker = bunyi,
-with a red slash while muted). A blue batik band with gold motifs runs along
-the bottom and the purple PERMAINAN button (back to the games hub) sits on it
-at the right. On phones the menu stacks vertically and the level cards become
-rows.
+The menu sits on a painted kampung scene (gebok-scene.jpg: timber houses, a
+turquoise lake, forested ridges and the road running into the distance); the
+3D stage stays underneath and takes over again as soon as a run starts. The
+title is an illustration (gebok-logo.png: LAKSA GEBOK RUN with the golden
+gebok and a laksa bowl, and the red "Lari, Kumpul & Terokai Kulinari Warisan
+Pahang" ribbon) and the runner (runner-menu.png) sprints in at the bottom
+left. In the middle is the CABARAN ANDA board (cabaran-panel.png) with three
+illustrated cards: Cabaran Kampung Laksa, Cabaran Dapur Warisan and Cabaran
+Jejak Warisan. Each card is a transparent button over the art: an unlocked
+card can be selected as the run's starting level (the run still has one 120 s
+clock and 3 hearts) and glows gold when selected, a locked card is dimmed
+with a padlock badge. The right column holds the three buttons: yellow MULA
+LARIAN, blue CARA BERMAIN and red PERMAINAN (back to the games hub); top right
+are the wooden gear (tetapan) and speaker (bunyi, with a red slash while
+muted) buttons. The leaderboard, Kisah Warisan and Pencapaian are no longer
+on this menu: the leaderboard opens from the games hub, the login screen and
+the result screens, the story from the final screen, and achievements from
+the games hub. On phones the menu stacks: title, board, the three buttons,
+then the runner.
 
 ## Menu music
 
