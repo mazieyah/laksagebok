@@ -20,6 +20,7 @@
   }
   const CFG = window.GebokConfig;
   const LEVELS = CFG.levels, FREE = LEVELS.length, SC = CFG.scores, PW = CFG.powerups;
+  const CB = CFG.combo || { jump: 30, slide: 30, dodge: 20, every: 3, bonus: 50, multiplierStep: 0.5, maxMultiplier: 3, reaction: 0.75 };
 
   /* ------------------------------------------------------ track geometry */
   const LANE_W = 2.2;
@@ -50,7 +51,7 @@
 
   /* ------------------------------------------------------------------ DOM */
   const ids = ['hud', 'score', 'dist', 'level-label', 'missions', 'm-gebuk', 'm-gebuk-n', 'm-laksa', 'm-laksa-n', 'achievements', 'c-ach', 'f-ach',
-    'power-magnet', 'power-magnet-fill', 'power-shield', 'power-boost', 'power-boost-fill', 'pause-btn', 'banner', 'countdown', 'hint', 'hitflash', 'mute',
+    'power-magnet', 'power-magnet-fill', 'power-shield', 'power-boost', 'power-boost-fill', 'pause-btn', 'banner', 'combo', 'countdown', 'hint', 'hitflash', 'mute',
     'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'register-btn-text', 'register-cancel', 'register-lb', 'store-status', 'name-hint',
     'login-popup', 'login-popup-card', 'login-popup-title', 'login-popup-text', 'login-popup-bar', 'login-popup-fill', 'login-popup-ok',
     'hub', 'hub-player', 'hub-switch', 'hub-howto', 'hub-games', 'reset', 'games', 'games-sound', 'platform', 'crossword', 'wordsearch', 'lb-tabs',
@@ -1055,6 +1056,9 @@
   let state = 'menu';            // menu | ready | playing | paused | hit | dead | won | incomplete | final
   let time = 0, dist = 0, runDist = 0, speed = 12, score = 0, laksaCount = 0, runTime = 0;
   let nextS = 0, nextScenS = -6, patternCount = 0, magnetT = 0, combo = 0, lastCollect = -10;
+  let streak = 0, bestStreak = 0, comboTimer = 0;   // combo: actions in a row since the last collision
+  const comboCounts = { jump: 0, slide: 0, dodge: 0, bonus: 0 };
+  const patternStats = {};                          // how many of each pattern this run spawned (gebokDebug.patterns)
   const warnedKinds = new Set();          // enemy kinds already named in a banner this level
   let camX = 0, shake = 0, runPhase = 0, deathT = 0, deathY = 0, overShown = false, isNewBest = false, hintTimer = 0;
   let gebukWait = 0, gebukRun = 0, bannerTimer = 0, lastStep = 0, wonT = 0, readyT = 0, countdownShown = '', countTimer = 0;
@@ -1075,7 +1079,7 @@
   const runTotal = () => campaignScore + (levelBanked ? 0 : score);
   function saveProgress() { GebokStore.saveProgress(progress).catch(() => { /* kept in memory for this session */ }); }
   function clearList(list) { for (const it of list) scene.remove(it.mesh); list.length = 0; }
-  function freshRunStats() { return { laksa: 0, gebuk: 0, laksaPts: 0, gebukPts: 0, enemyPts: 0, mission: 0, levelBonus: 0, flawless: 0, timeBonus: 0, finished: false, missionDone: false }; }
+  function freshRunStats() { return { laksa: 0, gebuk: 0, laksaPts: 0, gebukPts: 0, enemyPts: 0, comboPts: 0, mission: 0, levelBonus: 0, flawless: 0, timeBonus: 0, finished: false, missionDone: false }; }
   const fmtClock = (sec) => { const t = Math.max(0, Math.floor(sec)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
 
   /* ---------------------------------------------------------- spawning */
@@ -1089,11 +1093,15 @@
     obstacles.push(o);
     return o;
   }
-  // A charger starts beyond the row and runs at the runner; a hunter also moves into the runner's lane on the way.
+  // A charger waits in its lane until the runner is CHASE_LEAD seconds out (at the closing speed), then runs at the
+  // runner, so it meets the runner about where spawnEnemy placed it: it is put speed × CHASE_LEAD further up the road.
+  // A hunter also moves into the runner's lane on the way. (Running from the spawn distance would have it arrive
+  // seconds early, in whatever row the runner was in the middle of.)
+  const CHASE_LEAD = 2.4;
   function spawnEnemy(s, lane) {
-    const kind = pick(POOLS[curLevel().env].enemy), d = OB[kind];
-    const o = spawnObstacle(kind, lane, s);
-    o.chase = { v: d.v, hunt: Math.random() < d.hunt, locked: false, tx: o.x, warned: false };
+    const L = curLevel(), kind = pick(POOLS[L.env].enemy), d = OB[kind];
+    const o = spawnObstacle(kind, lane, s + speed * (boostT > 0 ? PW.boostMultiplier : 1) * 1.1 * CHASE_LEAD);
+    o.chase = { v: d.v, hunt: Math.random() < d.hunt * (L.enemyHunt == null ? 1 : L.enemyHunt), locked: false, tx: o.x, warned: false, waiting: true };
     return o;
   }
   function spawnLaksa(s, lane, y) {
@@ -1146,6 +1154,90 @@
     spawnLaksaLine(s + 1, freeLane, 6);
     return len;
   }
+  // The harder patterns (config: levels[].patterns). Distances come from the speed at spawn time plus a margin for the
+  // acceleration until the runner gets there, so every sequence leaves CFG.combo.reaction seconds of road between the
+  // actions it asks for, and one lane is always open or passable with a single jump or slide.
+  const road = (sec, min) => Math.max(min, speed * (boostT > 0 ? PW.boostMultiplier : 1) * 1.1 * sec);
+  const pickNoSpin = (list) => { const k = pick(list); return OB[k].spin ? list.find((x) => !OB[x].spin) || k : k; };
+  // Kampung Laksa's first rows: a hurdle to jump, a bar to slide under, a wall to step around, one at a time in the middle lane.
+  function spawnTutorialRow(s, step) {
+    const pools = POOLS[curLevel().env], type = step === 1 ? 'low' : step === 2 ? 'high' : 'block';
+    const o = spawnObstacle(pickNoSpin(pools[type]), 1, s);
+    if (type === 'low') spawnLaksaArc(o.s, 1);
+    else if (type === 'high') spawnLaksa(o.s + o.depth / 2 + 1.2, 1, 0.45);
+    else { spawnLaksaLine(s - 1, 0, 4); spawnLaksaLine(s - 1, 2, 4); }
+    return Math.max(o.depth, 4);
+  }
+  // Jump a hurdle, then slide under a bar in the same lane (swipe down in the air to drop straight into the slide). The
+  // laksa over the hurdle and after the bar pay for the hard lane; another lane stays open, with a wall in the third on hard.
+  function spawnJumpSlide(s, pools, lanes, hard) {
+    const lane = lanes[0];
+    const a = spawnObstacle(pickNoSpin(pools.low), lane, s);
+    spawnLaksaArc(a.s, lane);
+    const b = spawnObstacle(pick(pools.high), lane, s + a.depth + road(CB.reaction + 0.35, 8));
+    spawnLaksaLine(b.s + b.depth / 2 + 1.2, lane, 3);
+    let len = b.s + b.depth / 2 - s + 3 * LAKSA_STEP;
+    if (hard) { const c = spawnObstacle(pick(pools.block), lanes[1], s + 1); len = Math.max(len, c.depth + 1); }
+    spawnLaksaLine(s, lanes[2], 3);
+    return len;
+  }
+  // Two rows of walls whose open lane moves: one lane change between them, sometimes two on hard.
+  function spawnDoubleSwitch(s, pools, lanes, hard) {
+    const free1 = lanes[0];
+    const free2 = free1 === 1 ? pick([0, 2]) : (hard && Math.random() < 0.5 ? 2 - free1 : 1);
+    const changes = Math.abs(free2 - free1);
+    let len1 = 0, len2 = 0;
+    for (const lane of [0, 1, 2]) if (lane !== free1) len1 = Math.max(len1, spawnObstacle(pick(pools.block), lane, s).depth);
+    const s2 = s + len1 + road(CB.reaction + 0.25 * changes, 7);
+    for (const lane of [0, 1, 2]) if (lane !== free2) len2 = Math.max(len2, spawnObstacle(pick(pools.block), lane, s2).depth);
+    spawnLaksaLine(s2 + len2 + 1, free2, 4);
+    return s2 + len2 + 4 * LAKSA_STEP - s;
+  }
+  // One row across all three lanes: walls in two of them (one on medium) and a hurdle or a bar in the rest, so the way
+  // through is a jump or a slide.
+  function spawnThreeLane(s, pools, lanes, hard) {
+    let len = 0;
+    lanes.forEach((lane, i) => {
+      const wall = hard ? i > 0 : i > 1, type = wall ? 'block' : (Math.random() < 0.5 ? 'low' : 'high');
+      const o = spawnObstacle(wall ? pick(pools.block) : pickNoSpin(pools[type]), lane, s);
+      len = Math.max(len, o.depth);
+      if (type === 'low') spawnLaksaArc(o.s, lane);
+      else if (!wall) spawnLaksa(o.s + o.depth / 2 + 1.2, lane, 0.45);
+    });
+    return len;
+  }
+  // A line of laksa with an enemy charging down the middle of it: jump it, or step out and back.
+  function spawnEnemyLaksa(s, pools, lanes) {
+    const lane = lanes[0], len = spawnLaksaLine(s, lane, 8);
+    const e = spawnEnemy(s + len * 0.5, lane);
+    e.chase.hunt = false;
+    return len + 2;
+  }
+  // Two chargers a second apart in different lanes, neither hunting: the third lane is the way through.
+  function spawnEnemyPair(s, pools, lanes) {
+    const apart = road(1.0, 10);
+    const a = spawnEnemy(s + 4, lanes[0]); a.chase.hunt = false;
+    const b = spawnEnemy(s + 4 + apart, lanes[1]); b.chase.hunt = false;
+    spawnLaksaLine(s, lanes[2], 6);
+    return 4 + apart + 4;
+  }
+  // A cat crossing all three lanes slowly: pick the lane it is leaving, or jump it.
+  function spawnCrossing(s, pools, lanes) {
+    const kinds = pools.lateral.filter((k) => OB[k].enemy), kind = kinds.length ? pick(kinds) : pick(pools.lateral);
+    const from = Math.random() < 0.5 ? 0 : 2;
+    const o = spawnObstacle(kind, from, s, { kind: 'lateral', a: LANE_X[from], b: LANE_X[2 - from], period: 3.6 + Math.random() * 0.8, phase: Math.random() * Math.PI * 2 });
+    spawnLaksaLine(s + o.depth + 2, 1, 4);
+    return Math.max(o.depth, 6) + 2 + 4 * LAKSA_STEP;
+  }
+  // Three patterns back to back with only the reaction time between them.
+  function spawnSequence(s, pools, lanes) {
+    let at = s;
+    at += spawnThreeLane(at, pools, lanes, true) + road(CB.reaction, 7);
+    at += spawnJumpSlide(at, pools, shuffle([0, 1, 2]), true) + road(CB.reaction, 7);
+    at += spawnDoubleSwitch(at, pools, shuffle([0, 1, 2]), true);
+    return at - s;
+  }
+  const SPECIAL = { jumpSlide: spawnJumpSlide, doubleSwitch: spawnDoubleSwitch, threeLane: spawnThreeLane, enemyLaksa: spawnEnemyLaksa, enemyPair: spawnEnemyPair, crossing: spawnCrossing, sequence: spawnSequence };
   // One row of obstacles across the lanes with laksa to tempt you, then a gap scaled to the speed.
   function spawnPattern(s) {
     const L = curLevel();
@@ -1153,15 +1245,25 @@
     const gap = Math.max(L.gap.min, speed * (L.gap.seconds - 0.4 * hard));
     patternCount++;
     if (patternCount <= 2) return spawnLaksaLine(s, patternCount === 1 ? 1 : pick([0, 2]), 7) + gap;
+    const P = L.patterns || {};
+    if (level === 0 && P.tutorial && patternCount <= 5) { patternStats.tutorial = (patternStats.tutorial || 0) + 1; return spawnTutorialRow(s, patternCount - 2) + gap; }
     let place = null;
     if (--gebukWait <= 0) { place = L.place; rollGebukWait(); }
     const pools = POOLS[L.env];
     const lanes = shuffle([0, 1, 2]);
     if (!place) {
+      let rs = Math.random();
+      for (const name in SPECIAL) {
+        if (!P[name]) continue;
+        if (rs < P[name]) { patternStats[name] = (patternStats[name] || 0) + 1; return SPECIAL[name](s, pools, lanes, level >= 2) + gap; }
+        rs -= P[name];
+      }
       const r = Math.random();
-      if (pools.lateral.length && r < L.movers) return spawnMoverRow(s, pools) + gap;
-      if (pools.narrow.length && r < L.movers + L.narrow) return spawnNarrowRow(s, pools, lanes) + gap;
+      if (pools.lateral.length && r < L.movers) { patternStats.mover = (patternStats.mover || 0) + 1; return spawnMoverRow(s, pools) + gap; }
+      if (pools.narrow.length && r < L.movers + L.narrow) { patternStats.narrow = (patternStats.narrow || 0) + 1; return spawnNarrowRow(s, pools, lanes) + gap; }
     }
+    const rowName = place ? 'gebuk-' + place : 'row';
+    patternStats[rowName] = (patternStats[rowName] || 0) + 1;
     const two = place === 'trap' || Math.random() < L.twoLane + 0.2 * hard;
     const blocked = lanes.slice(0, two ? 2 : 1), free = lanes.slice(two ? 2 : 1);
     let enemyLane = -1;                                                            // an enemy comes down one of the open lanes
@@ -1346,6 +1448,7 @@
       jump() { tone(320, 0.18, 'square', 0.05, 640); },
       roll() { tone(220, 0.15, 'sawtooth', 0.04, 120); },
       swipe() { tone(520, 0.06, 'sine', 0.05, 430); },
+      combo(n) { const f = 660 + Math.min(n, 9) * 50; tone(f, 0.1, 'triangle', 0.09, f * 1.5); },   // a rising ping for each action in a row
       power() { seq([523, 659, 784, 1046], 70, 0.16, 'triangle', 0.12); },
       crash() { noise(0.5, 0.5); tone(160, 0.5, 'sawtooth', 0.15, 50); },
       gebuk() {
@@ -1563,6 +1666,8 @@
     const L = curLevel();
     speed = L.speed.start; score = 0; laksaCount = 0; runTime = 0; runDist = 0; magnetT = 0; patternCount = 0; combo = 0;
     gebukRun = 0; levelCount = 0; livesLost = 0; invT = 0; shield = false; boostT = 0; hitObstacle = null; warnedKinds.clear();
+    streak = 0; bestStreak = 0; ui.combo.hidden = true; for (const k in patternStats) delete patternStats[k];
+    comboCounts.jump = comboCounts.slide = comboCounts.dodge = comboCounts.bonus = 0;
     lives = Math.max(1, Math.min(CFG.lives, typeof startLives === 'number' ? startLives : CFG.lives));
     livesAtLevelStart = lives;
     runStats = freshRunStats();
@@ -1616,6 +1721,7 @@
   }
   function crash(o) {
     hitObstacle = o || null;
+    streak = 0; ui.combo.hidden = true;    // any collision ends the combo
     if (shield) {                          // the tudung saji takes the hit
       shield = false;
       updatePowerHud();
@@ -2444,12 +2550,34 @@
   }
 
   /* ------------------------------------------------------------ update */
+  // Combo: a hurdle jumped, a bar slid under or an enemy got past in one piece. Every CFG.combo.every in a row pays the
+  // bonus and raises the multiplier; any collision resets the streak (crash).
+  function comboHit(kind) {
+    streak++; bestStreak = Math.max(bestStreak, streak); comboCounts[kind]++;
+    const mult = Math.min(CB.maxMultiplier, 1 + Math.floor((streak - 1) / CB.every) * CB.multiplierStep);
+    const base = kind === 'dodge' ? CB.dodge : kind === 'slide' ? CB.slide : CB.jump;
+    const name = kind === 'dodge' ? 'ELAK MUSUH' : kind === 'slide' ? 'GELONGSOR SEMPURNA' : 'LOMPAT SEMPURNA';
+    let pts = Math.round(base * mult), text = (streak > 1 ? 'x' + streak + '  ' : '') + name + ' +' + pts;
+    if (streak % CB.every === 0) { pts += CB.bonus; text += '  BONUS +' + CB.bonus; comboCounts.bonus++; }
+    score += pts; runStats.comboPts += pts;
+    sfx.combo(streak);
+    showCombo(text);
+  }
+  function showCombo(text) {
+    ui.combo.textContent = text;
+    ui.combo.hidden = false;
+    pulse(ui.combo);
+    clearTimeout(comboTimer);
+    comboTimer = setTimeout(() => { ui.combo.hidden = true; }, 1400);
+  }
   function updateObstacles(playing, dt) {
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const o = obstacles[i];
       if (o.chase && playing) {
-        o.s -= o.chase.v * dt;                                                    // runs at the runner on top of the road's speed
-        const zc = dist - o.s, closing = speed * (boostT > 0 ? PW.boostMultiplier : 1) + o.chase.v;
+        const closing = speed * (boostT > 0 ? PW.boostMultiplier : 1) + o.chase.v;
+        if (o.chase.waiting && dist - o.s > -closing * CHASE_LEAD) o.chase.waiting = false;   // the runner is close: charge
+        if (!o.chase.waiting) o.s -= o.chase.v * dt;                              // runs at the runner on top of the road's speed
+        const zc = dist - o.s;
         if (!o.chase.warned && zc > -closing * 2.4) {                             // about two seconds out: a growl, and a name the first time
           o.chase.warned = true; sfx.growl();
           if (!warnedKinds.has(o.name)) { warnedKinds.add(o.name); showBanner(OB[o.name].label + '! Lompat atau tukar lorong', 1.4); }
@@ -2479,6 +2607,11 @@
       if (o.spin && playing) o.mesh.rotation.x -= dt * 4;
       o.mesh.position.z = z;
       if (z - o.depth / 2 > KILL_BEHIND) { scene.remove(o.mesh); obstacles.splice(i, 1); continue; }
+      if (playing && !o.passed && z - o.depth / 2 > PLAYER_HALF_D) {           // behind the runner, untouched: a combo if an action got it past
+        o.passed = true;
+        if (o.cleared) comboHit(o.cleared);
+        else if (o.enemy && invT <= 0 && Math.abs(o.x - player.x) < LANE_W * 1.5) comboHit('dodge');   // an enemy let by in the next lane
+      }
       if (!playing || invT > 0) continue;
       if (z + o.depth / 2 > -PLAYER_HALF_D && z - o.depth / 2 < PLAYER_HALF_D && Math.abs(o.x - player.x) < o.halfW + PLAYER_HALF_W - 0.2) {
         const top = player.y + (player.rolling ? ROLL_H : PLAYER_H);
@@ -2486,7 +2619,7 @@
         if (o.kind === 'low') hit = player.y < o.height - 0.08;
         else if (o.kind === 'high') hit = top > o.clearance;
         else hit = true;
-        if (!hit) continue;
+        if (!hit) { o.cleared = o.kind === 'high' ? 'slide' : o.enemy ? 'dodge' : 'jump'; continue; }   // credited once it is behind us
         if (boostT > 0) {                   // cili boost: smash straight through; an enemy bowled over is worth a bonus
           burst(o.x, 1.0, z, 0xff6a3d); shake = Math.max(shake, 0.25);
           if (o.enemy) { sfx.stomp(); score += SC.enemy; runStats.enemyPts += SC.enemy; showBanner(OB[o.name].label + ' dilanggar! +' + SC.enemy, 1.2); }
@@ -2901,7 +3034,7 @@
     enemy(lane, ahead) { return spawnEnemy(dist + (ahead == null ? 40 : ahead), lane == null ? 1 : lane); },
     obstacle(kind, lane, ahead) { return spawnObstacle(kind, lane == null ? 1 : lane, dist + (ahead == null ? 40 : ahead)); },   // any catalogue entry, e.g. an enemy model to look at
     state() {
-      return { state, speed, score: Math.floor(score), runTotal: runTotal(), laksaCount, runDist: Math.floor(runDist), lane: player.lane, lives, livesLost, invT: +invT.toFixed(2), clock: +clock.toFixed(1), campaignUsed: +campaignUsed.toFixed(1), timeLeft: +timeLeft().toFixed(1), earned: Array.from(earned),
+      return { state, speed, score: Math.floor(score), runTotal: runTotal(), laksaCount, runDist: Math.floor(runDist), lane: player.lane, lives, livesLost, invT: +invT.toFixed(2), hitBy: hitObstacle ? hitObstacle.name : null, streak, clock: +clock.toFixed(1), campaignUsed: +campaignUsed.toFixed(1), timeLeft: +timeLeft().toFixed(1), earned: Array.from(earned),
         x: +player.x.toFixed(2), y: +player.y.toFixed(2), jumping: player.jumping, rolling: player.rolling, shield, boostT: +boostT.toFixed(2), magnetT: +magnetT.toFixed(2),
         levelCount, gebukRun, env: envName, obstacles: obstacles.length, laksas: laksas.length, powerups: powerups.length, gebuks: gebuks.length, scenery: scenery.length,
         runStats: Object.assign({}, runStats), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
@@ -2930,7 +3063,9 @@
       for (let i = 0; i < n; i++) { mesh.boneTransform(i, v); v.applyMatrix4(mesh.matrixWorld).applyMatrix4(inv); if (v.y < min) min = v.y; }
       return +min.toFixed(3);
     },
-    obstacles() { return obstacles.map((o) => ({ kind: o.kind, name: o.name, x: +o.x.toFixed(2), z: +(dist - o.s).toFixed(2), depth: o.depth, mover: !!o.mover, enemy: o.enemy, hunting: !!(o.chase && o.chase.hunt), locked: !!(o.chase && o.chase.locked) })); },
+    combo() { return { streak, bestStreak, counts: Object.assign({}, comboCounts), comboPts: runStats ? runStats.comboPts : 0, scores: CB }; },
+    patterns() { return Object.assign({}, patternStats); },
+    obstacles() { return obstacles.map((o) => ({ kind: o.kind, name: o.name, x: +o.x.toFixed(2), z: +(dist - o.s).toFixed(2), depth: o.depth, mover: !!o.mover, enemy: o.enemy, hunting: !!(o.chase && o.chase.hunt), locked: !!(o.chase && o.chase.locked), waiting: !!(o.chase && o.chase.waiting) })); },
     gebuks() { return gebuks.map((g) => ({ x: g.x, y: g.y, z: +(dist - g.s).toFixed(2) })); },
     powerups() { return powerups.map((p) => ({ type: p.type, x: p.x, z: +(dist - p.s).toFixed(2) })); },
     level() { return { level, levelCount, gebukRun, progress: JSON.parse(JSON.stringify(progress)) }; },

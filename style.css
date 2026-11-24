@@ -207,6 +207,13 @@ body {
   position: absolute; inset-inline: 0; top: calc(max(12px, env(safe-area-inset-top, 0px)) + 112px); width: max-content; max-width: 60vw; margin-inline: auto;
 }
 .banner.pop { animation: pop .5s ease-out; }
+.combo {                                                   /* combo toast: LOMPAT SEMPURNA +30, x3 … BONUS +50 */
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(15px, 2.6vw, 22px); line-height: 1.15;
+  color: #fff3c4; text-shadow: 0 2px 0 var(--accent-deep), 0 4px 12px rgba(0,0,0,.5);
+  text-align: center; letter-spacing: .5px; padding: 4px 10px;
+  position: absolute; inset-inline: 0; top: calc(max(12px, env(safe-area-inset-top, 0px)) + 154px); width: max-content; max-width: 70vw; margin-inline: auto;
+}
+.combo.pop { animation: pop .4s ease-out; }
 .hint {
   margin-top: auto;
   background: rgba(40, 24, 10, .72); border: 2px solid #f2c14e; border-radius: 999px; padding: 8px 16px;
@@ -222,6 +229,7 @@ body {
   .hud-right { gap: 8px; padding-right: 48px; min-width: 0; }
   .power-row { top: calc(max(12px, env(safe-area-inset-top, 0px)) + 168px); margin-inline: auto 0; max-width: 55vw; justify-content: flex-end; }
   .banner { top: calc(max(12px, env(safe-area-inset-top, 0px)) + 204px); margin-inline: auto 0; max-width: 58vw; text-align: right; padding-inline: 0; }
+  .combo { top: calc(max(12px, env(safe-area-inset-top, 0px)) + 244px); margin-inline: auto 0; max-width: 58vw; text-align: right; padding-inline: 0; font-size: 14px; }
   .hud-stats { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
   .hud-plate { font-size: 13px; padding: 3px 10px 3px 3px; border-width: 2px; }
   .level-plate { padding-right: 12px; }

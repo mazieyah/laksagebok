@@ -20,6 +20,10 @@ window.GebokConfig = {
     { id: 'flawless', icon: '💎', name: 'Tanpa langgaran', desc: 'Finish the level without losing a heart' },
   ],
   powerups: { magnet: 8, boost: 5, boostMultiplier: 1.45, chance: 0.09 },
+  // Combo: a hurdle jumped, a bar slid under or an enemy dodged in one piece scores; every `every` actions in a row pay the
+  // bonus and raise the multiplier (1 → 1.5 → 2 …, capped); any collision resets the streak. reaction: seconds of road
+  // the harder patterns leave between the actions they ask for.
+  combo: { jump: 30, slide: 30, dodge: 20, every: 3, bonus: 50, multiplierStep: 0.5, maxMultiplier: 3, reaction: 0.75 },
   signIn: { checkSeconds: 2, noticeSeconds: 2, nameMaxLength: 9 },   // sign-in pop-ups and the player-name limit
   // "Tentang" in Tetapan. Edit freely: studio, a short description, credit lines and the version shown.
   about: {
@@ -101,7 +105,8 @@ window.GebokConfig = {
       name: 'KAMPUNG LAKSA', title: 'Kampung Laksa', en: 'Easy', theme: 'A traditional Pahang village', env: 'village',
       need: 3, laksaTarget: 10, gebukEvery: [2, 3],          // need = gebuk to finish the level; laksaTarget = bowls for the Pengumpul laksa badge (collecting is unlimited); gebukEvery = rows between gebuk
       speed: { start: 12, max: 20, accel: 0.14 }, gap: { min: 11, seconds: 1.3 },
-      twoLane: 0.25, movers: 0.15, narrow: 0, enemies: 0.3, place: 'easy', powerups: ['magnet'],   // movers: rooster rows; enemies: chance of a wild boar charging down an open lane
+      twoLane: 0.25, movers: 0.15, narrow: 0, enemies: 0.25, enemyHunt: 0.5, place: 'easy', powerups: ['magnet'],   // movers: rooster rows; enemies: chance of a wild boar charging down an open lane; enemyHunt scales how often it hunts your lane
+      patterns: { tutorial: true },                             // the first three rows: one hurdle, one bar, one wall, in the middle lane
       desc: 'Wooden houses, coconut trees and food stalls. Crates, baskets and chickens on the road, roosters pacing the lanes and wild boars charging at you; the gebuk sits in the open lanes.',
       heritage: {
         title: 'Kampung Laksa',
@@ -111,8 +116,12 @@ window.GebokConfig = {
     {
       name: 'DAPUR WARISAN', title: 'Dapur Warisan', en: 'Medium', theme: 'A traditional laksa kitchen', env: 'kitchen',
       need: 5, laksaTarget: 15, gebukEvery: [2, 3],
-      speed: { start: 14, max: 25, accel: 0.16 }, gap: { min: 10, seconds: 1.1 },
-      twoLane: 0.45, movers: 0.25, narrow: 0, enemies: 0.35, place: 'skill', powerups: ['magnet', 'shield'],   // enemies: rats scurrying at you; the cat paces the lanes with the cooks
+      speed: { start: 14.4, max: 24, accel: 0.16 }, gap: { min: 10, seconds: 1.05 },   // about 20% faster than Kampung Laksa
+      twoLane: 0.45, movers: 0.25, narrow: 0, enemies: 0.4, enemyHunt: 1, place: 'skill', powerups: ['magnet', 'shield'],   // enemies: rats scurrying at you; the cat paces the lanes with the cooks
+      // chances of the harder patterns (the rest are plain rows): jump a hurdle then slide a bar in the same lane; two walls whose
+      // open lane moves; a row across all three lanes with a hurdle or bar as the way through; a laksa line with a rat down it;
+      // a cat crossing all three lanes
+      patterns: { jumpSlide: 0.15, doubleSwitch: 0.13, threeLane: 0.12, enemyLaksa: 0.1, crossing: 0.1 },   // the other 40% are plain rows, with their rats
       desc: 'Pots, tables, firewood and hanging utensils, with cooks and a cat crossing the lanes and rats scurrying at you. Each gebuk floats above a hurdle or hides under a rack: jump or slide.',
       heritage: {
         title: 'Dapur Warisan',
@@ -122,8 +131,11 @@ window.GebokConfig = {
     {
       name: 'JEJAK WARISAN', title: 'Jejak Warisan', en: 'Hard', theme: 'A heritage food market', env: 'market',
       need: 7, laksaTarget: 20, gebukEvery: [2, 3],
-      speed: { start: 16, max: 30, accel: 0.18 }, gap: { min: 9, seconds: 0.95 },
-      twoLane: 0.6, movers: 0.35, narrow: 0.15, enemies: 0.45, place: 'trap', powerups: ['magnet', 'shield', 'boost'],   // enemies: monkeys that hunt your lane and fast dogs
+      speed: { start: 17, max: 28, accel: 0.18 }, gap: { min: 8.5, seconds: 0.9 },   // about 40% faster than Kampung Laksa, shorter breathers
+      twoLane: 0.6, movers: 0.3, narrow: 0.12, enemies: 0.5, enemyHunt: 1.2, place: 'trap', powerups: ['magnet', 'shield', 'boost'],   // enemies: monkeys that hunt your lane and fast dogs
+      // as Dapur Warisan, plus two chargers a second apart in different lanes, and sequences: a three-lane row, a jump-slide
+      // and a double switch with only `combo.reaction` seconds of road between them
+      patterns: { jumpSlide: 0.12, doubleSwitch: 0.1, threeLane: 0.13, enemyLaksa: 0.1, enemyPair: 0.1, sequence: 0.1 },   // the other 35% are plain rows, with monkeys that hunt
       desc: 'Stalls, crowds and moving carts, narrow fenced paths and faster rows, with monkeys and dogs charging down the open lanes. Traffic boxes you in, and the gebuk is on the hurdle in the only open lane.',
       heritage: {
         title: 'Jejak Warisan',

@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, unlimited laksa bowls, gebuk missions, charging enemies and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=82">
+<link rel="stylesheet" href="style.css?v=83">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -91,6 +91,7 @@
     <div id="power-boost" class="power" hidden><span>🌶 Cili boost</span><div class="bar"><div id="power-boost-fill"></div></div></div>
   </div>
   <div id="banner" class="banner" hidden></div>
+  <div id="combo" class="combo" hidden></div>
   <div id="countdown" class="countdown" hidden></div>
   <div id="hint" class="hint" hidden></div>
   <svg class="hud-band" viewBox="0 0 1600 40" preserveAspectRatio="xMinYMax slice" aria-hidden="true">
@@ -969,13 +970,13 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="config.js?v=3"></script>
+<script src="config.js?v=4"></script>
 <script src="store.js?v=4"></script>
 <script src="admin.js"></script>
 <script src="platform.js"></script>
 <script src="platformer.js?v=23"></script>
 <script src="crossword.js?v=4"></script>
 <script src="wordsearch.js?v=6"></script>
-<script src="game.js?v=55"></script>
+<script src="game.js?v=56"></script>
 </body>
 </html>

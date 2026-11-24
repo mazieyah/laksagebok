@@ -364,8 +364,47 @@ the plain card.
 
 Laksa bowl +10 (no cap) · gebuk +50 · enemy bowled over with the cili boost
 +20 · gebuk target reached +200 · level complete +300 · no hearts lost +100 · at the end of level 3, +10 per second left (at most
-+600). Scores add up across the three levels; the leaderboard ranks the best run
++600) · combo points (below). Scores add up across the three levels; the leaderboard ranks the best run
 total. Each level's own score is also kept (`levelBest`).
+
+## Difficulty, patterns and combos
+
+The three levels step up (`levels[]` in `config.js`): Kampung Laksa runs at
+12 → 20 with single rows, its first three rows a hurdle, a bar and a wall in
+the middle lane one at a time (`patterns.tutorial`), and the odd boar;
+Dapur Warisan runs about 20 % faster (14.4 → 24) with shorter gaps, rats that
+hunt your lane, cats and cooks pacing across the lanes; Jejak Warisan about
+40 % faster (17 → 28) with the shortest breathers, monkeys and dogs, and
+three-lane rows. Beyond the plain rows, each level draws from a set of harder
+patterns by the chances in `patterns` (`game.js` `SPECIAL`):
+
+| pattern | what it asks | levels |
+|---|---|---|
+| `jumpSlide` | a hurdle, then a bar in the same lane: jump, then slide (swipe down in the air to drop straight into it); laksa over the hurdle and after the bar; another lane stays open, a wall in the third on hard | 2, 3 |
+| `doubleSwitch` | two rows of walls whose open lane moves: one lane change between them, sometimes two on hard | 2, 3 |
+| `threeLane` | one row across all three lanes: walls plus a hurdle or a bar as the way through | 2, 3 |
+| `enemyLaksa` | a line of laksa with a rat or monkey charging down the middle of it | 2, 3 |
+| `crossing` | a cat crossing all three lanes slowly | 2 |
+| `enemyPair` | two chargers a second apart in different lanes; the third lane is open | 3 |
+| `sequence` | a three-lane row, a jump-slide and a double switch back to back | 3 |
+
+Every distance inside a pattern is the speed at spawn time (plus a margin
+for the acceleration) times `combo.reaction` seconds, so there is always
+reaction time and one lane that is open or passable with a single action;
+gebuk rows (`place`) are unchanged: open lanes on easy, above a hurdle or
+under a bar on medium, in the one open lane between walls on hard. Enemies now
+wait in their lane and charge only when the runner is 2.4 s out (`CHASE_LEAD`),
+so they meet the runner where the pattern put them instead of seconds early in
+some other row; `enemyHunt` per level scales how often they hunt your lane.
+
+Combos (`combo` in `config.js`): a hurdle jumped +30, a bar slid under +30,
+an enemy got past (jumped, or let by in the next lane) +20; every third action
+in a row pays +50 and raises the multiplier (×1 → ×1.5 → ×2, capped at ×3);
+the toast under the banner shows it ("x6 GELONGSOR SEMPURNA +45 BONUS +50").
+Any collision, the tudung saji taking the hit included, ends the streak. The
+cili boost smashes through everything but scores no combo, so it cannot farm
+one. `gebokDebug.combo()` and `.patterns()` report the streak, the points and
+how many of each pattern the run spawned.
 
 ## Hearts, power-ups, controls
 
