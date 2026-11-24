@@ -33,7 +33,7 @@ window.GebokConfig = {
       'Demonstrasi gebok: Restoren Laksa Gebok Aki Pian, Temerloh',
       'Proses pembuatan: blog fiezabard.blogspot.com',
     ],
-    version: 'Versi 1.0 · 2026',
+    version: 'Versi 1.1 · 2026',
   },
   music: { src: 'audio/menu-theme.mp4', startAt: 0, loopStart: 10, volume: 0.4, fade: 0.6 },  // menu theme: plays once from startAt (s), then loops loopStart → end; on the register, hub and menu screens only
   // Online player database (Supabase). Run supabase.sql once in the project's SQL editor, then paste the

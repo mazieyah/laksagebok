@@ -254,8 +254,8 @@ One run is the three levels in a row on a single clock: **120 seconds and 3
 hearts for all of them** (`timeLimit`, `lives` in `config.js`). Each level ends
 the moment its gebuk mission is done (laksa bowls are unlimited), and the time left, the hearts left and
 the score carry into the next level. The clock running out, at any level, shows
-Masa Tamat; losing the third heart shows Game Over; both restart the run from
-level 1. Finishing level 3 shows the Heritage Master screen with the run total.
+Masa Tamat; losing the third heart shows the ALAMAK! card; both restart the run
+from level 1. Finishing level 3 shows the TAHNIAH! Heritage Master card with the run total.
 
 | Level | Place | Mission (badge) | Obstacles and enemies |
 |---|---|---|---|
@@ -276,6 +276,46 @@ pulsing in the last 10 s). Active power-ups show as wooden pills under the
 top row, and a batik band runs along the bottom. On phones the logo is hidden
 and both columns shrink to fit side by side. "Restart level" in the pause menu
 keeps the hearts the level began with, but the time already spent stays spent.
+
+## Traveller model
+
+The runner is the rigged Traveller from the Meshy "Stylized Traveler Rig"
+export (a GLB with a 24-bone Mixamo skeleton, skin weights and five Mixamo
+clips: `Running`, `Walking`, `Jump_Run_inplace`, `run_fast_10_inplace` and
+`sliding_stumble`). The 15.7 MB source is re-packed for the web by
+`export-rig.js` (Node + three.js r128, in the session scratchpad) into
+`traveler-rig.json` (884 KB): a glTF JSON with its buffer embedded as base64
+(the artifact host does not serve .glb or .bin), 14,445 vertices / 20,929
+triangles with int8 normals, uint16 uvs and weights (`KHR_mesh_quantization`),
+no tangents, the skeleton with its inverse bind matrices, and only the clips
+the game uses, cut from the Mixamo ones and renamed:
+
+| clip in the file | source | game state |
+|---|---|---|
+| `Running` | `Running`, whole (0.63 s loop) | running, paced by the speed |
+| `Jump` | `Jump_Run_inplace` 0–1.1 s | jump, started at 0.38 s (past the crouch) at 0.8× |
+| `Slide` | `Jump_Run_inplace` 0–0.25 s (the crouch), held | slide (swipe down) |
+| `Fall` | `sliding_stumble` 4.3–5.6 s (trips, lands face down) | hit by an obstacle or enemy; held on the last frame |
+| `Idle` | `sliding_stumble` 9.6–11.3 s (standing), lowered 5 cm | menu scene, countdown, level complete, time up |
+
+The exporter drops the bones' constant translation tracks, locks the hips'
+horizontal translation (no root motion: the game moves the runner) and
+starts the fall after the mocap's floating first seconds. The textures are
+WebP copies of the embedded 4096² maps: `traveler-color.webp` (1024) and
+`traveler-rough.webp` (512, roughness in G; metalness 0); the normal map is
+flat (±2 %) and is left out. `game.js` reads the file with its own small
+glTF reader (nodes, one skinned mesh, textures from the material, animation
+tracks; no GLTFLoader) and drives a `THREE.AnimationMixer` with one action per
+state: run (loop), jump / slide / fall (once, clamped), idle (loop), with
+0.15 s crossfades (`TRAVELER` in `game.js`: file, height, facing, state →
+clip names in order of preference, jump start/pace, fall pace). The mixer
+steps with the frame's dt from `update()`, so it pauses with the game. The
+player group still carries the gameplay transforms (lane x, jump height, the
+lane-change lean, the crash skid); the procedural bob, stride dip, slide
+squash, jump tilt and crash tumble apply only to the voxel runner, which stays
+hidden as the fallback if the file is missing or the browser is offline, or
+to a state whose clip is missing from the file (a warning lists them).
+`gebokDebug.anim()`, `.pose(clip, t)` and `.lowest()` inspect the rig.
 
 ## Enemies
 
@@ -308,6 +348,16 @@ PENCAPAIAN LEVEL badge tiles and the blue MAIN MISI SETERUSNYA button
 (KEPUTUSAN AKHIR after level 3). The level menu and the leaderboard are
 reached from the games hub, not from this card. On phones the stat cards
 stack and the character is hidden.
+
+The ALAMAK! (game over) and TAHNIAH! (final) screens use the same card. ALAMAK!
+has a red ribbon, a gold SKOR TERBAIK BAHARU! pill when the run beat the
+player's best, GEBUK x / need, MANGKUK LAKSA and JARAK stat cards, the SKOR
+KESELURUHAN plate with the run total, the leaderboard rank line and a MULA
+SEMULA button that restarts from level 1. TAHNIAH! keeps the purple ribbon with
+a HERITAGE MASTER pill, the run's GEBUK and MANGKUK LAKSA totals and the MASA
+left, the run total, a "Pencapaian x / 15" line and two buttons: MAIN SEMULA
+(back to the games hub) and KISAH WARISAN (the story). MASA TAMAT still uses
+the plain card.
 
 ## Scoring
 

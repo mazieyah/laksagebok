@@ -189,7 +189,8 @@ body {
 .achievements.big .ach.lit { box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), 0 3px 0 rgba(0,0,0,.3); }
 @media (prefers-reduced-motion: reduce) { .mission-item.pop, .ach.pop { animation: none; } }
 /* active power-ups, banner, hint, the batik band */
-.power-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+/* power-up pills and the banner sit in the sky under the top row, clear of the track where items appear (no transform: the pop animation uses one) */
+.power-row { position: absolute; inset-inline: 0; top: calc(max(12px, env(safe-area-inset-top, 0px)) + 78px); width: max-content; max-width: 46vw; margin-inline: auto; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 .power {
   display: flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px;
   background: linear-gradient(#b4773b, #8a5a2b 55%, #6b4320); border: 2px solid #f2c14e; color: #fff7e0;
@@ -203,6 +204,7 @@ body {
   font-family: var(--font-display); font-weight: 800; font-size: clamp(22px, 5vw, 34px); line-height: 1;
   color: var(--gold); text-shadow: 0 3px 0 var(--accent-deep), 0 6px 18px rgba(0,0,0,.5);
   text-align: center; letter-spacing: 1px; padding: 6px 12px; max-width: 100%;
+  position: absolute; inset-inline: 0; top: calc(max(12px, env(safe-area-inset-top, 0px)) + 112px); width: max-content; max-width: 60vw; margin-inline: auto;
 }
 .banner.pop { animation: pop .5s ease-out; }
 .hint {
@@ -218,6 +220,8 @@ body {
   .hud-logo { display: none; }
   .hud-brand { max-width: 100%; }
   .hud-right { gap: 8px; padding-right: 48px; min-width: 0; }
+  .power-row { top: calc(max(12px, env(safe-area-inset-top, 0px)) + 168px); margin-inline: auto 0; max-width: 55vw; justify-content: flex-end; }
+  .banner { top: calc(max(12px, env(safe-area-inset-top, 0px)) + 204px); margin-inline: auto 0; max-width: 58vw; text-align: right; padding-inline: 0; }
   .hud-stats { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
   .hud-plate { font-size: 13px; padding: 3px 10px 3px 3px; border-width: 2px; }
   .level-plate { padding-right: 12px; }
@@ -2177,7 +2181,7 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .mc-laurel { width: clamp(34px, 4vw, 54px); height: auto; filter: drop-shadow(0 3px 3px rgba(0,0,0,.3)); }
 .mc-boy {
   position: absolute; left: -19%; bottom: 24px; width: clamp(150px, 24vw, 280px); height: auto; pointer-events: none;
-  filter: drop-shadow(10px 14px 10px rgba(20,8,0,.35)); transform: scaleX(-1);
+  filter: drop-shadow(10px 14px 10px rgba(20,8,0,.35));   /* the painting faces right, towards the card */
 }
 .mc-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: 100%; }
 .mc-stat {
@@ -2234,6 +2238,24 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .mc-leaf { position: absolute; bottom: -14px; width: clamp(44px, 5vw, 70px); height: auto; filter: drop-shadow(0 3px 3px rgba(0,0,0,.3)); }
 .mc-leaf.l { left: -18px; transform: rotate(-22deg); }
 .mc-leaf.r { right: -18px; transform: rotate(22deg); }
+/* variants shared by the ALAMAK! (game over) and TAHNIAH! (final) cards */
+.mc-title.red { background: linear-gradient(#e8453a, #a7121c 55%, #7d0b16); box-shadow: inset 0 0 0 2px #4e0a12, 0 6px 0 #4e0a12, 0 10px 18px rgba(0,0,0,.4); }
+.mc-best {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 18px 7px; border-radius: 999px; margin-top: -2px;
+  background: linear-gradient(#ffe27a, #f0a81a); border: 3px solid #c98a12; color: #6a2a0a;
+  font-family: var(--font-display); font-weight: 800; font-size: clamp(14px, 1.5vw, 19px); letter-spacing: 1.5px; line-height: 1;
+  box-shadow: inset 0 0 0 2px #fff6dc, 0 4px 0 #7a4a22, 0 8px 14px rgba(0,0,0,.3); text-shadow: 0 1px 0 rgba(255,255,255,.6);
+  animation: pop .35s ease-out;
+}
+.mc-ico.route svg { fill: #e23b2f; filter: drop-shadow(0 2px 0 rgba(0,0,0,.2)); }
+.mc-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.mc-btns .mc-next { font-size: clamp(17px, 1.9vw, 22px); padding: 7px 26px 9px 10px; gap: 10px; }
+.mc-btns .mc-next-ico { width: clamp(30px, 3vw, 38px); height: clamp(30px, 3vw, 38px); }
+#final .mc-boy { left: -22%; }   /* two buttons: keep the traveller clear of MAIN SEMULA */
+.mc-next.alt { background: linear-gradient(#a24ddc, #6a1fb0 55%, #4d157f); box-shadow: inset 0 3px 0 rgba(255,255,255,.3), inset 0 0 0 2px #3a0f60, 0 6px 0 #2a0b48, 0 12px 22px rgba(0,0,0,.35); text-shadow: 0 2px 0 #2a0b48; }
+.mc-next.alt:active { box-shadow: inset 0 3px 0 rgba(255,255,255,.3), inset 0 0 0 2px #3a0f60, 0 2px 0 #2a0b48; }
+.mc-next.alt .mc-next-ico svg { fill: #6a1fb0; }
+.mc-next-ico.rep svg { width: 62%; height: 62%; margin-left: 0; }
 @media (max-width: 860px) { .mc-boy { display: none; } }
 @media (max-width: 600px) {
   .mc-wrap { gap: 22px; }
@@ -2252,5 +2274,8 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
   .mc-ach { padding: 20px 8px 8px; }
   .mc-ach .achievements.big .ach { width: 42px; height: 42px; font-size: 20px; }
   .mc-next { font-size: 18px; padding: 8px 22px 10px 10px; gap: 10px; }
+  .mc-btns { flex-direction: column; align-items: stretch; width: 100%; gap: 8px; }
+  .mc-btns .mc-next { justify-content: center; }
+  .mc-best { font-size: 13px; padding: 5px 14px 6px; }
   .mc-leaf { display: none; }
 }

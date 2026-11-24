@@ -60,9 +60,9 @@
     'complete', 'complete-title', 'c-laksa', 'c-gebuk', 'c-score',
     'complete-rank', 'next', 'next-text',
     'incomplete', 'i-gebuk', 'i-need', 'i-laksa', 'i-score', 'i-lives', 'retry-inc', 'inc-menu',
-    'over', 'new-best', 'final-score', 'final-laksa', 'final-gebuk', 'final-dist', 'final-mission', 'final-rank', 'again', 'over-menu', 'over-lb',
-    'final', 'f-score', 'f-laksa', 'f-gebuk', 'final-replay', 'final-story', 'final-lb',
-    'timer', 'b-time', 'hub-start', 'c-timeleft', 'c-total', 'i-level', 'f-time', 'f-lives',
+    'over', 'new-best', 'final-score', 'final-laksa', 'final-gebuk', 'final-dist', 'final-rank', 'again',
+    'final', 'f-score', 'f-laksa', 'f-gebuk', 'final-replay', 'final-story',
+    'timer', 'hub-start', 'c-timeleft', 'c-total', 'i-level', 'f-time',
     'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-music', 'settings-sfx', 'st-tabs', 'settings-switch', 'settings-back', 'settings-player', 'about-studio', 'about-text', 'about-credits', 'about-version', 'achv', 'achv-list', 'achv-back',
     'intro', 'intro-tabs', 'intro-body', 'intro-back', 'intro-dots', 'intro-pager', 'intro-skip', 'intro-next', 'intro-next-text', 'menu-scene', 'level-name'];
   const ui = {};
@@ -790,8 +790,8 @@
     const SKIN = 0xf1c9a3, HAIR = 0x161618, CAP = 0x1b1b20, PINK = 0xd6249a, PINK_D = 0x7d1259;
     const JACKET = 0x6e4b2c, PANTS = 0x4a3220, NAVY = 0x25306e, NAVY_D = 0x1a2250;
     const GREEN = 0x79b23a, GREEN_D = 0x4f7f23, SHOE = 0xf5f5f5, BLACK = 0x1a1a1a;
-    const g = new THREE.Group();
-    g.add(solid(merge([
+    const g = new THREE.Group(), voxel = new THREE.Group();   // voxel = the blocky fallback runner, hidden once traveler.glb loads
+    voxel.add(solid(merge([
       box(JACKET, 0, 1.04, 0, 0.64, 0.74, 0.38), box(NAVY, 0, 1.02, -0.195, 0.05, 0.66, 0.015), box(NAVY, 0, 1.39, 0, 0.5, 0.1, 0.4),
       part(G.cyl, GREEN, 0.14, 1.14, -0.2, 0.2, 0.02, 0.2, Math.PI / 2), part(G.cyl, GREEN_D, 0.14, 1.14, -0.215, 0.08, 0.02, 0.08, Math.PI / 2),
       box(NAVY, 0, 1.05, 0.34, 0.52, 0.62, 0.28), box(NAVY_D, 0, 0.88, 0.49, 0.42, 0.26, 0.04),
@@ -820,11 +820,181 @@
     aura.rotation.x = Math.PI / 2; aura.position.y = 1.0; aura.visible = false;
     const bubble = new THREE.Mesh(new THREE.SphereGeometry(1.25, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffd45a, transparent: true, opacity: 0.22, depthWrite: false }));
     bubble.position.y = 1.0; bubble.visible = false;
-    g.add(legL, legR, armL, armR, aura, bubble);
+    voxel.add(legL, legR, armL, armR);
+    g.add(voxel, aura, bubble);
     scene.add(g);
-    return { group: g, legL, legR, armL, armR, aura, bubble, lane: 1, x: 0, y: 0, vy: 0, jumping: false, rolling: false, rollT: 0, queuedRoll: false };
+    return { group: g, voxel, model: null, legL, legR, armL, armR, aura, bubble, lane: 1, x: 0, y: 0, vy: 0, jumping: false, rolling: false, rollT: 0, queuedRoll: false };
   }
   const player = buildPlayer();
+  // The Traveller's rigged model (traveler-rig.json: the Meshy/Mixamo GLB re-packed by export-rig.js, textures as
+  // WebP) replaces the voxel runner once it has loaded, and its clips drive the run, jump, slide and fall. The voxel
+  // runner stays as the fallback if the files are missing or the browser is offline; a state whose clip is missing
+  // keeps the procedural pose it had before.
+  const TRAVELER = {
+    url: 'traveler-rig.json', height: 2.15, yaw: Math.PI,
+    clips: {                                                // game state -> clip names, most preferred first
+      run: ['Running', 'run_fast_10_inplace', 'Walking'], jump: ['Jump', 'Jump_Run_inplace'], slide: ['Slide'],
+      fall: ['Fall', 'sliding_stumble'], idle: ['Idle'],
+    },
+    jumpOffset: 0.38, jumpSpeed: 0.8, fallSpeed: 1.2, fade: 0.15,   // the jump clip starts at its launch (the crouch is behind us) and plays a little slow; the fall's time scale; crossfade seconds
+  };
+  function parseGltf(ab) {                                 // minimal glTF reader: a .glb, or a .gltf/.json with its buffer embedded as base64
+    const dv = new DataView(ab);
+    let json = null, bin = null;
+    if (ab.byteLength > 12 && dv.getUint32(0, true) === 0x46546C67) {
+      const len = dv.getUint32(8, true);
+      let off = 12;
+      while (off < len) {
+        const cl = dv.getUint32(off, true), ct = dv.getUint32(off + 4, true); off += 8;
+        if (ct === 0x4E4F534A) json = JSON.parse(new TextDecoder().decode(new Uint8Array(ab, off, cl)));
+        else if (ct === 0x004E4942) bin = ab.slice(off, off + cl);
+        off += cl;
+      }
+    } else {
+      json = JSON.parse(new TextDecoder().decode(ab));
+      const uri = json.buffers[0].uri || '';
+      if (!uri.startsWith('data:')) throw new Error('glTF buffer is not embedded');
+      const raw = atob(uri.slice(uri.indexOf(',') + 1)), bytes = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+      bin = bytes.buffer;
+    }
+    const T = { 5120: Int8Array, 5121: Uint8Array, 5122: Int16Array, 5123: Uint16Array, 5125: Uint32Array, 5126: Float32Array };
+    const K = { SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4, MAT4: 16 };
+    const array = (i) => {
+      const a = json.accessors[i], bv = json.bufferViews[a.bufferView];
+      return new T[a.componentType](bin, (bv.byteOffset || 0) + (a.byteOffset || 0), a.count * K[a.type]);
+    };
+    const attr = (i) => new THREE.BufferAttribute(array(i), K[json.accessors[i].type], !!json.accessors[i].normalized);
+    return { json, array, attr };
+  }
+  // Builds the scene of the first glTF scene: nodes (bones for the skin's joints), one skinned or plain mesh, the
+  // material's textures, and the animation clips. Returns { root, mesh, clips, rootBone }.
+  function buildGltf(gltf) {
+    const { json, array, attr } = gltf;
+    const joints = new Set((json.skins || []).flatMap((s) => s.joints));
+    const tl = new THREE.TextureLoader();
+    const tex = (ti) => { if (ti === undefined || !json.textures || !json.images) return null; const img = json.images[json.textures[ti].source]; if (!img || !img.uri) return null; const t = tl.load(img.uri); t.flipY = false; return t; };   // glTF uv convention
+    const nodes = json.nodes.map((n) => {
+      let o;
+      if (n.mesh !== undefined) {
+        const prim = json.meshes[n.mesh].primitives[0], geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', attr(prim.attributes.POSITION));
+        if (prim.attributes.NORMAL !== undefined) geo.setAttribute('normal', attr(prim.attributes.NORMAL)); else geo.computeVertexNormals();
+        if (prim.attributes.TEXCOORD_0 !== undefined) geo.setAttribute('uv', attr(prim.attributes.TEXCOORD_0));
+        if (prim.indices !== undefined) geo.setIndex(attr(prim.indices));
+        const skinned = n.skin !== undefined && prim.attributes.JOINTS_0 !== undefined && prim.attributes.WEIGHTS_0 !== undefined;
+        if (skinned) { geo.setAttribute('skinIndex', attr(prim.attributes.JOINTS_0)); geo.setAttribute('skinWeight', attr(prim.attributes.WEIGHTS_0)); }
+        const md = (json.materials || [])[prim.material] || {}, pbr = md.pbrMetallicRoughness || {};
+        const mat = new THREE.MeshStandardMaterial({
+          map: tex(pbr.baseColorTexture && pbr.baseColorTexture.index), roughnessMap: tex(pbr.metallicRoughnessTexture && pbr.metallicRoughnessTexture.index),
+          normalMap: tex(md.normalTexture && md.normalTexture.index), metalness: pbr.metallicFactor === undefined ? 0 : pbr.metallicFactor, roughness: 1,
+          side: md.doubleSided ? THREE.DoubleSide : THREE.FrontSide, skinning: skinned,
+        });
+        o = skinned ? new THREE.SkinnedMesh(geo, mat) : new THREE.Mesh(geo, mat);
+        o.castShadow = true;
+        o.frustumCulled = false;                           // a skinned mesh's bounds move with its bones
+        o.userData.skin = skinned ? n.skin : undefined;
+      } else o = joints.has(json.nodes.indexOf(n)) ? new THREE.Bone() : new THREE.Object3D();
+      o.name = n.name || '';
+      if (n.translation) o.position.fromArray(n.translation);
+      if (n.rotation) o.quaternion.fromArray(n.rotation);
+      if (n.scale) o.scale.fromArray(n.scale);
+      return o;
+    });
+    json.nodes.forEach((n, i) => (n.children || []).forEach((c) => nodes[i].add(nodes[c])));
+    const root = new THREE.Group();
+    (json.scenes[json.scene || 0].nodes || []).forEach((i) => root.add(nodes[i]));
+    root.updateMatrixWorld(true);
+    let mesh = null, rootBone = null;
+    nodes.forEach((o) => {
+      if (!o.isMesh) return;
+      mesh = o;
+      if (o.userData.skin === undefined) return;
+      const skin = json.skins[o.userData.skin], bones = skin.joints.map((j) => nodes[j]), inv = skin.inverseBindMatrices !== undefined ? array(skin.inverseBindMatrices) : null;
+      const inverses = bones.map((b, j) => inv ? new THREE.Matrix4().fromArray(inv, j * 16) : new THREE.Matrix4());
+      o.bind(new THREE.Skeleton(bones, inverses), new THREE.Matrix4());   // identity bind matrix: the joints alone place the skin, as glTF defines it
+      rootBone = bones[0];
+    });
+    const clips = {};
+    (json.animations || []).forEach((a, ai) => {
+      const tracks = [];
+      a.channels.forEach((ch) => {
+        const s = a.samplers[ch.sampler], node = nodes[ch.target.node];
+        if (!node || s.interpolation === 'CUBICSPLINE') return;   // cubic splines are not read; the exporter writes linear keys
+        const times = array(s.input), values = array(s.output), interp = s.interpolation === 'STEP' ? THREE.InterpolateDiscrete : THREE.InterpolateLinear;
+        if (ch.target.path === 'rotation') tracks.push(new THREE.QuaternionKeyframeTrack(node.uuid + '.quaternion', times, values, interp));
+        else if (ch.target.path === 'translation') {
+          if (node === rootBone) for (let i = 3; i < values.length; i += 3) { values[i] = values[0]; values[i + 2] = values[2]; }   // no root motion: the game moves the runner
+          tracks.push(new THREE.VectorKeyframeTrack(node.uuid + '.position', times, values, interp));
+        } else if (ch.target.path === 'scale') tracks.push(new THREE.VectorKeyframeTrack(node.uuid + '.scale', times, values, interp));
+      });
+      if (tracks.length) clips[a.name || ('clip' + ai)] = new THREE.AnimationClip(a.name || ('clip' + ai), -1, tracks);
+    });
+    return { root, mesh, clips, rootBone };
+  }
+  // The Traveller's animation: one AnimationMixer, one action per game state, crossfades between them.
+  const anim = { mixer: null, actions: {}, clipFor: {}, current: null, name: '', hold: false };
+  function playAnim(name, o) {
+    const a = anim.actions[name];
+    if (!a) return false;
+    o = o || {};
+    if (anim.name === name && !o.restart) { if (o.timeScale !== undefined) a.timeScale = o.timeScale; return true; }
+    const prev = anim.current;
+    a.reset();
+    a.setLoop(o.once ? THREE.LoopOnce : THREE.LoopRepeat, Infinity);
+    a.clampWhenFinished = !!o.once;
+    a.timeScale = o.timeScale === undefined ? 1 : o.timeScale;
+    a.time = o.offset || 0;
+    a.play();
+    if (prev && prev !== a) prev.crossFadeTo(a, o.fade === undefined ? TRAVELER.fade : o.fade, false);
+    anim.current = a; anim.name = name;
+    return true;
+  }
+  function loadTraveler() {
+    return fetch(TRAVELER.url).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); }).then((ab) => {
+      const gltf = parseGltf(ab), built = buildGltf(gltf);
+      if (!built.mesh) throw new Error('no mesh in ' + TRAVELER.url);
+      const pos = gltf.json.accessors[gltf.json.meshes[0].primitives[0].attributes.POSITION];
+      let h;
+      if (pos.min && pos.max) h = pos.max[1] - pos.min[1];
+      else { built.mesh.geometry.computeBoundingBox(); h = built.mesh.geometry.boundingBox.max.y - built.mesh.geometry.boundingBox.min.y; }
+      const model = built.root;
+      model.scale.setScalar(TRAVELER.height / h);
+      model.rotation.y = TRAVELER.yaw;
+      if (built.mesh.isSkinnedMesh && Object.keys(built.clips).length) {
+        anim.mixer = new THREE.AnimationMixer(model);
+        for (const st in TRAVELER.clips) {
+          const clipName = TRAVELER.clips[st].find((n) => built.clips[n]);
+          if (!clipName) continue;
+          anim.clipFor[st] = clipName;
+          anim.actions[st] = anim.mixer.clipAction(built.clips[clipName]);
+        }
+        anim.names = Object.keys(built.clips); anim.clips = built.clips;
+        const missing = Object.keys(TRAVELER.clips).filter((st) => !anim.clipFor[st]);
+        if (missing.length) console.warn('Traveller clips missing for: ' + missing.join(', ') + ' (procedural pose kept); clips in the file: ' + anim.names.join(', '));
+      }
+      player.model = model; player.voxel.visible = false; player.group.add(model);
+      return model;
+    });
+  }
+  loadTraveler().catch((e) => console.warn('Traveller model not loaded, keeping the voxel runner:', e));
+  // Picks the clip for the game's state each frame and advances the mixer. Procedural poses stay only for a state
+  // without a clip (see animatePlayer, updateHit, updateDeath).
+  function updateTravelerAnim(dt) {
+    if (!anim.mixer) return;
+    if (!anim.hold) {
+      const P = player;
+      if (stageOn && state === 'menu') playAnim('idle') || playAnim('run', { timeScale: 0.9 });
+      else if (state === 'hit' || state === 'dead') playAnim('fall', { once: true, timeScale: TRAVELER.fallSpeed, fade: 0.08 });
+      else if (state === 'won' || state === 'incomplete') playAnim('idle') || playAnim('run', { timeScale: 0.9 });
+      else if (state === 'ready') playAnim('idle') || playAnim('run', { timeScale: 0.9 });
+      else if (P.rolling) playAnim('slide', { once: true, fade: 0.1 }) || playAnim('run');
+      else if (P.jumping) playAnim('jump', { once: true, offset: TRAVELER.jumpOffset, timeScale: TRAVELER.jumpSpeed, fade: 0.1 }) || playAnim('run');
+      else playAnim('run', { timeScale: THREE.MathUtils.clamp(speed * (boostT > 0 ? PW.boostMultiplier : 1) * 0.075 + 0.25, 0.9, 1.8) });
+    }
+    anim.mixer.update(dt);
+  }
+  const rigged = (st) => !!(player.model && anim.actions[st]);   // this state is animated by the rig, not procedurally
   // Lelaki Misteri: the hooded elder from "Jejak Warisan Laksa Gebok", holding a glowing stone.
   function buildElder() {
     const ROBE = 0xf1e4cf, CAPE = 0x6f8a3a, SKIN = 0xd9a066, BEARD = 0xf4f4f4, SASH = 0xc9a35a, DARK = 0x1a1a1a;
@@ -1493,20 +1663,21 @@
     invT = CFG.invincibleAfterHit;
     state = 'playing';
   }
+  // The crash: the voxel runner tips over and skids back; the rig plays its Fall clip and only skids a little.
+  function tumble() {
+    const g = player.group, rig = rigged('fall');
+    if (!rig) g.rotation.x = Math.min(Math.PI / 2, deathT * 4.5);
+    g.position.z = Math.min(rig ? 1.2 : 2.5, deathT * 4);
+    g.position.y = Math.max(0, deathY - deathT * 6);
+  }
   function updateHit(dt) {
     deathT += dt;
-    const g = player.group;
-    g.rotation.x = Math.min(Math.PI / 2, deathT * 4.5);
-    g.position.z = Math.min(2.5, deathT * 4);
-    g.position.y = Math.max(0, deathY - deathT * 6);
+    tumble();
     if (deathT > 1.0) revive();
   }
   function updateDeath(dt) {
     deathT += dt;
-    const g = player.group;
-    g.rotation.x = Math.min(Math.PI / 2, deathT * 4.5);
-    g.position.z = Math.min(2.5, deathT * 4);
-    g.position.y = Math.max(0, deathY - deathT * 6);
+    tumble();
     if (deathT > 1.1 && !overShown) showGameOver();
   }
   function renderAchievements(container) {
@@ -1625,7 +1796,6 @@
     ui.finalGebuk.textContent = levelCount + ' / ' + curLevel().need;
     ui.finalDist.textContent = Math.floor(runDist) + ' m';
     ui.newBest.hidden = !isNewBest;
-    ui.finalMission.textContent = 'Level ' + (level + 1) + ' · ' + curLevel().title + ' · all ' + CFG.lives + ' ♥ lost · ' + fmtClock(timeLeft()) + ' was left';
     ui.bestStart.textContent = best;
     showRank(ui.finalRank);
     ui.over.hidden = false;
@@ -1636,7 +1806,6 @@
     ui.hud.hidden = true; ui.banner.hidden = true;
     ui.fScore.textContent = fmt(campaignScore);
     ui.fTime.textContent = fmtClock(timeLeft());
-    ui.fLives.textContent = '♥'.repeat(lives) + '♡'.repeat(CFG.lives - lives);
     ui.fAch.textContent = campaignAch + ' / ' + (ACH.length * 3);
     ui.fLaksa.textContent = fmt(campaignLaksa);
     ui.fGebuk.textContent = fmt(campaignGebuk);
@@ -2403,19 +2572,26 @@
     g.rotation.z = -lean;
     g.rotation.y = lean * 0.6;
     if (P.rolling) {
-      g.scale.y = 0.5; g.rotation.x = -0.35;
+      if (rigged('slide')) { g.scale.y = 1; g.rotation.x = 0; }                                         // the Slide clip crouches the rig
+      else { g.scale.y = 0.5; g.rotation.x = -0.35; }
       P.legL.rotation.x = 1.3; P.legR.rotation.x = 1.3; P.armL.rotation.x = 1.6; P.armR.rotation.x = 1.6;
     } else if (P.jumping) {
-      g.scale.y = 1; g.rotation.x = -0.1;
+      g.scale.y = 1; g.rotation.x = rigged('jump') ? 0 : -0.1;
       P.legL.rotation.x = -0.9; P.legR.rotation.x = 0.5; P.armL.rotation.x = -2.4; P.armR.rotation.x = -2.0;
     } else {
-      g.scale.y = 1; g.rotation.x = -0.08;
-      runPhase += dt * Math.max(speed, state === 'ready' ? 4 : 0) * 0.95;
+      g.scale.y = 1;
+      runPhase += dt * Math.max(speed, state === 'ready' ? 4 : 0) * 0.95;                             // also paces the camera bob
       const sw = Math.sin(runPhase);
       P.legL.rotation.x = sw * 0.95; P.legR.rotation.x = -sw * 0.95;
       P.armL.rotation.x = -sw * 0.9; P.armR.rotation.x = sw * 0.9;
-      g.position.y += Math.abs(Math.cos(runPhase)) * 0.07;
+      if (rigged('run')) g.rotation.x = 0;                                                              // the Running clip carries the stride
+      else {
+        g.rotation.x = -0.08 - (P.model ? (1 - Math.abs(Math.cos(runPhase))) * 0.06 : 0);              // the voxel runner (or a rig with no run clip) bobs and dips
+        g.position.y += Math.abs(Math.cos(runPhase)) * 0.07;
+        if (P.model) P.model.rotation.z = sw * 0.06;
+      }
     }
+    if (P.model && (P.rolling || P.jumping || rigged('run'))) P.model.rotation.z = 0;
     P.aura.visible = magnetT > 0 || boostT > 0;
     if (P.aura.visible) {
       P.aura.material.color.setHex(boostT > 0 ? 0xff5a2d : 0xffd45a);
@@ -2550,6 +2726,7 @@
     for (const c of clouds) { c.position.x += dt * 0.6; if (c.position.x > 160) c.position.x = -160; }
 
     animatePlayer(dt);
+    updateTravelerAnim(dt);
     updateCamera(dt);
     if (state === 'playing' || state === 'ready') updateHud();
   }
@@ -2644,11 +2821,8 @@
   ui.retryInc.addEventListener('click', startCampaign);
   ui.incMenu.addEventListener('click', showHub);
   ui.again.addEventListener('click', startCampaign);
-  ui.overMenu.addEventListener('click', showHub);
-  ui.overLb.addEventListener('click', showLeaderboard);
   ui.finalReplay.addEventListener('click', showHub);
   ui.finalStory.addEventListener('click', showStory);
-  ui.finalLb.addEventListener('click', showLeaderboard);
   let resetArmed = 0;
   ui.reset.addEventListener('click', () => {
     if (Date.now() - resetArmed < 4000) {
@@ -2731,6 +2905,30 @@
         levelCount, gebukRun, env: envName, obstacles: obstacles.length, laksas: laksas.length, powerups: powerups.length, gebuks: gebuks.length, scenery: scenery.length,
         runStats: Object.assign({}, runStats), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
     },
+    anim() {                                                           // the rig's clips, the state -> clip mapping and what plays now
+      return { rigged: !!(player.model && anim.mixer), clips: anim.names || [], map: Object.assign({}, anim.clipFor), current: anim.name, hold: anim.hold,
+        time: anim.current ? +anim.current.time.toFixed(3) : 0, running: anim.current ? anim.current.isRunning() : false, weight: anim.current ? +anim.current.getEffectiveWeight().toFixed(2) : 0 };
+    },
+    pose(st, t) {                                                     // hold one clip (a state or clip name) at time t, drawn; pose() releases it
+      if (!anim.mixer) return false;
+      if (st == null) { anim.hold = false; return true; }
+      const clip = anim.actions[st] ? anim.actions[st].getClip() : anim.clips && anim.clips[st];
+      if (!clip) return false;
+      anim.hold = true; anim.mixer.stopAllAction();
+      const a = anim.mixer.clipAction(clip); a.reset(); a.play(); a.paused = true; a.time = t || 0; anim.mixer.update(0);
+      anim.current = a; anim.name = '';
+      renderer.render(scene, camera);
+      return true;
+    },
+    lowest() {                                                        // the rig's lowest point in its current pose, in player units (0 = the road)
+      let mesh = null; if (player.model) player.model.traverse((o) => { if (o.isSkinnedMesh) mesh = o; });
+      if (!mesh) return null;
+      player.group.updateMatrixWorld(true);
+      const inv = new THREE.Matrix4().copy(player.group.matrixWorld).invert(), v = new THREE.Vector3(), n = mesh.geometry.attributes.position.count;
+      let min = Infinity;
+      for (let i = 0; i < n; i++) { mesh.boneTransform(i, v); v.applyMatrix4(mesh.matrixWorld).applyMatrix4(inv); if (v.y < min) min = v.y; }
+      return +min.toFixed(3);
+    },
     obstacles() { return obstacles.map((o) => ({ kind: o.kind, name: o.name, x: +o.x.toFixed(2), z: +(dist - o.s).toFixed(2), depth: o.depth, mover: !!o.mover, enemy: o.enemy, hunting: !!(o.chase && o.chase.hunt), locked: !!(o.chase && o.chase.locked) })); },
     gebuks() { return gebuks.map((g) => ({ x: g.x, y: g.y, z: +(dist - g.s).toFixed(2) })); },
     powerups() { return powerups.map((p) => ({ type: p.type, x: p.x, z: +(dist - p.s).toFixed(2) })); },
@@ -2741,7 +2939,7 @@
     },
     startCampaign, selectLevel, showSettings, showAchievements, setStage, elder,
     skipReady() { if (state === 'ready') { readyT = 0; update(0); } },
-    move, jump, roll, start: (l) => startGame(typeof l === 'number' ? l : undefined), nextLevel, showHub, showRegister, showLeaderboard, showStory, showFinal, showComplete,
+    move, jump, roll, start: (l) => startGame(typeof l === 'number' ? l : undefined), nextLevel, showHub, showRegister, showLeaderboard, showStory, showFinal, showComplete, showGameOver,
     register: (u, e) => GebokStore.register(u, e).then((p) => { useProfile(p); return p; }),
     store: window.GebokStore, player, sfx, applyPowerup,
     showGames: () => window.LaksaArcade.showGames(), setLbTab, goBack, intro, showResults,
