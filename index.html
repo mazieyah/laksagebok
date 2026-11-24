@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Laksa Arcade</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
+<meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, unlimited laksa bowls, gebuk missions, charging enemies and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=74">
+<link rel="stylesheet" href="style.css?v=79">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -31,28 +31,58 @@
     <g fill="currentColor"><ellipse cx="12" cy="5" rx="3" ry="5"/><ellipse cx="12" cy="19" rx="3" ry="5"/><ellipse cx="5" cy="12" rx="5" ry="3"/><ellipse cx="19" cy="12" rx="5" ry="3"/></g>
     <circle cx="12" cy="12" r="2.4" fill="currentColor" opacity=".45"/>
   </symbol>
+  <symbol id="heart-svg" viewBox="0 0 32 30">
+    <path d="M16 28.5C9 22.8 2 17.2 2 10.2 2 5.6 5.5 2 10 2c2.6 0 4.8 1.3 6 3.2C17.2 3.3 19.4 2 22 2c4.5 0 8 3.6 8 8.2 0 7-7 12.6-14 18.3z"/>
+    <path class="heart-shine" d="M8.5 7.2a3.6 3.6 0 0 1 3.1-1.7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+  </symbol>
+  <pattern id="batik-pat" width="64" height="64" patternUnits="userSpaceOnUse">
+    <use href="#batik-motif" x="6" y="8" width="24" height="24" color="#ffd54a"/>
+    <use href="#batik-motif" x="38" y="38" width="20" height="20" color="#ffd54a"/>
+    <circle cx="46" cy="14" r="2.2" fill="#ffd54a"/><circle cx="14" cy="48" r="2.2" fill="#ffd54a"/>
+  </pattern>
 </svg>
 
-<button id="mute" class="icon-btn" aria-label="Bunyi" title="Bunyi hidup / mati" aria-pressed="false">🔊</button>
+<button id="mute" class="icon-btn hud-sound" aria-label="Bunyi" title="Bunyi hidup / mati" aria-pressed="false"><img src="nav-sound.png" alt=""></button>
 
 <div id="hud" hidden>
   <div class="hud-top">
     <div class="hud-left">
-      <div id="level-label" class="hud-label">LEVEL 1 · KAMPUNG LAKSA</div>
-      <div id="score" class="hud-big">0</div>
-      <div id="dist" class="hud-small">0 m</div>
-      <div class="hud-label hud-sub">MISI</div>
-      <ul id="missions" class="missions">
-        <li id="m-gebuk" class="mission-item"><svg class="gebuk-icon" aria-hidden="true"><use href="#gebuk-svg"/></svg><span class="m-text">Kutip gebuk</span><span id="m-gebuk-n" class="m-count">0 / 3</span></li>
-        <li id="m-laksa" class="mission-item"><span class="m-icon" aria-hidden="true">🍜</span><span class="m-text">Kutip laksa</span><span id="m-laksa-n" class="m-count">0 / 10</span></li>
-      </ul>
-      <div class="hud-label hud-sub">PENCAPAIAN</div>
-      <div id="achievements" class="achievements" aria-label="Achievements"></div>
+      <div class="hud-brand">
+        <img class="hud-logo" src="gebok-logo.png" alt="Laksa Gebok Run">
+        <div id="level-label" class="hud-plate level-plate" title="Level 1 / 3">
+          <span class="plate-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.6A2.6 2.6 0 1 1 12 6.4a2.6 2.6 0 0 1 0 5.2z"/></svg></span>
+          <span id="level-name">Kampung Laksa</span>
+        </div>
+      </div>
+      <section class="hud-panel misi" aria-label="Misi">
+        <svg class="panel-leaf l" viewBox="0 0 60 40" aria-hidden="true"><path d="M2 36C10 10 40 2 58 4 50 24 28 38 2 36z" fill="#3f9a3a"/><path d="M4 35C20 24 36 14 56 5" stroke="#2c6e2a" stroke-width="2" fill="none"/></svg>
+        <svg class="panel-leaf r" viewBox="0 0 60 40" aria-hidden="true"><path d="M58 36C50 10 20 2 2 4 10 24 32 38 58 36z" fill="#3f9a3a"/><path d="M56 35C40 24 24 14 4 5" stroke="#2c6e2a" stroke-width="2" fill="none"/></svg>
+        <div class="panel-tag">MISI</div>
+        <ul id="missions" class="missions">
+          <li id="m-gebuk" class="mission-item"><span class="m-icon" aria-hidden="true"><svg class="gebuk-icon"><use href="#gebuk-svg"/></svg></span><span class="m-text">Kutip gebuk</span><span id="m-gebuk-n" class="m-count">0 / 3</span><span class="m-check" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></li>
+          <li id="m-laksa" class="mission-item tally" title="Mangkuk laksa dikutip: tiada had, +10 setiap satu"><span class="m-icon" aria-hidden="true"><img src="laksa-bowl.png" alt=""></span><span class="m-text">Mangkuk laksa</span><span id="m-laksa-n" class="m-count">0</span></li>
+        </ul>
+      </section>
+      <section class="hud-panel pencapaian" aria-label="Pencapaian">
+        <div class="panel-tag purple">
+          <svg class="laurel l" viewBox="0 0 24 32" aria-hidden="true"><path d="M20 2C8 6 4 16 6 30M9 8c-4 0-6-3-6-6 3 0 6 2 6 6zm-3 8c-4 1-7-1-8-4 3-1 7 0 8 4zm0 8c-4 2-7 1-9-2 3-2 7-1 9 2z" fill="#f2c14e" stroke="#f2c14e" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <span>PENCAPAIAN</span>
+          <svg class="laurel r" viewBox="0 0 24 32" aria-hidden="true"><path d="M4 2c12 4 16 14 14 28M15 8c4 0 6-3 6-6-3 0-6 2-6 6zm3 8c4 1 7-1 8-4-3-1-7 0-8 4zm0 8c4 2 7 1 9-2-3-2-7-1-9 2z" fill="#f2c14e" stroke="#f2c14e" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <div id="achievements" class="achievements" aria-label="Pencapaian larian ini"></div>
+      </section>
     </div>
     <div class="hud-right">
-      <div id="hearts" class="hearts" aria-label="Lives"><span class="heart">♥</span><span class="heart">♥</span><span class="heart">♥</span></div>
-      <div id="timer" class="timer">2:00</div>
-      <button id="pause-btn" class="icon-btn hud-btn" type="button" aria-label="Pause">⏸</button>
+      <div class="hud-stats">
+        <div class="hud-plate stat" title="Skor"><span class="plate-ico star" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg></span><span id="score">0</span></div>
+        <div class="hud-plate stat" title="Jarak"><span class="plate-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm-1 7h2v3h4a3 3 0 0 1 0 6h-6a1 1 0 0 0 0 2h7v2H11a3 3 0 0 1 0-6h6a1 1 0 0 0 0-2h-4v2h-2z"/></svg></span><span id="dist">0 m</span></div>
+        <button id="pause-btn" class="round-btn hud-round" type="button" aria-label="Jeda" title="Jeda"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="4.5" width="5" height="15" rx="1.8"/><rect x="13.5" y="4.5" width="5" height="15" rx="1.8"/></svg></button>
+      </div>
+      <div id="hearts" class="hearts hud-hearts" aria-label="Nyawa"><span class="heart"><svg aria-hidden="true"><use href="#heart-svg"/></svg></span><span class="heart"><svg aria-hidden="true"><use href="#heart-svg"/></svg></span><span class="heart"><svg aria-hidden="true"><use href="#heart-svg"/></svg></span></div>
+      <div class="timer-plate" title="Masa larian">
+        <span class="timer-ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M6 5l4-3 2 2.5-4 3zM26 5l-4-3-2 2.5 4 3z" fill="#c22a22"/><circle cx="16" cy="18" r="11" fill="#e8342e" stroke="#8a1210" stroke-width="2"/><circle cx="16" cy="18" r="7.5" fill="#fff8ea"/><path d="M16 12.5V18l3.6 2.4" fill="none" stroke="#8a1210" stroke-width="2" stroke-linecap="round"/><rect x="14.6" y="4" width="2.8" height="3" fill="#8a1210"/></svg></span>
+        <span id="timer" class="timer">2:00</span>
+      </div>
     </div>
   </div>
   <div class="power-row">
@@ -63,6 +93,11 @@
   <div id="banner" class="banner" hidden></div>
   <div id="countdown" class="countdown" hidden></div>
   <div id="hint" class="hint" hidden></div>
+  <svg class="hud-band" viewBox="0 0 1600 40" preserveAspectRatio="xMinYMax slice" aria-hidden="true">
+    <rect width="1600" height="40" fill="#4a2208"/>
+    <rect y="6" width="1600" height="34" fill="url(#batik-pat)" opacity=".9"/>
+    <rect width="1600" height="3" fill="#ffd54a"/><rect y="5" width="1600" height="1.5" fill="#ffd54a" opacity=".6"/>
+  </svg>
 </div>
 
 <div id="register" class="screen login">
@@ -600,13 +635,6 @@
   </div>
   <div class="hub-foot">
     <svg class="batik-band" viewBox="0 0 1600 120" preserveAspectRatio="xMinYMax slice" aria-hidden="true">
-      <defs>
-        <pattern id="batik-pat" width="64" height="64" patternUnits="userSpaceOnUse">
-          <use href="#batik-motif" x="6" y="8" width="24" height="24" color="#ffd54a"/>
-          <use href="#batik-motif" x="38" y="38" width="20" height="20" color="#ffd54a"/>
-          <circle cx="46" cy="14" r="2.2" fill="#ffd54a"/><circle cx="14" cy="48" r="2.2" fill="#ffd54a"/>
-        </pattern>
-      </defs>
       <path d="M0 38C140 8 260 70 400 44S640 10 780 50 1040 96 1200 70 1480 50 1600 72V120H0z" fill="#1d3f8f"/>
       <path d="M0 38C140 8 260 70 400 44S640 10 780 50 1040 96 1200 70 1480 50 1600 72V120H0z" fill="url(#batik-pat)" opacity=".85"/>
       <path d="M0 38C140 8 260 70 400 44S640 10 780 50 1040 96 1200 70 1480 50 1600 72" fill="none" stroke="#ffd54a" stroke-width="5"/>
@@ -684,7 +712,7 @@
       <div><kbd>P</kbd><span>Pause</span></div>
     </div>
     <p class="controls-touch">On a touch screen: swipe left or right to change lane, swipe up or tap to jump, swipe down to slide. The ⏸ button pauses.</p>
-    <p class="controls-touch">One clock of 120 seconds for all three levels: complete each level's missions (the gebuk target and the laksa target) to move on, and the time left carries over. 3 ♥ for the whole run: a hit costs one and the run carries on; a game over or running out of time restarts the run from level 1. Laksa bowl +10 · gebuk +50 · gebuk target +200 · missions complete +300 · no hearts lost +100 · at the end, +10 per second left. Power-ups: 🧲 magnet laksa pulls bowls to you, 🛡 tudung saji absorbs one hit, 🌶 cili boost smashes through everything for a moment.</p>
+    <p class="controls-touch">One clock of 120 seconds for all three levels: reach each level's gebuk target to move on, and the time left carries over. Laksa bowls are unlimited: every bowl is +10, and 10 / 15 / 20 in one level earns the Pengumpul laksa badge. Enemies charge down the open lanes: wild boars and roosters in the kampung, rats and the cat in the kitchen, monkeys and dogs at the market. Jump over them or change lane; with the cili boost you bowl them over for +20. 3 ♥ for the whole run: a hit costs one and the run carries on; a game over or running out of time restarts the run from level 1. Laksa bowl +10 · gebuk +50 · enemy bowled over +20 · gebuk target +200 · level complete +300 · no hearts lost +100 · at the end, +10 per second left. Power-ups: 🧲 magnet laksa pulls bowls to you, 🛡 tudung saji absorbs one hit, 🌶 cili boost smashes through everything for a moment.</p>
     <p class="best-line">Best score <strong id="best-start">0</strong></p>
     <button id="howto-back" class="btn" type="button">PILIH LEVEL</button>
   </div>
@@ -774,36 +802,37 @@
   </div>
 </div>
 
-<div id="complete" class="screen" hidden>
-  <div class="card">
-    <div class="emblem" aria-hidden="true"><svg class="gebuk-icon big" aria-hidden="true"><use href="#gebuk-svg"/></svg></div>
-    <h2 id="complete-title" class="title small">MISI SELESAI!</h2>
-    <div id="complete-badge" class="badge">LEVEL 2 DIBUKA</div>
-    <p id="complete-level" class="tagline">Level 1 · Kampung Laksa</p>
-    <dl class="stats">
-      <div><dt>Laksa</dt><dd id="c-laksa">0</dd></div>
-      <div><dt>Gebuk</dt><dd id="c-gebuk">0</dd></div>
-      <div><dt>Hearts left</dt><dd id="c-lives" class="hearts-dd">♥♥♥</dd></div>
-      <div><dt>Time left</dt><dd id="c-timeleft">2:00</dd></div>
-      <div><dt>Level score</dt><dd id="c-score">0</dd></div>
-      <div><dt>Run total</dt><dd id="c-total">0</dd></div>
-    </dl>
-    <dl class="breakdown">
-      <dt>Laksa bowls</dt><dd id="b-laksa">0</dd>
-      <dt>Gebuk</dt><dd id="b-gebuk">0</dd>
-      <dt>Gebuk target</dt><dd id="b-mission">0</dd>
-      <dt>Missions complete</dt><dd id="b-level">0</dd>
-      <dt>No hearts lost</dt><dd id="b-flawless">0</dd>
-      <dt>Time bonus</dt><dd id="b-time">0</dd>
-      <div class="total"><dt>Total</dt><dd id="b-total">0</dd></div>
-    </dl>
-    <div id="c-ach" class="achievements big" aria-label="Achievements earned"></div>
-    <p id="complete-rank" class="player-line"></p>
-    <div class="btn-row">
-      <button id="next" class="btn" type="button">MAIN LEVEL 2</button>
-      <button id="complete-menu" class="btn secondary" type="button">PILIH LEVEL</button>
+<div id="complete" class="screen complete" hidden>
+  <div class="mc-wrap">
+    <img class="mc-logo" src="gebok-logo.png" alt="Laksa Gebok Run">
+    <div class="mc-card">
+      <div class="mc-ribbon">
+        <svg class="mc-laurel l" viewBox="0 0 40 60" aria-hidden="true"><path d="M34 4C14 12 6 32 10 56" fill="none" stroke="#e3a21a" stroke-width="3" stroke-linecap="round"/><path d="M15 14c-7 0-11-5-11-10 5 0 11 3 11 10zm-5 12c-7 1-12-2-13-8 6-1 12 2 13 8zm0 12c-7 3-12 1-15-4 5-3 12-1 15 4zm2 11c-6 4-12 3-16-2 5-4 12-3 16 2z" fill="#f2c14e" stroke="#c98a12" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        <h2 id="complete-title" class="mc-title">MISI SELESAI!</h2>
+        <svg class="mc-laurel r" viewBox="0 0 40 60" aria-hidden="true"><path d="M6 4c20 8 28 28 24 52" fill="none" stroke="#e3a21a" stroke-width="3" stroke-linecap="round"/><path d="M25 14c7 0 11-5 11-10-5 0-11 3-11 10zm5 12c7 1 12-2 13-8-6-1-12 2-13 8zm0 12c7 3 12 1 15-4-5-3-12-1-15 4zm-2 11c6 4 12 3 16-2-5-4-12-3-16 2z" fill="#f2c14e" stroke="#c98a12" stroke-width="1.2" stroke-linejoin="round"/></svg>
+      </div>
+      <img class="mc-boy" src="traveler-menu.png" alt="" aria-hidden="true">
+      <div class="mc-stats">
+        <div class="mc-stat" title="Gebuk dikutip / sasaran level"><span class="mc-ico" aria-hidden="true"><svg class="gebuk-icon"><use href="#gebuk-svg"/></svg></span><span class="mc-text"><small>GEBUK</small><b id="c-gebuk">0 / 3</b></span></div>
+        <div class="mc-stat" title="Mangkuk laksa dikutip / sasaran lencana Pengumpul laksa"><span class="mc-ico" aria-hidden="true"><img src="laksa-bowl.png" alt=""></span><span class="mc-text"><small>MANGKUK LAKSA</small><b id="c-laksa">0 / 10</b></span></div>
+        <div class="mc-stat" title="Baki masa larian"><span class="mc-ico" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M6 5l4-3 2 2.5-4 3zM26 5l-4-3-2 2.5 4 3z" fill="#c22a22"/><circle cx="16" cy="18" r="11" fill="#e8342e" stroke="#8a1210" stroke-width="2"/><circle cx="16" cy="18" r="7.5" fill="#fff8ea"/><path d="M16 12.5V18l3.6 2.4" fill="none" stroke="#8a1210" stroke-width="2" stroke-linecap="round"/><rect x="14.6" y="4" width="2.8" height="3" fill="#8a1210"/></svg></span><span class="mc-text"><small>MASA</small><b id="c-timeleft">2:00</b></span></div>
+      </div>
+      <div class="mc-score" title="Skor keseluruhan larian setakat ini">
+        <svg class="mc-spark l" viewBox="0 0 44 44" aria-hidden="true"><path d="M6 22h12M10 9l9 7M10 35l9-7"/></svg>
+        <svg class="mc-spark r" viewBox="0 0 44 44" aria-hidden="true"><path d="M6 22h12M10 9l9 7M10 35l9-7"/></svg>
+        <span class="mc-star" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg></span>
+        <span class="mc-score-text"><small>SKOR KESELURUHAN</small><b id="c-total">0</b></span>
+      </div>
+      <p class="mc-line">Skor level <b id="c-score">0</b></p>
+      <div class="mc-ach">
+        <div class="mc-tag">PENCAPAIAN LEVEL</div>
+        <div id="c-ach" class="achievements big" aria-label="Pencapaian level ini"></div>
+      </div>
+      <p id="complete-rank" class="player-line"></p>
+      <button id="next" class="mc-next" type="button"><span class="mc-next-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l12-7z"/></svg></span><span id="next-text">MAIN MISI SETERUSNYA</span></button>
+      <svg class="mc-leaf l" viewBox="0 0 60 40" aria-hidden="true"><path d="M2 36C10 10 40 2 58 4 50 24 28 38 2 36z" fill="#3f9a3a"/><path d="M4 35C20 24 36 14 56 5" stroke="#2c6e2a" stroke-width="2" fill="none"/></svg>
+      <svg class="mc-leaf r" viewBox="0 0 60 40" aria-hidden="true"><path d="M58 36C50 10 20 2 2 4 10 24 32 38 58 36z" fill="#3f9a3a"/><path d="M56 35C40 24 24 14 4 5" stroke="#2c6e2a" stroke-width="2" fill="none"/></svg>
     </div>
-    <button id="complete-lb" class="link-btn" type="button">Leaderboard</button>
   </div>
 </div>
 
@@ -813,7 +842,7 @@
     <p id="i-level" class="tagline">The 120 seconds are up during level 1. Start the run again from level 1.</p>
     <dl class="stats">
       <div><dt>Gebuk</dt><dd><span id="i-gebuk">0</span> / <span id="i-need">3</span></dd></div>
-      <div><dt>Laksa</dt><dd><span id="i-laksa">0</span> / <span id="i-laksa-target">10</span></dd></div>
+      <div><dt>Laksa</dt><dd id="i-laksa">0</dd></div>
       <div><dt>Run total</dt><dd id="i-score">0</dd></div>
       <div><dt>Hearts left</dt><dd id="i-lives" class="hearts-dd">♥♥♥</dd></div>
     </dl>
@@ -904,13 +933,13 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="config.js"></script>
+<script src="config.js?v=2"></script>
 <script src="store.js?v=4"></script>
 <script src="admin.js"></script>
 <script src="platform.js"></script>
 <script src="platformer.js?v=23"></script>
 <script src="crossword.js?v=4"></script>
 <script src="wordsearch.js?v=6"></script>
-<script src="game.js?v=46"></script>
+<script src="game.js?v=51"></script>
 </body>
 </html>

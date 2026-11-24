@@ -49,7 +49,7 @@
   const coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 
   /* ------------------------------------------------------------------ DOM */
-  const ids = ['hud', 'score', 'dist', 'level-label', 'missions', 'm-gebuk', 'm-gebuk-n', 'm-laksa', 'm-laksa-n', 'achievements', 'c-ach', 'i-laksa-target', 'f-ach',
+  const ids = ['hud', 'score', 'dist', 'level-label', 'missions', 'm-gebuk', 'm-gebuk-n', 'm-laksa', 'm-laksa-n', 'achievements', 'c-ach', 'f-ach',
     'power-magnet', 'power-magnet-fill', 'power-shield', 'power-boost', 'power-boost-fill', 'pause-btn', 'banner', 'countdown', 'hint', 'hitflash', 'mute',
     'register', 'register-form', 'username', 'email', 'email-field', 'register-note', 'register-error', 'register-btn', 'register-btn-text', 'register-cancel', 'register-lb', 'store-status', 'name-hint',
     'login-popup', 'login-popup-card', 'login-popup-title', 'login-popup-text', 'login-popup-bar', 'login-popup-fill', 'login-popup-ok',
@@ -57,14 +57,14 @@
     'howto', 'howto-back', 'best-start', 'story', 'story-cards', 'story-note', 'story-back',
     'leaderboard', 'lb-list', 'lb-status', 'lb-me', 'lb-back', 'lb-refresh', 'results', 'rs-player', 'rs-cards', 'rs-filters', 'rs-history', 'rs-back',
     'pause', 'resume', 'restart', 'pause-menu', 'pause-sound',
-    'complete', 'complete-title', 'complete-badge', 'complete-level', 'c-laksa', 'c-gebuk', 'c-lives', 'c-score',
-    'b-laksa', 'b-gebuk', 'b-mission', 'b-level', 'b-flawless', 'b-total', 'complete-rank', 'next', 'complete-menu', 'complete-lb',
+    'complete', 'complete-title', 'c-laksa', 'c-gebuk', 'c-score',
+    'complete-rank', 'next', 'next-text',
     'incomplete', 'i-gebuk', 'i-need', 'i-laksa', 'i-score', 'i-lives', 'retry-inc', 'inc-menu',
     'over', 'new-best', 'final-score', 'final-laksa', 'final-gebuk', 'final-dist', 'final-mission', 'final-rank', 'again', 'over-menu', 'over-lb',
     'final', 'f-score', 'f-laksa', 'f-gebuk', 'final-replay', 'final-story', 'final-lb',
     'timer', 'b-time', 'hub-start', 'c-timeleft', 'c-total', 'i-level', 'f-time', 'f-lives',
     'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-music', 'settings-sfx', 'st-tabs', 'settings-switch', 'settings-back', 'settings-player', 'about-studio', 'about-text', 'about-credits', 'about-version', 'achv', 'achv-list', 'achv-back',
-    'intro', 'intro-tabs', 'intro-body', 'intro-back', 'intro-dots', 'intro-pager', 'intro-skip', 'intro-next', 'intro-next-text', 'menu-scene'];
+    'intro', 'intro-tabs', 'intro-body', 'intro-back', 'intro-dots', 'intro-pager', 'intro-skip', 'intro-next', 'intro-next-text', 'menu-scene', 'level-name'];
   const ui = {};
   for (const id of ids) {
     ui[id.replace(/-([a-z])/g, (m, c) => c.toUpperCase())] = $(id);
@@ -534,6 +534,47 @@
       box(0xf28c28, x - 0.08, 0.1, 0, 0.04, 0.2, 0.04), box(0xf28c28, x + 0.08, 0.1, 0, 0.04, 0.2, 0.04)];
   }
   const chickenGeo = merge([].concat(chickenParts(-0.5), chickenParts(0.55)));
+  // Enemies: built facing +z, i.e. towards the runner. Legs are merged; the gallop is animated on the whole mesh.
+  function legs4(c, x, z, h, w) { return [box(c, -x, h / 2, z, w, h, w), box(c, x, h / 2, z, w, h, w), box(c, -x, h / 2, -z, w, h, w), box(c, x, h / 2, -z, w, h, w)]; }
+  const boarGeo = merge([].concat([
+    box(0x5a3a22, 0, 0.56, 0, 0.8, 0.6, 1.25), box(0x3a2414, 0, 0.8, -0.05, 0.3, 0.14, 1.0),
+    box(0x4a2e1a, 0, 0.62, 0.78, 0.56, 0.5, 0.55), box(0x8a6a4a, 0, 0.5, 1.1, 0.3, 0.22, 0.16), ball(0x2a1a10, 0, 0.5, 1.19, 0.05),
+    box(0xf4f1e4, -0.16, 0.4, 1.06, 0.06, 0.16, 0.06, 0.5), box(0xf4f1e4, 0.16, 0.4, 1.06, 0.06, 0.16, 0.06, 0.5),
+    box(0x4a2e1a, -0.22, 0.93, 0.66, 0.12, 0.18, 0.08, -0.3), box(0x4a2e1a, 0.22, 0.93, 0.66, 0.12, 0.18, 0.08, -0.3),
+    ball(0x111111, -0.18, 0.74, 1.04, 0.045), ball(0x111111, 0.18, 0.74, 1.04, 0.045),
+    box(0x3a2414, 0, 0.7, -0.7, 0.06, 0.06, 0.3, 0.6),
+  ], legs4(0x3a2414, 0.27, 0.42, 0.4, 0.16)));
+  const roosterGeo = merge([
+    part(G.sphere, 0xd9442c, 0, 0.5, 0, 0.72, 0.62, 0.95), ball(0xe8632f, 0, 0.92, 0.45, 0.19), box(0xd62828, 0, 1.12, 0.42, 0.05, 0.18, 0.2),
+    box(0xf2b63c, 0, 0.9, 0.66, 0.07, 0.07, 0.14), box(0xd62828, 0, 0.78, 0.55, 0.05, 0.12, 0.06), ball(0x111111, -0.1, 0.96, 0.58, 0.035), ball(0x111111, 0.1, 0.96, 0.58, 0.035),
+    box(0x2e7d32, 0, 0.78, -0.5, 0.1, 0.5, 0.14, 0.7), box(0x1d4f8f, 0.1, 0.72, -0.48, 0.1, 0.45, 0.14, 0.9), box(0x1a1a1a, -0.1, 0.7, -0.46, 0.1, 0.42, 0.14, 1.0),
+    box(0xb8381f, -0.38, 0.5, 0, 0.1, 0.32, 0.55, 0, 0, 0.3), box(0xb8381f, 0.38, 0.5, 0, 0.1, 0.32, 0.55, 0, 0, -0.3),
+    box(0xf28c28, -0.12, 0.12, 0.05, 0.05, 0.24, 0.05), box(0xf28c28, 0.12, 0.12, 0.05, 0.05, 0.24, 0.05),
+  ]);
+  const ratGeo = merge([].concat([
+    part(G.sphere, 0x8d8d8d, 0, 0.24, 0, 0.44, 0.36, 0.82), box(0x9a9a9a, 0, 0.27, 0.5, 0.3, 0.26, 0.32), ball(0xf0a0a8, 0, 0.26, 0.68, 0.05),
+    ball(0xf0a0a8, -0.12, 0.42, 0.44, 0.08), ball(0xf0a0a8, 0.12, 0.42, 0.44, 0.08), ball(0x111111, -0.09, 0.33, 0.62, 0.03), ball(0x111111, 0.09, 0.33, 0.62, 0.03),
+    box(0xe3a0a0, 0, 0.12, -0.72, 0.05, 0.05, 0.7, 0.25),
+  ], legs4(0x7a7a7a, 0.16, 0.28, 0.12, 0.08)));
+  const catGeo = merge([].concat([
+    box(0xf2a23c, 0, 0.42, 0, 0.42, 0.38, 0.86), box(0xd98420, 0, 0.62, -0.1, 0.44, 0.04, 0.12), box(0xd98420, 0, 0.62, 0.15, 0.44, 0.04, 0.12),
+    ball(0xf2a23c, 0, 0.68, 0.5, 0.21), part(G.pyr, 0xf2a23c, -0.12, 0.9, 0.46, 0.14, 0.18, 0.1), part(G.pyr, 0xf2a23c, 0.12, 0.9, 0.46, 0.14, 0.18, 0.1),
+    ball(0x3aa65a, -0.08, 0.72, 0.68, 0.035), ball(0x3aa65a, 0.08, 0.72, 0.68, 0.035), ball(0xf0a0a8, 0, 0.64, 0.7, 0.03),
+    box(0xfbf7ef, 0, 0.36, 0.42, 0.2, 0.2, 0.06), box(0xf2a23c, 0, 0.62, -0.52, 0.07, 0.5, 0.07, -0.5),
+  ], legs4(0xf2a23c, 0.15, 0.3, 0.26, 0.1)));
+  const monkeyGeo = merge([
+    box(0x6b4423, 0, 0.62, 0, 0.46, 0.56, 0.4), box(0xd9b08c, 0, 0.58, 0.19, 0.28, 0.36, 0.04),
+    ball(0x6b4423, 0, 1.08, 0, 0.23), ball(0xd9b08c, 0, 1.05, 0.14, 0.16, 0.14), ball(0x111111, -0.07, 1.1, 0.27, 0.03), ball(0x111111, 0.07, 1.1, 0.27, 0.03),
+    ball(0xd9b08c, -0.24, 1.1, 0, 0.08), ball(0xd9b08c, 0.24, 1.1, 0, 0.08),
+    box(0x6b4423, -0.32, 0.55, 0.08, 0.12, 0.62, 0.12, 0.45), box(0x6b4423, 0.32, 0.55, 0.08, 0.12, 0.62, 0.12, 0.45),
+    box(0x6b4423, -0.14, 0.17, 0, 0.14, 0.34, 0.14), box(0x6b4423, 0.14, 0.17, 0, 0.14, 0.34, 0.14),
+    box(0x6b4423, 0, 0.72, -0.4, 0.07, 0.62, 0.07, -0.6),
+  ]);
+  const dogGeo = merge([].concat([
+    box(0xc9a063, 0, 0.5, 0, 0.46, 0.46, 1.0), box(0xc9a063, 0, 0.68, 0.66, 0.4, 0.36, 0.42), box(0xf0dcc0, 0, 0.58, 0.95, 0.24, 0.2, 0.2), ball(0x111111, 0, 0.64, 1.06, 0.05),
+    box(0x8a5a2b, -0.24, 0.6, 0.6, 0.08, 0.3, 0.2), box(0x8a5a2b, 0.24, 0.6, 0.6, 0.08, 0.3, 0.2), ball(0x111111, -0.11, 0.78, 0.86, 0.035), ball(0x111111, 0.11, 0.78, 0.86, 0.035),
+    box(0xd62828, 0, 0.5, 0.46, 0.48, 0.08, 0.1), box(0xc9a063, 0, 0.72, -0.56, 0.08, 0.4, 0.08, -0.7),
+  ], legs4(0xb88a50, 0.16, 0.36, 0.3, 0.12)));
   const laundryGeo = merge([
     tube(0x8d6a46, -1.05, 1.1, 0, 0.06, 2.2), tube(0x8d6a46, 1.05, 1.1, 0, 0.06, 2.2), box(0x333333, 0, 2.05, 0, 2.2, 0.03, 0.03),
     box(0xd9442c, -0.65, 1.72, 0, 0.5, 0.66, 0.04), box(0x2e63b8, 0, 1.7, 0.02, 0.55, 0.62, 0.04), box(0xf2b63c, 0.65, 1.73, 0, 0.5, 0.64, 0.04),
@@ -688,10 +729,18 @@
   def('cook', 'block', 1.0, { halfW: 0.6 }, () => solid(cookGeo));
   def('cartMover', 'block', 3.0, { halfW: 0.9 }, () => solid(cartGeo));
   def('fence', 'block', 12, { halfW: 0.5 }, () => solid(fenceGeo));
+  // Enemies. Chargers run down the lane towards the runner (v is their own speed on top of the road's) and some of them
+  // hunt: they shift into the runner's lane a second or two before they arrive. Lateral ones pace between two lanes like the cooks.
+  def('boar', 'low', 1.4, { height: 0.9, halfW: 0.7, enemy: 'charge', v: 5, hunt: 0.6, bob: 'gallop', label: 'Babi hutan' }, () => solid(boarGeo));
+  def('rooster', 'low', 0.9, { height: 0.8, halfW: 0.6, enemy: 'lateral', bob: 'flap', label: 'Ayam jantan' }, () => solid(roosterGeo));
+  def('rat', 'low', 1.0, { height: 0.5, halfW: 0.5, enemy: 'charge', v: 8, hunt: 0.35, bob: 'scurry', label: 'Tikus' }, () => solid(ratGeo));
+  def('cat', 'low', 1.0, { height: 0.7, halfW: 0.6, enemy: 'lateral', bob: 'gallop', label: 'Kucing' }, () => solid(catGeo));
+  def('monkey', 'low', 1.0, { height: 0.9, halfW: 0.6, enemy: 'charge', v: 4, hunt: 0.7, bob: 'hop', label: 'Monyet' }, () => solid(monkeyGeo));
+  def('dog', 'low', 1.2, { height: 0.75, halfW: 0.6, enemy: 'charge', v: 9, hunt: 0.5, bob: 'gallop', label: 'Anjing' }, () => solid(dogGeo));
   const POOLS = {
-    village: { low: ['log', 'barrier', 'crate', 'basket', 'chicken'], high: ['gantry', 'laundry'], block: ['cart', 'stall', 'car', 'truck'], lateral: [], narrow: [] },
-    kitchen: { low: ['firewood', 'pot', 'vegBasket', 'rollingPot'], high: ['utensils', 'shelfBar'], block: ['table', 'kawah', 'sacks'], lateral: ['cook'], narrow: [] },
-    market: { low: ['fruitBasket', 'crate', 'barrier'], high: ['banner', 'gantry'], block: ['marketStall', 'crowd', 'cart'], lateral: ['cartMover'], narrow: ['fence'] },
+    village: { low: ['log', 'barrier', 'crate', 'basket', 'chicken'], high: ['gantry', 'laundry'], block: ['cart', 'stall', 'car', 'truck'], lateral: ['rooster'], narrow: [], enemy: ['boar'] },
+    kitchen: { low: ['firewood', 'pot', 'vegBasket', 'rollingPot'], high: ['utensils', 'shelfBar'], block: ['table', 'kawah', 'sacks'], lateral: ['cook', 'cat'], narrow: [], enemy: ['rat'] },
+    market: { low: ['fruitBasket', 'crate', 'barrier'], high: ['banner', 'gantry'], block: ['marketStall', 'crowd', 'cart'], lateral: ['cartMover'], narrow: ['fence'], enemy: ['monkey', 'dog'] },
   };
   /* ------------------------------------------------------ environments */
   const ENVS = {
@@ -836,6 +885,7 @@
   let state = 'menu';            // menu | ready | playing | paused | hit | dead | won | incomplete | final
   let time = 0, dist = 0, runDist = 0, speed = 12, score = 0, laksaCount = 0, runTime = 0;
   let nextS = 0, nextScenS = -6, patternCount = 0, magnetT = 0, combo = 0, lastCollect = -10;
+  const warnedKinds = new Set();          // enemy kinds already named in a banner this level
   let camX = 0, shake = 0, runPhase = 0, deathT = 0, deathY = 0, overShown = false, isNewBest = false, hintTimer = 0;
   let gebukWait = 0, gebukRun = 0, bannerTimer = 0, lastStep = 0, wonT = 0, readyT = 0, countdownShown = '', countTimer = 0;
   let lives = CFG.lives, livesLost = 0, livesAtLevelStart = CFG.lives, invT = 0, speedBeforeHit = 0, shield = false, boostT = 0, hitObstacle = null;
@@ -855,17 +905,25 @@
   const runTotal = () => campaignScore + (levelBanked ? 0 : score);
   function saveProgress() { GebokStore.saveProgress(progress).catch(() => { /* kept in memory for this session */ }); }
   function clearList(list) { for (const it of list) scene.remove(it.mesh); list.length = 0; }
-  function freshRunStats() { return { laksa: 0, gebuk: 0, laksaPts: 0, gebukPts: 0, mission: 0, levelBonus: 0, flawless: 0, timeBonus: 0, finished: false, missionDone: false }; }
+  function freshRunStats() { return { laksa: 0, gebuk: 0, laksaPts: 0, gebukPts: 0, enemyPts: 0, mission: 0, levelBonus: 0, flawless: 0, timeBonus: 0, finished: false, missionDone: false }; }
   const fmtClock = (sec) => { const t = Math.max(0, Math.floor(sec)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
 
   /* ---------------------------------------------------------- spawning */
   function spawnObstacle(kind, lane, s, mover) {
     const d = OB[kind];
     const mesh = d.make();
-    const o = { mesh, kind: d.type, name: kind, x: LANE_X[lane], s: s + d.depth / 2, depth: d.depth, halfW: d.halfW, height: d.height || 0, clearance: d.clearance || 0, mover: mover || null, spin: !!d.spin };
+    const o = { mesh, kind: d.type, name: kind, x: LANE_X[lane], s: s + d.depth / 2, depth: d.depth, halfW: d.halfW, height: d.height || 0, clearance: d.clearance || 0, mover: mover || null, spin: !!d.spin,
+      enemy: d.enemy || null, bob: d.bob || null, phase: Math.random() * Math.PI * 2 };
     mesh.position.set(o.x, 0, dist - o.s);
     scene.add(mesh);
     obstacles.push(o);
+    return o;
+  }
+  // A charger starts beyond the row and runs at the runner; a hunter also moves into the runner's lane on the way.
+  function spawnEnemy(s, lane) {
+    const kind = pick(POOLS[curLevel().env].enemy), d = OB[kind];
+    const o = spawnObstacle(kind, lane, s);
+    o.chase = { v: d.v, hunt: Math.random() < d.hunt, locked: false, tx: o.x, warned: false };
     return o;
   }
   function spawnLaksa(s, lane, y) {
@@ -936,6 +994,8 @@
     }
     const two = place === 'trap' || Math.random() < L.twoLane + 0.2 * hard;
     const blocked = lanes.slice(0, two ? 2 : 1), free = lanes.slice(two ? 2 : 1);
+    let enemyLane = -1;                                                            // an enemy comes down one of the open lanes
+    if (!place && pools.enemy.length && Math.random() < (L.enemies || 0) + 0.15 * hard) enemyLane = pick(free);
     const skillLane = place === 'skill' ? blocked[0] : -1;
     let len = 0;
     for (const lane of blocked) {
@@ -949,7 +1009,8 @@
       if (lane === skillLane) spawnGebuk(o.s, lane, type === 'low' ? 2.1 : 0.45);
       else if (type === 'low' && Math.random() < 0.65) spawnLaksaArc(o.s, lane);
     }
-    let laksaLanes = free.slice();
+    let laksaLanes = free.filter((l) => l !== enemyLane);
+    if (enemyLane >= 0) spawnEnemy(s + len + 3, enemyLane);
     if (place === 'trap') {
       const lane = free[0];
       const type = Math.random() < 0.55 ? 'low' : 'high';
@@ -1131,6 +1192,7 @@
       gameover() { seq([392, 330, 262, 196], 180, 0.35, 'sawtooth', 0.08); },
       shieldHit() { tone(1200, 0.25, 'sine', 0.12, 600); noise(0.1, 0.2, 2000); },
       smash() { noise(0.15, 0.3, 1500); tone(200, 0.12, 'square', 0.06, 80); },
+      growl() { noise(0.22, 0.2, 350); tone(95, 0.28, 'sawtooth', 0.05, 60); },      // an enemy is about to reach the runner
       boost() { tone(200, 0.5, 'sawtooth', 0.08, 1200); },
       count(go) { if (go) tone(880, 0.5, 'square', 0.08); else tone(440, 0.12, 'square', 0.07); },
       // ---- Laksa Quest effects (platformer.js) ----
@@ -1161,7 +1223,7 @@
   })();
   function syncSoundLabels() {
     const off = sfx.allOff;                     // the quick buttons speak for both switches
-    ui.mute.textContent = off ? '🔇' : '🔊';
+    ui.mute.classList.toggle('is-muted', off);        // wooden image button: a red slash while muted
     ui.mute.setAttribute('aria-pressed', off ? 'true' : 'false');
     ui.hubSound.classList.toggle('is-muted', off);
     ui.hubSound.setAttribute('aria-pressed', off ? 'true' : 'false');
@@ -1330,7 +1392,7 @@
     fx.length = 0;
     const L = curLevel();
     speed = L.speed.start; score = 0; laksaCount = 0; runTime = 0; runDist = 0; magnetT = 0; patternCount = 0; combo = 0;
-    gebukRun = 0; levelCount = 0; livesLost = 0; invT = 0; shield = false; boostT = 0; hitObstacle = null;
+    gebukRun = 0; levelCount = 0; livesLost = 0; invT = 0; shield = false; boostT = 0; hitObstacle = null; warnedKinds.clear();
     lives = Math.max(1, Math.min(CFG.lives, typeof startLives === 'number' ? startLives : CFG.lives));
     livesAtLevelStart = lives;
     runStats = freshRunStats();
@@ -1466,11 +1528,11 @@
     const a = ACH.find((x) => x.id === id);
     if (a) showBanner(a.icon + ' ' + a.name + '!', 1.6);
   }
-  // A level is done the moment both of its missions are complete, before the clock runs out.
+  // A level is done the moment the gebuk mission is complete, before the clock runs out.
   function checkMissions() {
     if (state !== 'playing') return;
     const L = curLevel();
-    if (levelCount < L.need || laksaCount < L.laksaTarget) return;
+    if (levelCount < L.need) return;                       // laksa bowls are unlimited: only the gebuk target ends the level
     runStats.levelBonus = SC.level; score += SC.level;
     if (livesLost === 0) { runStats.flawless = SC.flawless; score += SC.flawless; award('flawless'); }
     if (clock <= CFG.fastSeconds) award('fast');
@@ -1533,29 +1595,13 @@
     ui.hud.hidden = true;
     const L = curLevel(), nextIdx = level + 1;
     ui.completeTitle.textContent = 'MISI SELESAI!';
-    ui.completeLevel.textContent = 'Level ' + (level + 1) + ' · ' + L.title + ' · missions done in ' + fmtClock(clock)
-      + (nextIdx < FREE ? ' · ' + '♥'.repeat(lives) + ' and ' + fmtClock(timeLeft()) + ' carried into level ' + (nextIdx + 1) : '');
-    ui.cLaksa.textContent = laksaCount + ' / ' + L.laksaTarget;
+    ui.cLaksa.textContent = laksaCount + ' / ' + L.laksaTarget;                 // bowls collected / the Pengumpul laksa threshold
     ui.cGebuk.textContent = levelCount + ' / ' + L.need;
-    ui.cLives.textContent = '♥'.repeat(lives) + '♡'.repeat(CFG.lives - lives);
     ui.cScore.textContent = fmt(score);
     ui.cTotal.textContent = fmt(campaignScore);
     ui.cTimeleft.textContent = fmtClock(timeLeft());
-    ui.bLaksa.textContent = laksaCount + ' × ' + SC.laksa + ' = ' + fmt(runStats.laksaPts);
-    ui.bGebuk.textContent = gebukRun + ' × ' + SC.gebuk + ' = ' + fmt(runStats.gebukPts);
-    ui.bMission.textContent = '+' + fmt(runStats.mission);
-    ui.bLevel.textContent = '+' + fmt(runStats.levelBonus);
-    ui.bFlawless.textContent = runStats.flawless ? '+' + fmt(runStats.flawless) : '–';
-    ui.bTime.textContent = level === FREE - 1 ? fmtClock(timeLeft()) + ' left · +' + fmt(runStats.timeBonus) : fmtClock(timeLeft()) + ' carried to the next level';
     renderAchievements(ui.cAch);
-    ui.bTotal.textContent = fmt(score);
-    if (nextIdx < FREE) {
-      ui.completeBadge.textContent = 'LEVEL ' + (nextIdx + 1) + ' DIBUKA';
-      ui.next.textContent = 'MAIN LEVEL ' + (nextIdx + 1);
-    } else {
-      ui.completeBadge.textContent = 'HERITAGE MASTER';
-      ui.next.textContent = 'KEPUTUSAN AKHIR';
-    }
+    ui.nextText.textContent = nextIdx < FREE ? 'MAIN MISI SETERUSNYA' : 'KEPUTUSAN AKHIR';
     ui.bestStart.textContent = best;
     showRank(ui.completeRank);
     ui.complete.hidden = false;
@@ -1566,8 +1612,7 @@
     ui.iLevel.textContent = 'The ' + CFG.timeLimit + ' seconds ran out during level ' + (level + 1) + ' · ' + curLevel().title + '. Start the run again from level 1.';
     ui.iGebuk.textContent = Math.min(levelCount, curLevel().need);
     ui.iNeed.textContent = curLevel().need;
-    ui.iLaksa.textContent = Math.min(laksaCount, curLevel().laksaTarget);
-    ui.iLaksaTarget.textContent = curLevel().laksaTarget;
+    ui.iLaksa.textContent = laksaCount;
     ui.iScore.textContent = fmt(runTotal());
     ui.iLives.textContent = '♥'.repeat(lives) + '♡'.repeat(CFG.lives - lives) + (CFG.livesCarryOver ? ' (kept for the retry)' : '');
     ui.incomplete.hidden = false;
@@ -1710,10 +1755,10 @@
       st.classList.toggle('lock', locked);
       if (locked) { statusLock(st); st.hidden = false; }
       else { st.replaceChildren(); st.hidden = true; }
-      b.title = locked ? 'Selesaikan level ' + i + ' dahulu' : LEVELS[i].need + ' gebuk · ' + LEVELS[i].laksaTarget + ' laksa · ' + LEVELS[i].theme;
+      b.title = locked ? 'Selesaikan level ' + i + ' dahulu' : LEVELS[i].need + ' gebuk · ' + LEVELS[i].theme;
     });
     const L = LEVELS[selectedLevel];
-    ui.hubNote.textContent = 'Mula dari Level ' + (selectedLevel + 1) + ' · ' + L.need + ' gebuk · ' + L.laksaTarget + ' laksa · ' + CFG.timeLimit + ' s dan 3 ♥ untuk larian';
+    ui.hubNote.textContent = 'Mula dari Level ' + (selectedLevel + 1) + ' · ' + L.need + ' gebuk · ' + CFG.timeLimit + ' s dan 3 ♥ untuk larian';
     ui.hubPlayer.textContent = (GebokStore.current() || {}).username || '';
   }
   function selectLevel(i) {
@@ -2194,7 +2239,7 @@
     burst(L.mesh.position.x, L.mesh.position.y + 0.3, L.mesh.position.z);
     sfx.collect(combo);
     pulse(ui.mLaksa);
-    if (laksaCount === curLevel().laksaTarget) award('laksa');
+    if (laksaCount === curLevel().laksaTarget) award('laksa');     // the Pengumpul laksa badge; collecting goes on past it
     updateMissionHud();
     checkMissions();
   }
@@ -2231,7 +2276,30 @@
   /* ------------------------------------------------------------ update */
   function updateObstacles(playing, dt) {
     for (let i = obstacles.length - 1; i >= 0; i--) {
-      const o = obstacles[i], z = dist - o.s;
+      const o = obstacles[i];
+      if (o.chase && playing) {
+        o.s -= o.chase.v * dt;                                                    // runs at the runner on top of the road's speed
+        const zc = dist - o.s, closing = speed * (boostT > 0 ? PW.boostMultiplier : 1) + o.chase.v;
+        if (!o.chase.warned && zc > -closing * 2.4) {                             // about two seconds out: a growl, and a name the first time
+          o.chase.warned = true; sfx.growl();
+          if (!warnedKinds.has(o.name)) { warnedKinds.add(o.name); showBanner(OB[o.name].label + '! Lompat atau tukar lorong', 1.4); }
+        }
+        if (o.chase.hunt && !o.chase.locked && zc > -closing * 1.7) { o.chase.locked = true; o.chase.tx = LANE_X[player.lane]; }
+        if (o.chase.locked && o.x !== o.chase.tx) {
+          const dx = o.chase.tx - o.x, mv = 3.6 * dt;
+          o.x = Math.abs(dx) <= mv ? o.chase.tx : o.x + Math.sign(dx) * mv;
+          o.mesh.position.x = o.x;
+          o.mesh.rotation.y = -Math.sign(dx) * 0.35;
+        } else if (o.chase.locked) o.mesh.rotation.y = 0;
+      }
+      if (o.bob) {
+        const t = time * (o.bob === 'scurry' ? 18 : o.bob === 'hop' ? 5 : 12) + o.phase;
+        if (o.bob === 'hop') { o.mesh.position.y = Math.abs(Math.sin(t)) * 0.3; o.mesh.rotation.x = Math.sin(t) * 0.12; }
+        else if (o.bob === 'flap') { o.mesh.position.y = Math.abs(Math.sin(t)) * 0.18; o.mesh.rotation.z = Math.sin(t * 2) * 0.1; }
+        else if (o.bob === 'scurry') { o.mesh.position.y = Math.abs(Math.sin(t)) * 0.04; o.mesh.rotation.z = Math.sin(t) * 0.08; }
+        else { o.mesh.position.y = Math.abs(Math.sin(t)) * 0.1; o.mesh.rotation.x = Math.sin(t) * 0.08; }
+      }
+      const z = dist - o.s;
       if (o.mover && o.mover.kind === 'lateral') {
         const t = time / o.mover.period * Math.PI * 2 + o.mover.phase;
         o.x = o.mover.a + (o.mover.b - o.mover.a) * (0.5 - 0.5 * Math.cos(t));
@@ -2249,8 +2317,10 @@
         else if (o.kind === 'high') hit = top > o.clearance;
         else hit = true;
         if (!hit) continue;
-        if (boostT > 0) {                   // cili boost: smash straight through
-          burst(o.x, 1.0, z, 0xff6a3d); sfx.smash(); shake = Math.max(shake, 0.25);
+        if (boostT > 0) {                   // cili boost: smash straight through; an enemy bowled over is worth a bonus
+          burst(o.x, 1.0, z, 0xff6a3d); shake = Math.max(shake, 0.25);
+          if (o.enemy) { sfx.stomp(); score += SC.enemy; runStats.enemyPts += SC.enemy; showBanner(OB[o.name].label + ' dilanggar! +' + SC.enemy, 1.2); }
+          else sfx.smash();
           scene.remove(o.mesh); obstacles.splice(i, 1);
           continue;
         }
@@ -2377,11 +2447,12 @@
   }
   function updateMissionHud() {
     const L = curLevel();
-    ui.levelLabel.textContent = 'LEVEL ' + (level + 1) + ' / ' + FREE + ' · ' + L.name;
+    ui.levelName.textContent = L.title;                                   // the wooden plate shows the level's name
+    ui.levelLabel.title = 'Level ' + (level + 1) + ' / ' + FREE + ' · ' + L.title;
+    ui.levelLabel.setAttribute('aria-label', 'Level ' + (level + 1) + ' daripada ' + FREE + ': ' + L.title);
     ui.mGebukN.textContent = Math.min(levelCount, L.need) + ' / ' + L.need;
-    ui.mLaksaN.textContent = Math.min(laksaCount, L.laksaTarget) + ' / ' + L.laksaTarget;
+    ui.mLaksaN.textContent = String(laksaCount);                           // a tally, not a mission
     ui.mGebuk.classList.toggle('done', levelCount >= L.need);
-    ui.mLaksa.classList.toggle('done', laksaCount >= L.laksaTarget);
     ui.timer.hidden = false;
   }
   function updatePowerHud() {
@@ -2570,8 +2641,6 @@
   ui.pauseSound.addEventListener('click', () => { sfx.toggle(); syncSoundLabels(); });
   ui.mute.addEventListener('click', () => { sfx.toggle(); syncSoundLabels(); ui.mute.blur(); });
   ui.next.addEventListener('click', nextLevel);
-  ui.completeMenu.addEventListener('click', showHub);
-  ui.completeLb.addEventListener('click', showLeaderboard);
   ui.retryInc.addEventListener('click', startCampaign);
   ui.incMenu.addEventListener('click', showHub);
   ui.again.addEventListener('click', startCampaign);
@@ -2653,13 +2722,16 @@
   window.gebokDebug = {
     step(dt, n) { for (let i = 0; i < (n || 1); i++) update(dt); renderer.render(scene, camera); },
     tick(dt) { update(dt); },
+    frame(dt) { update(dt); renderer.render(scene, camera); },        // one simulated frame, drawn (the pane may be hidden, with no rAF)
+    enemy(lane, ahead) { return spawnEnemy(dist + (ahead == null ? 40 : ahead), lane == null ? 1 : lane); },
+    obstacle(kind, lane, ahead) { return spawnObstacle(kind, lane == null ? 1 : lane, dist + (ahead == null ? 40 : ahead)); },   // any catalogue entry, e.g. an enemy model to look at
     state() {
       return { state, speed, score: Math.floor(score), runTotal: runTotal(), laksaCount, runDist: Math.floor(runDist), lane: player.lane, lives, livesLost, invT: +invT.toFixed(2), clock: +clock.toFixed(1), campaignUsed: +campaignUsed.toFixed(1), timeLeft: +timeLeft().toFixed(1), earned: Array.from(earned),
         x: +player.x.toFixed(2), y: +player.y.toFixed(2), jumping: player.jumping, rolling: player.rolling, shield, boostT: +boostT.toFixed(2), magnetT: +magnetT.toFixed(2),
         levelCount, gebukRun, env: envName, obstacles: obstacles.length, laksas: laksas.length, powerups: powerups.length, gebuks: gebuks.length, scenery: scenery.length,
         runStats: Object.assign({}, runStats), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles };
     },
-    obstacles() { return obstacles.map((o) => ({ kind: o.kind, name: o.name, x: +o.x.toFixed(2), z: +(dist - o.s).toFixed(2), depth: o.depth, mover: !!o.mover })); },
+    obstacles() { return obstacles.map((o) => ({ kind: o.kind, name: o.name, x: +o.x.toFixed(2), z: +(dist - o.s).toFixed(2), depth: o.depth, mover: !!o.mover, enemy: o.enemy, hunting: !!(o.chase && o.chase.hunt), locked: !!(o.chase && o.chase.locked) })); },
     gebuks() { return gebuks.map((g) => ({ x: g.x, y: g.y, z: +(dist - g.s).toFixed(2) })); },
     powerups() { return powerups.map((p) => ({ type: p.type, x: p.x, z: +(dist - p.s).toFixed(2) })); },
     level() { return { level, levelCount, gebukRun, progress: JSON.parse(JSON.stringify(progress)) }; },
@@ -2669,7 +2741,7 @@
     },
     startCampaign, selectLevel, showSettings, showAchievements, setStage, elder,
     skipReady() { if (state === 'ready') { readyT = 0; update(0); } },
-    move, jump, roll, start: (l) => startGame(typeof l === 'number' ? l : undefined), nextLevel, showHub, showRegister, showLeaderboard, showStory, showFinal,
+    move, jump, roll, start: (l) => startGame(typeof l === 'number' ? l : undefined), nextLevel, showHub, showRegister, showLeaderboard, showStory, showFinal, showComplete,
     register: (u, e) => GebokStore.register(u, e).then((p) => { useProfile(p); return p; }),
     store: window.GebokStore, player, sfx, applyPowerup,
     showGames: () => window.LaksaArcade.showGames(), setLbTab, goBack, intro, showResults,

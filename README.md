@@ -252,32 +252,67 @@ Three levels, each a different place with its own obstacles and a gebuk mission.
 
 One run is the three levels in a row on a single clock: **120 seconds and 3
 hearts for all of them** (`timeLimit`, `lives` in `config.js`). Each level ends
-the moment both of its missions are done, and the time left, the hearts left and
+the moment its gebuk mission is done (laksa bowls are unlimited), and the time left, the hearts left and
 the score carry into the next level. The clock running out, at any level, shows
 Masa Tamat; losing the third heart shows Game Over; both restart the run from
 level 1. Finishing level 3 shows the Heritage Master screen with the run total.
 
-| Level | Place | Missions | Obstacles |
+| Level | Place | Mission (badge) | Obstacles and enemies |
 |---|---|---|---|
-| 1 · Kampung Laksa (easy) | village: houses, palms, stalls, river | 3 gebuk, 10 laksa | logs, barriers, crates, baskets, chickens, laundry lines, signboards, carts, stalls, vehicles |
-| 2 · Dapur Warisan (medium) | traditional kitchen: wooden floor, walls with shelves, beams | 5 gebuk, 15 laksa | firewood, pots, baskets, hanging utensils, shelves, tables, big pots, sacks, rolling pots, cooks crossing lanes |
-| 3 · Jejak Warisan (hard) | heritage market at sunset: stalls, lanterns, bunting, crowds | 7 gebuk, 20 laksa | fruit baskets, crates, banners, stalls, crowds, carts crossing lanes, narrow fenced paths, faster rows |
+| 1 · Kampung Laksa (easy) | village: houses, palms, stalls, river | 3 gebuk (10 laksa) | logs, barriers, crates, baskets, chickens, laundry lines, signboards, carts, stalls, vehicles; wild boars charging down the open lanes, roosters pacing between lanes |
+| 2 · Dapur Warisan (medium) | traditional kitchen: wooden floor, walls with shelves, beams | 5 gebuk (15 laksa) | firewood, pots, baskets, hanging utensils, shelves, tables, big pots, sacks, rolling pots, cooks and a cat crossing lanes; rats scurrying at you |
+| 3 · Jejak Warisan (hard) | heritage market at sunset: stalls, lanterns, bunting, crowds | 7 gebuk (20 laksa) | fruit baskets, crates, banners, stalls, crowds, carts crossing lanes, narrow fenced paths, faster rows; monkeys that hunt your lane and fast dogs |
 
-The HUD shows the level, run score and distance, the mission list with live
-counts and ticks, and the five achievement badges on the left; hearts, the
-countdown and the pause button on the right. "Restart level" in the pause menu
+The HUD follows the Kampung Laksa mockup. Top left: the small Laksa Gebok Run
+logo and a wooden plate with a map pin and the level's name. Under it the MISI
+panel (parchment in a wooden frame, leaves at the corners): one row per
+mission with its icon, name and live count, which turns green with a tick
+when done. Below that the purple PENCAPAIAN plaque over a wooden panel with
+the five achievement tiles, grey until earned and coloured once lit. Top
+right: wooden pills for the score (star) and distance, the round wooden pause
+button and the sound button, then the hearts in a cream pill with a blue rim,
+and the countdown on a dark red plate with an alarm-clock disc (red and
+pulsing in the last 10 s). Active power-ups show as wooden pills under the
+top row, and a batik band runs along the bottom. On phones the logo is hidden
+and both columns shrink to fit side by side. "Restart level" in the pause menu
 keeps the hearts the level began with, but the time already spent stays spent.
 
-Achievements per level: Misi gebuk, Misi laksa, Power-up, Pantas (missions done
+## Enemies
+
+Each level has creatures that come at the runner as well as the fixed
+obstacles. Chargers run down an open lane towards you on top of the road's
+speed (the wild boar in the kampung, rats in the kitchen, monkeys and dogs at
+the market), and some of them hunt: a second or two before they arrive they
+shift into your lane. A growl sounds when one is about two seconds out, and
+the first of each kind in a level is named in a banner ("Babi hutan! Lompat
+atau tukar lorong"). Roosters (kampung) and the cat (kitchen) pace between two
+lanes like the cooks. All of them are low: jump over them or change lane; a
+hit costs a heart like any obstacle, the tudung saji absorbs it, and with the
+cili boost you bowl them over for +20. `enemies` in each level of `config.js`
+is the chance of a charger per row (rising with the run's clock), `movers`
+the chance of a pacing row.
+
+Achievements per level: Misi gebuk, Pengumpul laksa (10 / 15 / 20 bowls in
+one level; collecting goes on past it), Power-up, Pantas (gebuk mission done
 within 30 s of the level start), Tanpa langgaran (no heart lost). They light up
 as they are earned, are listed on the mission-complete screen, counted on the
 final screen, and stored on the player's record (`achievements`, by level) and
 with every run.
 
+The MISI SELESAI screen follows its mockup: the small Laksa Gebok Run logo
+over a parchment card in a gold frame, a purple "MISI SELESAI!" ribbon with
+laurels, the traveller celebrating at the left, three stat cards (GEBUK x / need,
+MANGKUK LAKSA collected / badge threshold, MASA left), the red SKOR
+KESELURUHAN plate with the run total, a small "Skor level" line, the
+PENCAPAIAN LEVEL badge tiles and the blue MAIN MISI SETERUSNYA button
+(KEPUTUSAN AKHIR after level 3). The level menu and the leaderboard are
+reached from the games hub, not from this card. On phones the stat cards
+stack and the character is hidden.
+
 ## Scoring
 
-Laksa bowl +10 · gebuk +50 · gebuk target reached +200 · both missions complete
-+300 · no hearts lost +100 · at the end of level 3, +10 per second left (at most
+Laksa bowl +10 (no cap) · gebuk +50 · enemy bowled over with the cili boost
++20 · gebuk target reached +200 · level complete +300 · no hearts lost +100 · at the end of level 3, +10 per second left (at most
 +600). Scores add up across the three levels; the leaderboard ranks the best run
 total. Each level's own score is also kept (`levelBest`).
 
