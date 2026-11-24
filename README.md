@@ -51,10 +51,26 @@ two coins) whose portal door stands on column 3 (`GATE_DOOR_COL`, `gates[]`);
 touching it starts a warp (`warp`, `warpStep`): 0.4 s fade to dark with the
 next zone's name, the player lands past the arrival door of the next zone
 (`gt.land`, first column with ground, `lastSafe` moved there), 0.4 s fade in.
-Doors are wooden arches (`drawPortal`): an open exit glows in the next zone's
-sky colours with rising rings and carries a plaque "→ icon NAME"; arrival
-doors (at column 1.5 of each zone, zone 0 included) and used exits are closed.
-Losing a life still returns the player to the very start. The pictures are
+Doors are wooden arches (`drawPortal`) and every one of them glows all the
+time, however often it is entered: an exit glows in the next zone's sky
+colours with rising rings and a turning light spiral and carries a plaque
+"→ icon NAME"; the arrival door of each zone (column 1.5, `gt.land`) glows in
+the previous zone's colours under a "← icon NAME" plaque and warps the player
+back onto that zone's gate strip, two tiles before its exit door. A door fires
+when the player's centre comes within 22 px of its centre, from either side
+(`inDoor` keeps a door from firing twice while the player stands in it). Only
+the door at the world's start is closed: nothing lies behind it.
+After Kampung Laksa Gebok the door leads back to Kampung Pahang for the next
+lap (`lap` on `zoneMarks` and `gates`): the lap opens like the first scene,
+a flat start strip with one pickup and one coin (`HOME`, counted as one of
+the zone's chunks), and every other chunk of a repeat lap keeps only every
+second pickup, coin, rare and power-up (every third from lap 3; `every` in
+`appendChunk`). The door plaque, the warp text and the zone banner add
+"Pusingan 2" from the second lap on. Losing a life returns the player to the
+very start (`repeatWorld`): the layout stays,
+every second collected pickup comes back (every third after the next lost
+life), stomped boars likewise, rocks are re-armed and a question block's gift
+is given once. Nothing behind the player is pruned any more. The pictures are
 scenery only: the path sits on row 9 (`GROUND`), platforms, gaps and hazards
 keep their own collision tiles, gaps are shaded over the picture, and
 `addJumpPlanks` puts a plank within one jump of the path in every chunk.

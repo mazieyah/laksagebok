@@ -53,6 +53,19 @@
     '################',
     '################',
     '################']);
+  const HOME = C('home', [                                       // the first scene again (after the last portal): the flat start strip with one pickup and one coin, fewer than START
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '................',
+    '.........*..c...',
+    '................',
+    '################',
+    '################',
+    '################']);
+  const FLAT = (ch) => ch === START || ch === GATE || ch === HOME;   // strips without planks or scenery
   const GATE_DOOR_COL = 3;                                       // the portal door stands on this column of the gate strip
   const GATE = C('gate', [                                       // the end of every setting: flat ground, two coins, the portal door; the strip beyond the door is never walked
     '................',
@@ -284,7 +297,7 @@
       '######################',
       '######################']),
   ];
-  for (const ch of [START].concat(CHUNKS)) if (ch.rows.length !== ROWS || ch.rows.some((r) => r.length !== ch.w)) throw new Error('LaksaQuest: bad chunk ' + ch.tag);
+  for (const ch of [START, GATE, HOME].concat(CHUNKS)) if (ch.rows.length !== ROWS || ch.rows.some((r) => r.length !== ch.w)) throw new Error('LaksaQuest: bad chunk ' + ch.tag);
   const ACHV = [
     ['🍜', 'Mangkuk Pertama', () => bowls >= 1], ['👨‍🍳', 'Tukang Masak', () => bowls >= 3], ['🏆', 'Pakar Laksa Gebok', () => bowls >= 5],
     ['🧺', 'Pemungut Bahan', () => ingredients >= 30], ['💰', 'Kaya Syiling', () => coins >= 25], ['🛡️', 'Tanpa Cedera', () => hits === 0 && runTime >= LIMIT - 0.5],
@@ -377,10 +390,11 @@
   const sfx = () => window.GebokRun.sfx;
   let open = false, raf = 0, last = 0, started = false;
   let map = [], cols = 0, solids = new Set(), colZone = [], zoneMarks = [], zoneIdx = 0, chunkN = 0, lastChunk = null, needIdx = 0;
-  let gates = [], warp = null;                                  // portal doors at the end of each setting, and the fade while passing through one
+  let genLap = 1, curLap = 1, repeats = 0;                      // the lap being generated, the lap the player is in, and how often a lost life sent the player back to the start
+  let gates = [], warp = null, inDoor = null;                   // portal doors at the end of each setting, the fade while passing through one, and the door the player stands in
   let player, items = [], enemies = [], hazards = [], rocks = [], deco = [], parts = [], floats = [], spawn = { x: 2 * T, y: 6 * T }, lastSafe;
   let lives, score, bowls, inv = {}, extraInv = {}, coins, ingredients, extras, rares, hits, stomps, powerT = { G: 0, S: 0, B: 0 }, bowlAnimT = 0, hurtT = 0, movers = [];
-  let camX, time, runTime, invT, banner = '', bannerT = 0, over = false, paused = false, almariOpen = false, lastSec = -1, curZone = -1, pruneN = 0, bumps = [];
+  let camX, time, runTime, invT, banner = '', bannerT = 0, over = false, paused = false, almariOpen = false, lastSec = -1, curZone = -1, bumps = [];
   const keys = { left: false, right: false, jump: false }, held = { jump: false };
   let coyote = 0, jumpBuf = 0, doubleOk = true;              // one extra jump in the air, back on landing
   const clouds = Array.from({ length: 7 }, (_, i) => ({ x: i * 260 + 40, y: 40 + (i % 3) * 36, w: 90 + (i % 4) * 30 }));
@@ -399,6 +413,8 @@
     const base = cols;
     const zone = ZONES[zoneIdx];
     const standing = [];
+    const every = genLap === 1 || ch === HOME ? 1 : genLap === 2 ? 2 : 3;   // a scene seen again holds fewer pickups: every second one on lap 2, every third from lap 3
+    let nth = 0;
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < ch.w; c++) {
       let t = ch.rows[r][c] || '.';
       if (r === GROUND - 1 && t === '#') t = '.';             // drop the old top soil so the path sits one tile lower
@@ -408,10 +424,11 @@
       else if (t === 'P') spawn = { x: x + 7, y: y + T - 56 };
       else if (t === '*') t = randomPickup();
       else if (t === '?') t = randomPower();
+      if (every > 1 && (t === 'c' || t === '$' || NEED[t] || EXTRA[t] || POWER[t]) && nth++ % every !== 0) t = '.';
       if (t === 'c') items.push(item(x, y, 'c'));
       else if (t === '$') items.push(item(x, y, '$'));
       else if (NEED[t] || EXTRA[t] || POWER[t]) items.push(item(x, y, t));
-      else if (t === 'W' || t === 'M' || t === 'Z') { const e = { kind: 'W', x: x + 2, y, w: 44, h: 34, vx: -60, dir: -1, alive: true }; enemies.push(e); standing.push(e); }
+      else if (t === 'W' || t === 'M' || t === 'Z') { const e = { kind: 'W', x: x + 2, sx: x + 2, y, w: 44, h: 34, vx: -60, dir: -1, alive: true }; enemies.push(e); standing.push(e); }
       else if (t === '^') { const hz = { kind: '^', x: x + 3, y, w: T - 6, h: T * 0.6 }; hazards.push(hz); standing.push(hz); }
       else if (t === 'L') { const hz = { kind: 'L', x: x - 8, y, w: T + 16, h: 30 }; hazards.push(hz); standing.push(hz); }
       else if (t === 'O') rocks.push({ cx: x + T / 2, x: x + 6, y: -44, w: 36, h: 36, vy: 0, state: 'wait', t: 0 });
@@ -419,17 +436,18 @@
     }
     for (let c = 0; c < ch.w; c++) colZone.push(zoneIdx);
     cols += ch.w;
-    if (ch !== START && ch !== GATE && zone.deco && zone.deco.length && !(zone.bg && zone.bg.complete)) { const d = zone.deco[Math.floor(Math.random() * zone.deco.length)]; deco.push({ x: (base + 2 + Math.random() * (ch.w - 5)) * T, name: d[0], scale: d[1] }); }
-    if (ch !== START && ch !== GATE) addJumpPlanks(base, ch.w);
+    if (!FLAT(ch) && zone.deco && zone.deco.length && !(zone.bg && zone.bg.complete)) { const d = zone.deco[Math.floor(Math.random() * zone.deco.length)]; deco.push({ x: (base + 2 + Math.random() * (ch.w - 5)) * T, name: d[0], scale: d[1] }); }
+    if (!FLAT(ch)) addJumpPlanks(base, ch.w);
     detachMover(base, ch.w, zone);
     for (const o of standing) { const g = groundBelow(o.x + o.w / 2, o.y); if (g > 0) o.y = g * T - o.h; }
     if (ch === GATE) return;                                    // the gate strip is not one of the setting's chunks
     chunkN += 1;
     if (chunkN % ZONE_CHUNKS === 0) {                           // the setting ends: a flat strip with the portal door, then the next setting begins
       appendChunk(GATE);
-      const next = (zoneIdx + 1) % ZONES.length;
-      gates.push({ x: (cols - GATE.w + GATE_DOOR_COL) * T, from: zoneIdx, to: next, land: cols * T, used: false });
-      zoneIdx = next; zoneMarks.push({ x: cols * T, zone: zoneIdx });
+      const next = (zoneIdx + 1) % ZONES.length, lap = next === 0 ? genLap + 1 : genLap;
+      gates.push({ x: (cols - GATE.w + GATE_DOOR_COL) * T, from: zoneIdx, fromLap: genLap, to: next, lap, land: cols * T });
+      zoneIdx = next; genLap = lap; zoneMarks.push({ x: cols * T, zone: zoneIdx, lap });
+      if (next === 0) appendChunk(HOME);                        // the next lap opens like the first: the flat start strip, with less on it
     }
   }
   function addJumpPlanks(base, w) {                          // a plank within one jump of the path, plus a higher one on long chunks
@@ -475,7 +493,9 @@
   }
   function ensure(col) { while (cols < col) appendChunk(pickChunk()); }
   const solidAt = (c, r) => (r < 0 || r >= ROWS || c < 0 ? false : solids.has(c * 16 + r));
-  const zoneAt = (x) => { let z = 0; for (const m of zoneMarks) if (m.x <= x) z = m.zone; return z; };
+  const markAt = (x) => { let m = zoneMarks[0]; for (const k of zoneMarks) if (k.x <= x) m = k; return m; };
+  const zoneAt = (x) => markAt(x).zone, lapAt = (x) => markAt(x).lap || 1;
+  const zoneTitle = (z, lap) => ZONES[z].icon + ' ' + ZONES[z].name + (lap > 1 ? ' · Pusingan ' + lap : '');
   function overlaps(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
 
   // ---- a run ----
@@ -483,11 +503,23 @@
     player = { x: at.x, y: at.y, w: 34, h: 56, vx: 0, vy: 0, face: 1, ground: false, anim: 0 };
     invT = 1.5;
   }
+  function repeatWorld() {                                     // back at the start: the same scenes again, with fewer pickups than the first time
+    repeats += 1;
+    const every = repeats === 1 ? 2 : 3;                        // every second collected pickup comes back the first time, every third after that
+    items = items.filter((it) => !(it.got && it.pop !== undefined));   // a question block's gift is given once
+    let n = 0;
+    for (const it of items) if (it.got && n++ % every === 0) it.got = false;
+    n = 0;
+    for (const e of enemies) if (!e.alive && n++ % every === 0) { e.alive = true; e.x = e.sx; e.vx = -60; e.dir = -1; }
+    for (const R of rocks) if (R.state !== 'wait') Object.assign(R, { state: 'wait', x: R.cx - 18, y: -44, vy: 0, t: 0 });
+    bumps = [];
+  }
   function startRun() {
-    map = Array.from({ length: ROWS }, () => []); cols = 0; solids = new Set(); colZone = []; zoneMarks = [{ x: 0, zone: 0 }]; zoneIdx = 0; chunkN = 0; lastChunk = null; needIdx = 0; gates = []; warp = null;
+    map = Array.from({ length: ROWS }, () => []); cols = 0; solids = new Set(); colZone = []; zoneMarks = [{ x: 0, zone: 0, lap: 1 }]; zoneIdx = 0; chunkN = 0; lastChunk = null; needIdx = 0; gates = []; warp = null; inDoor = null;
+    genLap = 1; curLap = 1; repeats = 0;
     items = []; enemies = []; hazards = []; rocks = []; movers = []; deco = []; parts = []; floats = []; bumps = [];
     score = 0; lives = 3; bowls = 0; inv = {}; extraInv = {}; coins = 0; ingredients = 0; extras = 0; rares = 0; hits = 0; stomps = 0; powerT = { G: 0, S: 0, B: 0 }; bowlAnimT = 0; hurtT = 0;
-    camX = 0; time = 0; runTime = 0; lastSec = -1; over = false; paused = false; almariOpen = false; curZone = -1; pruneN = 0;
+    camX = 0; time = 0; runTime = 0; lastSec = -1; over = false; paused = false; almariOpen = false; curZone = -1;
     appendChunk(START);
     ensure(Math.ceil(W * 2 / T));
     resetPlayer(spawn); invT = 0; lastSafe = { x: spawn.x, y: spawn.y };
@@ -520,7 +552,7 @@
   }
   function hud() {
     const z = ZONES[Math.max(0, curZone)];
-    $('pf-level').textContent = 'LAKSA QUEST · ' + z.icon + ' ' + z.name.toUpperCase();
+    $('pf-level').textContent = 'LAKSA QUEST · ' + zoneTitle(Math.max(0, curZone), curLap).toUpperCase();
     $('pf-score').textContent = String(score).padStart(6, '0');
     const lv = $('pf-lives');
     lv.replaceChildren();
@@ -612,6 +644,7 @@
     if (lives <= 0) { over = true; hud(); endRun('crashed'); return; }
     resetPlayer(spawn);                                         // back to the start, but the 3-minute clock keeps running
     camX = 0; lastSafe = { x: spawn.x, y: spawn.y }; invT = 1.4;
+    repeatWorld();
     say('−1 ♥  Mula dari awal!  ' + lives + ' lagi', 2);
     hud();
   }
@@ -788,19 +821,21 @@
     for (const it of items) if (!it.got && overlaps(box, it)) collect(it);
     for (let i = parts.length - 1; i >= 0; i--) { const q = parts[i]; q.t -= dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vy += 600 * dt; if (q.t <= 0) parts.splice(i, 1); }
     for (let i = floats.length - 1; i >= 0; i--) { const f = floats[i]; f.t -= dt; f.y -= 42 * dt; if (f.t <= 0) floats.splice(i, 1); }
-    for (const gt of gates) if (!gt.used && p.x + p.w / 2 >= gt.x + T / 2 - 6 && p.x < gt.x + T * 3) {   // into the portal
-      gt.used = true; warp = { t: 0, gate: gt, jumped: false }; keys.left = keys.right = false; sfx().portal(); break;
+    const near = (cx) => Math.abs(p.x + p.w / 2 - cx) < 22;     // standing in a door
+    let hit = null;
+    for (const gt of gates) {
+      if (near(gt.x + T / 2)) { hit = { gate: gt, back: false, key: gt.x + 'f' }; break; }
+      if (near(gt.land + T * 1.5) && groundBelow(gt.land + T * 1.5, 0) === GROUND) { hit = { gate: gt, back: true, key: gt.x + 'b' }; break; }
     }
+    if (hit && hit.key !== inDoor) {                              // stepping into a portal door, from either side, as often as the player likes: every door stays open
+      warp = { t: 0, gate: hit.gate, back: hit.back, jumped: false }; keys.left = keys.right = false; sfx().portal();
+    }
+    inDoor = hit ? hit.key : null;
     if (warp) return;
     camX += ((p.x + p.w / 2 - W * 0.4) - camX) * Math.min(1, dt * 6);
     camX = Math.max(0, camX);
-    const z = zoneAt(p.x + p.w / 2);
-    if (z !== curZone) { curZone = z; if (runTime > 1) say(ZONES[z].icon + ' ' + ZONES[z].name, 2); hud(); }
-    if (++pruneN % 120 === 0) {                                 // forget what is far behind
-      const lim = camX - 600;
-      items = items.filter((it) => !it.got && it.x > lim); enemies = enemies.filter((e) => e.alive && e.x > lim); deco = deco.filter((d) => d.x > lim);
-      rocks = rocks.filter((R) => R.state !== 'done'); hazards = hazards.filter((hz) => hz.x > lim); movers = movers.filter((m) => m.x + m.w > lim); gates = gates.filter((gt) => gt.x > lim);
-    }
+    const z = zoneAt(p.x + p.w / 2), lp = lapAt(p.x + p.w / 2);
+    if (z !== curZone || lp !== curLap) { curZone = z; curLap = lp; if (runTime > 1 && hurtT <= 0) say(zoneTitle(z, lp), 2); hud(); }   // after a lost life the "Mula dari awal" banner stays
     $('pf-score').textContent = String(score).padStart(6, '0');
   }
   function warpStep(dt) {                                       // through the portal: fade out, land past the arrival door of the next setting, fade in
@@ -808,8 +843,9 @@
     if (!warp.jumped && warp.t >= 0.4) {
       warp.jumped = true;
       const gt = warp.gate, p = player;
-      let c = Math.floor(gt.land / T) + 2, g = -1;
-      for (let k = 0; k < 8; k++) { g = groundBelow((c + k + 0.5) * T, 0); if (g > 0) { c += k; break; } }
+      let c, g = -1;
+      if (warp.back) { c = Math.floor(gt.x / T) - 2; g = groundBelow((c + 0.5) * T, 0); }   // back onto the gate strip, two tiles before its exit door
+      else { c = Math.floor(gt.land / T) + 2; for (let k = 0; k < 8; k++) { g = groundBelow((c + k + 0.5) * T, 0); if (g > 0) { c += k; break; } } }
       p.x = c * T + 7; p.y = (g > 0 ? g : GROUND) * T - p.h; p.vx = 0; p.vy = 0; p.ground = true; p.face = 1;
       camX = Math.max(0, p.x + p.w / 2 - W * 0.4);
       lastSafe = { x: p.x, y: p.y }; invT = Math.max(invT, 0.8);
@@ -933,7 +969,7 @@
         }
       }
     }
-    for (const m of zoneMarks) if (!photo && m.x + 60 > camX - 160 && m.x + 60 < camX + W + 160) drawSignboard(g, m.x + 60, ZONES[m.zone]);
+    for (const m of zoneMarks) if (!photo && m.x + 60 > camX - 160 && m.x + 60 < camX + W + 160 && groundBelow(m.x + T * 1.5, 0) !== GROUND) drawSignboard(g, m.x + 60, ZONES[m.zone], m.lap);   // no sign where the arrival door (and its plaque) stands
     if (ZONES[Math.max(0, curZone)].water || colZone.slice(c0, c1 + 1).some((zi) => ZONES[zi].water)) {   // logs and fish in the streams
       let run = null;
       for (let c = c0; c <= c1 + 1; c++) {
@@ -960,8 +996,12 @@
         g.fillStyle = '#c08a4a'; g.fillRect(x, y, n * T, T * 0.55); g.fillStyle = '#8a5a2b'; g.fillRect(x, y, n * T, 5); g.fillRect(x, y + T * 0.55 - 5, n * T, 5);
       }
     }
-    for (const gt of gates) if (gt.x > camX - 200 && gt.x < camX + W + 200) drawPortal(g, gt.x + T / 2, ZONES[gt.to], true, gt.used);          // exit doors
-    for (const m of zoneMarks) { const ax = m.x + T * 1.5; if (ax > camX - 200 && ax < camX + W + 200 && groundBelow(ax, 0) === GROUND) drawPortal(g, ax, ZONES[m.zone], false, true); }   // arrival doors
+    for (const gt of gates) {                                   // every door glows all the time: exits lead on, arrival doors lead back
+      if (gt.x > camX - 200 && gt.x < camX + W + 200) drawPortal(g, gt.x + T / 2, ZONES[gt.to], true, false, gt.lap);
+      const ax = gt.land + T * 1.5;
+      if (ax > camX - 200 && ax < camX + W + 200 && groundBelow(ax, 0) === GROUND) drawPortal(g, ax, ZONES[gt.from], true, false, gt.fromLap, true);
+    }
+    if (camX < T * 1.5 + 200) drawPortal(g, T * 1.5, ZONES[0], false, true, 1);   // the closed door at the world's start: nothing lies behind it
     for (const m of movers) if (m.x + m.w > camX - 80 && m.x < camX + W + 80) {
       g.strokeStyle = '#c9a070'; g.lineWidth = 3;
       g.beginPath(); g.moveTo(m.x + 12, m.y + 4); g.lineTo(m.x + 12, m.y - 48); g.moveTo(m.x + m.w - 12, m.y + 4); g.lineTo(m.x + m.w - 12, m.y - 48); g.stroke();
@@ -1050,13 +1090,15 @@
       g.setTransform(1, 0, 0, 1, 0, 0);
       g.fillStyle = 'rgba(12, 6, 2, ' + a.toFixed(3) + ')'; g.fillRect(0, 0, W, H);
       if (a > 0.5) {
-        const zn = ZONES[warp.gate.to];
+        const zn = ZONES[warp.back ? warp.gate.from : warp.gate.to], lp = warp.back ? warp.gate.fromLap : warp.gate.lap;
         g.globalAlpha = (a - 0.5) * 2; g.fillStyle = '#ffe08a'; g.font = "800 30px 'Baloo 2', Nunito, Arial, sans-serif"; g.textAlign = 'center'; g.textBaseline = 'middle';
-        g.fillText(zn.icon + '  ' + zn.name, W / 2, H / 2); g.globalAlpha = 1; g.textBaseline = 'alphabetic';
+        g.fillText(zn.icon + '  ' + zn.name, W / 2, H / 2 - (lp > 1 ? 14 : 0));
+        if (lp > 1) { g.font = "800 20px 'Baloo 2', Nunito, Arial, sans-serif"; g.fillStyle = '#ffd45a'; g.fillText('Pusingan ' + lp, W / 2, H / 2 + 22); }
+        g.globalAlpha = 1; g.textBaseline = 'alphabetic';
       }
     }
   }
-  function drawPortal(g, cx, zone, exit, closed) {              // a wooden arch on the path; an open exit door glows with the next setting's colours
+  function drawPortal(g, cx, zone, exit, closed, lap, back) {   // a wooden arch on the path; an open door glows with the colours of the setting it leads to, with rising rings and a turning spiral; the plaque names the lap from the second one on
     const gy = GROUND * T, w = 70, h = 102, x = cx - w / 2, y = gy - h, r = w / 2;
     const arch = (inset) => { g.beginPath(); g.moveTo(x + inset, gy); g.lineTo(x + inset, y + r); g.arc(cx, y + r, r - inset, Math.PI, 0); g.lineTo(x + w - inset, gy); g.closePath(); };
     g.fillStyle = 'rgba(0,0,0,.18)'; g.beginPath(); g.ellipse(cx, gy + 3, w * 0.62, 7, 0, 0, Math.PI * 2); g.fill();
@@ -1070,19 +1112,22 @@
       g.fillStyle = grd; g.fillRect(x, y, w, h);
       g.strokeStyle = 'rgba(255,255,255,.6)'; g.lineWidth = 3;
       for (let k = 0; k < 3; k++) { const ph = (time * 0.8 + k / 3) % 1; g.globalAlpha = 1 - ph; g.beginPath(); g.ellipse(cx, y + r + 22, 5 + ph * 30, 8 + ph * 48, 0, 0, Math.PI * 2); g.stroke(); }
+      g.globalAlpha = 0.55; g.lineWidth = 2;                       // the light swirl: two spiral arms turning around the centre
+      for (let k = 0; k < 2; k++) { g.beginPath(); for (let i = 0; i <= 22; i++) { const th = (back ? -1 : 1) * time * 2.6 + k * Math.PI + i * 0.27, rr = 2 + i * 1.25; const sx = cx + Math.cos(th) * rr, sy = y + r + 22 + Math.sin(th) * rr * 1.5; if (i) g.lineTo(sx, sy); else g.moveTo(sx, sy); } g.stroke(); }
       g.globalAlpha = 1; g.restore();
     } else {
       arch(8); g.fillStyle = closed && !exit ? '#8a5a2b' : '#6b4a2e'; g.fill();
       g.fillStyle = 'rgba(0,0,0,.18)'; for (let k = 1; k < 4; k++) g.fillRect(x + 8 + k * (w - 16) / 4 - 1, y + 22, 2, h - 22);
       g.fillStyle = '#f0c14a'; g.beginPath(); g.arc(cx + 13, y + h * 0.6, 3.5, 0, Math.PI * 2); g.fill();
     }
-    const label = (exit ? '\u2192 ' : '') + zone.icon + ' ' + (zone.sign || [zone.name.toUpperCase()]).join(' ');
+    const lines = [(exit ? (back ? '\u2190 ' : '\u2192 ') : '') + zone.icon + ' ' + (zone.sign || [zone.name.toUpperCase()]).join(' ')];
+    if (lap > 1) lines.push('PUSINGAN ' + lap);
     g.font = '800 11px Nunito, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    const tw = Math.max(72, g.measureText(label).width + 18), py = y - 28;
-    g.fillStyle = '#6b4a2e'; g.fillRect(cx - 3, py + 10, 6, 14);
-    g.fillStyle = '#4e2a0e'; g.fillRect(cx - tw / 2 - 2, py - 12, tw + 4, 26);
-    g.fillStyle = '#c08a4a'; g.fillRect(cx - tw / 2, py - 10, tw, 22);
-    g.fillStyle = '#3a2208'; g.fillText(label, cx, py + 1);
+    const tw = Math.max(72, Math.max.apply(null, lines.map((ln) => g.measureText(ln).width)) + 18), ph = 12 + lines.length * 13, py = y - 28 - (lines.length - 1) * 6;
+    g.fillStyle = '#6b4a2e'; g.fillRect(cx - 3, py + ph / 2 - 2, 6, y - py - ph / 2 + 4);
+    g.fillStyle = '#4e2a0e'; g.fillRect(cx - tw / 2 - 2, py - ph / 2 - 1, tw + 4, ph + 2);
+    g.fillStyle = '#c08a4a'; g.fillRect(cx - tw / 2, py - ph / 2, tw, ph);
+    g.fillStyle = '#3a2208'; lines.forEach((ln, i) => g.fillText(ln, cx, py - (lines.length - 1) * 6.5 + i * 13 + 1));
     g.textBaseline = 'alphabetic';
   }
   function bgReady(zone) { const img = zone && zone.bg; return !!(img && img.complete && img.naturalWidth); }
@@ -1111,7 +1156,7 @@
     }
     g.restore();
   }
-  function drawSignboard(g, x, zone) {                        // the zone's wooden sign at its first chunk
+  function drawSignboard(g, x, zone, lap) {                   // the zone's wooden sign at its first chunk, with a yellow lap tag from the second lap on
     const gy = GROUND * T;
     g.fillStyle = '#6b4a2e'; g.fillRect(x - 5, gy - 112, 10, 112);
     g.fillStyle = '#4e2a0e'; g.fillRect(x - 60, gy - 150, 120, 72);
@@ -1120,6 +1165,11 @@
     g.fillStyle = '#3a2208'; g.font = '800 15px Nunito, Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
     const lines = zone.sign || [zone.name.toUpperCase()];
     lines.forEach((ln, i) => g.fillText(ln, x, gy - 114 - (lines.length - 1) * 9 + i * 18));
+    if (lap > 1) {
+      g.fillStyle = '#7a1a10'; g.fillRect(x - 38, gy - 76, 76, 20);
+      g.fillStyle = '#ffe03a'; g.fillRect(x - 36, gy - 74, 72, 16);
+      g.fillStyle = '#7a1a10'; g.font = '800 10px Nunito, Arial, sans-serif'; g.fillText('PUSINGAN ' + lap, x, gy - 66);
+    }
     g.textBaseline = 'alphabetic';
   }
   function drawRock(g, x, y) {
@@ -1238,9 +1288,9 @@
     tp: (x) => { if (!player) return; ensure(Math.floor(x / T) + 40); const g = groundBelow(x + player.w / 2, 0); player.x = x; player.y = (g > 0 ? g : GROUND) * T - player.h; player.vx = player.vy = 0; player.ground = true; camX = Math.max(0, x + player.w / 2 - W * 0.4); },   // test hook: stand the player on the ground at x
  NEED, EXTRA, RARE, POWER, ZONES, CHUNKS, SC, FR,
     get atlasReady() { return atlasOk; },
-    debug: () => ({ doubleOk, lives, score, bowls, gates: gates.map((gt) => ({ x: gt.x, to: gt.to, used: gt.used })), warp: warp ? +warp.t.toFixed(2) : null, playerX: player ? Math.round(player.x) : null, camX: Math.round(camX), inv: Object.assign({}, inv), extraInv: Object.assign({}, extraInv), coins, ingredients, extras, rares, hits, stomps, powerT: Object.assign({}, powerT), runTime: +runTime.toFixed(2), zone: curZone, cols,
+    debug: () => ({ doubleOk, lives, score, bowls, gates: gates.map((gt) => ({ x: gt.x, to: gt.to, lap: gt.lap, land: gt.land })), inDoor, lap: curLap, genLap, repeats, marks: zoneMarks.length, warp: warp ? +warp.t.toFixed(2) : null, playerX: player ? Math.round(player.x) : null, camX: Math.round(camX), inv: Object.assign({}, inv), extraInv: Object.assign({}, extraInv), coins, ingredients, extras, rares, hits, stomps, powerT: Object.assign({}, powerT), runTime: +runTime.toFixed(2), zone: curZone, cols,
       player: player && { x: Math.round(player.x), y: Math.round(player.y), ground: player.ground, frame: playerFrame() }, items: items.filter((i) => !i.got).length, enemies: enemies.filter((e) => e.alive).length, rocks: rocks.length,
       started, over, paused, almariOpen, banner, bannerT: +bannerT.toFixed(2), invT: +invT.toFixed(2) }),
-    live: () => ({ player, items, enemies, hazards, rocks, map, deco, setLives: (n) => { lives = n; hud(); }, setTime: (t) => { runTime = t; lastSec = -1; timerText(); }, collect, hurt, lastSafe: () => lastSafe }),
+    live: () => ({ player, items, enemies, hazards, rocks, map, deco, setLives: (n) => { lives = n; hud(); }, setTime: (t) => { runTime = t; lastSec = -1; timerText(); }, collect, hurt, repeat: repeatWorld, lastSafe: () => lastSafe }),
   };
 })();
