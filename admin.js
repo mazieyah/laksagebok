@@ -6,7 +6,7 @@
   'use strict';
   const $ = (id) => document.getElementById(id);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-  const LEVEL = { 1: 'L1 Kampung Laksa', 2: 'L2 Dapur Warisan', 3: 'L3 Jejak Warisan' };
+  const LEVEL = { 1: 'L1 Kampung Laksa', 2: 'L2 Dapur Laksa', 3: 'L3 Pasar Warisan' };
   const num = (n) => Math.round(n || 0).toLocaleString();
   const fmtDate = (iso) => (iso ? new Date(iso).toLocaleString() : '–');
   const fmtTime = (sec) => {

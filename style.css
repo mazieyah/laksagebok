@@ -1337,6 +1337,8 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .play-btn.popup-ok { width: auto; min-width: 160px; margin: 6px auto 0; padding: 8px 36px 10px; font-size: 24px; }
 @media (prefers-reduced-motion: reduce) { .login-popup-card { animation: none; } }
 .play-tri { width: 30px; height: 30px; fill: #fff; filter: drop-shadow(0 2px 0 #7a1d0b); flex: none; }
+.back-tri { width: 22px; height: 22px; fill: currentColor; flex: none; vertical-align: -5px; margin-right: 6px; }   /* the back arrow on a plain .btn (MENU PERMAINAN) */
+.pf-rbtn-ico { width: 60%; height: 60%; fill: currentColor; display: block; margin: auto; }   /* Laksa Quest's round HUD button: the back arrow to the games menu */
 .rank-btn {
   position: fixed; z-index: 3;
   top: max(10px, env(safe-area-inset-top, 0px));
@@ -2077,8 +2079,10 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 }
 
 /* ---- Laksa Quest "Syarat Permainan": compact illustrated rows (mockups 2026-11-23) ---- */
-#pf-rules, #xw-rules, #ws-rules { padding-top: 54px; }                                  /* room for the logo that overhangs the card */
-#pf-rules .rules-card, #xw-rules .rules-card, #ws-rules .rules-card { width: min(560px, 100%); margin: auto; }
+#pf-rules, #xw-rules, #ws-rules, #howto, #mission { padding-top: 54px; }                                  /* room for the logo that overhangs the card */
+#pf-rules .rules-card, #xw-rules .rules-card, #ws-rules .rules-card, #howto .rules-card, #mission .rules-card { width: min(560px, 100%); margin: auto; }
+#howto .qr-ico .gebuk-icon, #mission .qr-ico .gebuk-icon { width: 30px; height: 44px; }   /* Gebok Run cards: the brass gebuk as a row icon */
+#mission .qr-art { gap: 8px; }
 .qr-card { padding: 14px 12px 26px; gap: 8px; }        /* the gold bar sits 10-20px from the bottom; the OK button and its 5px shadow stay above it */
 .qr-card .done-head { margin: -66px 0 -14px; }
 .qr-card .done-logo { width: min(380px, 100%); }

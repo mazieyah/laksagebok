@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, unlimited laksa bowls, gebuk missions, charging enemies and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=83">
+<link rel="stylesheet" href="style.css?v=85">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -263,7 +263,7 @@
         <div id="pf-lives" class="pf-lives" aria-label="Nyawa"></div>
         <button id="pf-almari-btn" class="pf-rbtn" type="button" aria-label="Almari Bahan" title="Almari Bahan (I)">🧺</button>
         <button id="pf-sound" class="pf-rbtn" type="button" aria-label="Bunyi" title="Bunyi">🔊</button>
-        <button id="pf-exit" class="pf-rbtn" type="button" aria-label="Back to games" title="Permainan">✕</button>
+        <button id="pf-exit" class="pf-rbtn" type="button" aria-label="Menu Permainan" title="Menu Permainan"><svg class="pf-rbtn-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg></button>
       </div>
       <div class="pf-stats">
         <div class="pf-stat"><span id="pf-stat-bowl" class="pf-stat-ico">🍜</span><span class="pf-stat-text"><small>Mangkuk Laksa</small><b id="pf-bowls">0</b></span></div>
@@ -376,7 +376,7 @@
       </div>
       <div class="done-btns">
         <button id="pf-primary" class="done-again" type="button"><span class="done-play" aria-hidden="true"></span>MAIN SEMULA</button>
-        <button id="pf-secondary" class="done-home" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-5.2v-6.2H10.2V21H5a1 1 0 0 1-1-1z"/></svg>PERMAINAN</button>
+        <button id="pf-secondary" class="done-home" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg>MENU PERMAINAN</button>
       </div>
     </div>
   </div>
@@ -411,7 +411,7 @@
         <p id="xw-status" class="xw-status"></p>
         <div class="xw-btns">
           <button id="xw-hint" class="xw-btn-gold" type="button"><span aria-hidden="true">💡</span>BANTUAN (−20)</button>
-          <button id="xw-exit" class="btn play-btn xw-btn-red" type="button">PERMAINAN<svg class="play-tri" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.2v17.6L20.5 12z"/></svg></button>
+          <button id="xw-exit" class="btn play-btn xw-btn-red" type="button"><svg class="play-tri" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg>MENU PERMAINAN</button>
         </div>
       </div>
     </div>
@@ -490,7 +490,7 @@
       </div>
       <div class="done-btns">
         <button id="xw-again" class="done-again" type="button"><span class="done-play" aria-hidden="true"></span>MAIN SEMULA</button>
-        <button id="xw-back" class="done-home" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-5.2v-6.2H10.2V21H5a1 1 0 0 1-1-1z"/></svg>PERMAINAN</button>
+        <button id="xw-back" class="done-home" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg>MENU PERMAINAN</button>
       </div>
     </div>
   </div>
@@ -512,7 +512,7 @@
     <p id="ws-status" class="xw-status"></p>
     <div class="btn-row">
       <button id="ws-hint" class="btn secondary" type="button">BANTUAN (−20)</button>
-      <button id="ws-exit" class="btn" type="button">PERMAINAN</button>
+      <button id="ws-exit" class="btn" type="button"><svg class="back-tri" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg>MENU PERMAINAN</button>
     </div>
   </div>
   <div id="ws-rules" class="pf-overlay xw-done" hidden>
@@ -584,7 +584,7 @@
       </div>
       <div class="done-btns">
         <button id="ws-again" class="done-again" type="button"><span class="done-play" aria-hidden="true"></span>MAIN SEMULA</button>
-        <button id="ws-back" class="done-home" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2 12 4l8 7.2V20a1 1 0 0 1-1 1h-5.2v-6.2H10.2V21H5a1 1 0 0 1-1-1z"/></svg>PERMAINAN</button>
+        <button id="ws-back" class="done-home" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg>MENU PERMAINAN</button>
       </div>
     </div>
   </div>
@@ -604,15 +604,15 @@
   <div class="hub-body">
     <div class="hub-left" aria-hidden="true"></div>
     <aside class="level-panel cabaran">
-      <img class="cabaran-art" src="cabaran-panel.png?v=2" alt="Cabaran Anda">
+      <img class="cabaran-art" src="cabaran-panel.png?v=3" alt="Cabaran Anda">
       <div class="level-list" role="list">
         <button class="level-card" data-level="0" type="button" role="listitem" aria-label="Cabaran Kampung Laksa. Kumpul bahan laksa di kampung tradisi.">
           <span class="lv-status" hidden></span>
         </button>
-        <button class="level-card" data-level="1" type="button" role="listitem" aria-label="Cabaran Dapur Warisan. Kenali proses pembuatan laksa dengan gebok.">
+        <button class="level-card" data-level="1" type="button" role="listitem" aria-label="Cabaran Dapur Laksa. Kenali proses pembuatan laksa dengan gebok.">
           <span class="lv-status" hidden></span>
         </button>
-        <button class="level-card" data-level="2" type="button" role="listitem" aria-label="Cabaran Jejak Warisan. Terokai sejarah dan keunikan Laksa Pahang.">
+        <button class="level-card" data-level="2" type="button" role="listitem" aria-label="Cabaran Pasar Warisan. Terokai sejarah dan keunikan Laksa Pahang.">
           <span class="lv-status" hidden></span>
         </button>
       </div>
@@ -628,8 +628,8 @@
         <span>CARA<br>BERMAIN</span>
       </button>
       <button id="hub-games" class="side-btn hub-back" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 3 12l8 7v-4.5h4c3 0 5 1.5 6 4.5.3-5-2-9-8-9h-2z"/></svg>
-        <span>PERMAINAN</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg>
+        <span>MENU<br>PERMAINAN</span>
       </button>
       <div class="player-chip" hidden>Pemain: <strong id="hub-player"></strong> <button id="hub-switch" class="chip-link" type="button">Log Keluar</button></div>
     </nav>
@@ -701,21 +701,113 @@
   </div>
 </div>
 
-<div id="howto" class="screen" hidden>
-  <div class="card">
-    <div class="emblem" aria-hidden="true">🍜</div>
-    <h2 class="title small">CARA BERMAIN</h2>
-    <p class="tagline">Run the roads of Pahang. Dodge the obstacles, duck the signboards, collect every bowl of <strong>Laksa Pahang</strong> and hunt the brass <strong>gebuk</strong>.</p>
-    <div class="controls" aria-label="Keyboard controls">
-      <div><kbd>◂</kbd><kbd>▸</kbd><span>Change lane</span></div>
-      <div><kbd>▴</kbd><span>Jump</span></div>
-      <div><kbd>▾</kbd><span>Slide</span></div>
-      <div><kbd>P</kbd><span>Pause</span></div>
+<div id="howto" class="pf-overlay xw-done" hidden>
+  <div class="done-card rules-card qr-card">
+    <div class="done-head">
+      <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
+      <span class="done-ribbon">Laksa Gebok Run</span>
     </div>
-    <p class="controls-touch">On a touch screen: swipe left or right to change lane, swipe up or tap to jump, swipe down to slide. The ⏸ button pauses.</p>
-    <p class="controls-touch">One clock of 120 seconds for all three levels: reach each level's gebuk target to move on, and the time left carries over. Laksa bowls are unlimited: every bowl is +10, and 10 / 15 / 20 in one level earns the Pengumpul laksa badge. Enemies charge down the open lanes: wild boars and roosters in the kampung, rats and the cat in the kitchen, monkeys and dogs at the market. Jump over them or change lane; with the cili boost you bowl them over for +20. 3 ♥ for the whole run: a hit costs one and the run carries on; a game over or running out of time restarts the run from level 1. Laksa bowl +10 · gebuk +50 · enemy bowled over +20 · gebuk target +200 · level complete +300 · no hearts lost +100 · at the end, +10 per second left. Power-ups: 🧲 magnet laksa pulls bowls to you, 🛡 tudung saji absorbs one hit, 🌶 cili boost smashes through everything for a moment.</p>
-    <p class="best-line">Best score <strong id="best-start">0</strong></p>
-    <button id="howto-back" class="btn" type="button">PILIH LEVEL</button>
+    <div class="done-parchment rules-parch qr-parch">
+      <h2 class="rules-title qr-title"><span>Syarat Permainan</span></h2>
+      <ol class="qr-rows">
+        <li class="qr-row">
+          <span class="qr-num">1</span>
+          <span class="qr-ico qr-emoji" aria-hidden="true">🏃</span>
+          <p class="qr-text qr-bar"><b>Lari</b> di jalan Pahang: <b>tukar lorong</b> untuk mengelak, <b>lompat</b> halangan rendah dan <b>gelongsor</b> di bawah papan tanda.</p>
+          <span class="qr-art"><kbd class="qr-key">◂</kbd><kbd class="qr-key">▸</kbd><kbd class="qr-key">▴</kbd><kbd class="qr-key">▾</kbd></span>
+        </li>
+        <li class="qr-row qr-wide">
+          <span class="qr-num">2</span>
+          <span class="qr-ico qr-emoji" aria-hidden="true">👆</span>
+          <p class="qr-text qr-bar"><b>Skrin sentuh:</b> sapu kiri atau kanan untuk tukar lorong, sapu atas atau ketik untuk lompat, sapu bawah untuk gelongsor. <b>P</b> atau ⏸ untuk rehat.<span class="qr-line qr-chips"><span class="qr-chip">◂ ▸ Lorong</span><span class="qr-chip">▴ Lompat</span><span class="qr-chip">▾ Gelongsor</span><span class="qr-chip">P Rehat</span></span></p>
+        </li>
+        <li class="qr-row">
+          <span class="qr-num">3</span>
+          <span class="qr-ico" aria-hidden="true"><svg class="gebuk-icon big"><use href="#gebuk-svg"/></svg></span>
+          <p class="qr-text qr-bar"><b>Misi:</b> kutip <b>3 / 5 / 7 gebuk</b> untuk menamatkan Level 1 / 2 / 3. Gebuk ada di atas pagar, di bawah palang atau di lorong sempit.</p>
+          <span class="qr-art"><mark class="qr-pts">+50 setiap gebuk</mark></span>
+        </li>
+        <li class="qr-row">
+          <span class="qr-num">4</span>
+          <img class="qr-ico qr-img" src="laksa-bowl.png" alt="" aria-hidden="true">
+          <p class="qr-text qr-bar"><b>Mangkuk laksa</b> tanpa had: setiap semangkuk <mark class="qr-pts">10 mata</mark>. 10 / 15 / 20 semangkuk dalam satu level dapat lencana <b>Pengumpul laksa</b>.</p>
+        </li>
+        <li class="qr-row">
+          <span class="qr-num">5</span>
+          <span class="qr-ico qr-emoji" aria-hidden="true">⏳</span>
+          <p class="qr-text qr-bar"><b>Had masa: 120 saat</b> untuk ketiga-tiga level. Baki masa dibawa ke level seterusnya; di akhir Level 3, <mark class="qr-pts">+10 mata</mark> setiap saat yang berbaki.</p>
+          <span class="qr-art"><span class="qr-clock"><small>MASA</small>02:00</span></span>
+        </li>
+        <li class="qr-row">
+          <span class="qr-num">6</span>
+          <span class="qr-ico qr-emoji" aria-hidden="true">❤️</span>
+          <p class="qr-text qr-bar"><b>3 nyawa</b> untuk seluruh larian. Melanggar halangan atau musuh menolak satu nyawa, lalu anda kebal seketika. Nyawa habis: <b>ALAMAK!</b></p>
+          <span class="qr-art"><span class="qr-clock"><small>NYAWA</small>♥♥♥</span></span>
+        </li>
+        <li class="qr-row qr-wide">
+          <span class="qr-num">7</span>
+          <span class="qr-ico qr-star" aria-hidden="true">★</span>
+          <p class="qr-text qr-bar"><b>Kombo:</b> lompat sempurna <mark class="qr-pts">+30</mark>, gelongsor sempurna <mark class="qr-pts">+30</mark>, elak musuh <mark class="qr-pts">+20</mark>. Tiga aksi berturut <mark class="qr-pts">+50</mark> dan pengganda naik; satu langgaran menamatkan kombo.</p>
+        </li>
+        <li class="qr-row qr-wide">
+          <span class="qr-num">8</span>
+          <span class="qr-ico qr-emoji" aria-hidden="true">🧲</span>
+          <p class="qr-text qr-bar"><b>Power-up:</b> <b>Magnet laksa</b> menarik mangkuk, <b>Tudung saji</b> menahan satu langgaran, <b>Cili boost</b> merempuh halangan dan musuh (<mark class="qr-pts">+20</mark> setiap musuh).</p>
+        </li>
+        <li class="qr-row qr-wide">
+          <span class="qr-num">9</span>
+          <span class="qr-ico qr-emoji" aria-hidden="true">🏆</span>
+          <p class="qr-text qr-bar"><b>Skor:</b> misi gebuk <mark class="qr-pts">+200</mark>, level selesai <mark class="qr-pts">+300</mark>, tanpa langgaran <mark class="qr-pts">+100</mark>. Skor terkumpul ketiga-tiga level masuk ke Kedudukan Terkini.<span class="qr-line">Skor terbaik anda: <strong id="best-start">0</strong></span></p>
+        </li>
+      </ol>
+    </div>
+    <div class="done-btns">
+      <button id="howto-back" class="done-again" type="button">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="mission" class="pf-overlay xw-done" hidden>
+  <div class="done-card rules-card qr-card">
+    <div class="done-head">
+      <img class="done-logo" src="tahniah-logo.png" alt="Laksa Arcade">
+      <span class="done-ribbon">Laksa Gebok Run</span>
+    </div>
+    <div class="done-parchment rules-parch qr-parch">
+      <h2 class="rules-title qr-title"><span id="mi-title">Misi Level 1</span></h2>
+      <ol class="qr-rows">
+        <li class="qr-row qr-wide">
+          <span class="qr-num">1</span>
+          <span class="qr-ico qr-emoji" aria-hidden="true">📍</span>
+          <p class="qr-text qr-bar"><b id="mi-place">Kampung Laksa</b><span class="qr-line" id="mi-tagline">Kumpul bahan laksa di kampung tradisi.</span></p>
+        </li>
+        <li class="qr-row">
+          <span class="qr-num">2</span>
+          <span class="qr-ico" aria-hidden="true"><svg class="gebuk-icon big"><use href="#gebuk-svg"/></svg></span>
+          <p class="qr-text qr-bar">Kutip <b><span id="mi-gebuk">3</span> gebuk</b> untuk menamatkan level ini. Mangkuk laksa tanpa had; <b><span id="mi-laksa">10</span> semangkuk</b> dapat lencana Pengumpul laksa.</p>
+          <span class="qr-art"><mark class="qr-pts">+50 setiap gebuk</mark></span>
+        </li>
+        <li class="qr-row">
+          <span class="qr-num">3</span>
+          <span class="qr-ico qr-emoji" aria-hidden="true">⏳</span>
+          <p class="qr-text qr-bar"><b>Baki masa</b> dan <b>nyawa</b> dibawa dari level sebelum ini. Satu jam untuk ketiga-tiga level.</p>
+          <span class="qr-art"><span class="qr-clock"><small>MASA</small><span id="mi-time">2:00</span></span><span class="qr-clock"><small>NYAWA</small><span id="mi-lives">♥♥♥</span></span></span>
+        </li>
+        <li class="qr-row qr-wide">
+          <span class="qr-num">4</span>
+          <span class="qr-ico qr-emoji" aria-hidden="true">⚠️</span>
+          <p class="qr-text qr-bar"><b>Awas musuh:</b> <span id="mi-enemies">Babi hutan, Ayam jantan</span>. Lompat atau tukar lorong; halangan rendah dilompat, papan tanda digelongsor.</p>
+        </li>
+        <li class="qr-row qr-wide">
+          <span class="qr-num">5</span>
+          <span class="qr-ico qr-emoji" aria-hidden="true">👆</span>
+          <p class="qr-text qr-bar"><span class="qr-chips"><span class="qr-chip">◂ ▸ Lorong</span><span class="qr-chip">▴ Lompat</span><span class="qr-chip">▾ Gelongsor</span><span class="qr-chip">P Rehat</span></span></p>
+        </li>
+      </ol>
+    </div>
+    <div class="done-btns">
+      <button id="mission-ok" class="done-again" type="button">OK</button>
+    </div>
   </div>
 </div>
 
@@ -970,13 +1062,13 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="config.js?v=4"></script>
+<script src="config.js?v=6"></script>
 <script src="store.js?v=4"></script>
-<script src="admin.js"></script>
+<script src="admin.js?v=2"></script>
 <script src="platform.js"></script>
 <script src="platformer.js?v=23"></script>
 <script src="crossword.js?v=4"></script>
 <script src="wordsearch.js?v=6"></script>
-<script src="game.js?v=56"></script>
+<script src="game.js?v=58"></script>
 </body>
 </html>

@@ -261,8 +261,8 @@ from level 1. The three cards share the MISI SELESAI parchment design. Finishing
 | Level | Place | Mission (badge) | Obstacles and enemies |
 |---|---|---|---|
 | 1 · Kampung Laksa (easy) | village: houses, palms, stalls, river | 3 gebuk (10 laksa) | logs, barriers, crates, baskets, chickens, laundry lines, signboards, carts, stalls, vehicles; wild boars charging down the open lanes, roosters pacing between lanes |
-| 2 · Dapur Warisan (medium) | traditional kitchen: wooden floor, walls with shelves, beams | 5 gebuk (15 laksa) | firewood, pots, baskets, hanging utensils, shelves, tables, big pots, sacks, rolling pots, cooks and a cat crossing lanes; rats scurrying at you |
-| 3 · Jejak Warisan (hard) | heritage market at sunset: stalls, lanterns, bunting, crowds | 7 gebuk (20 laksa) | fruit baskets, crates, banners, stalls, crowds, carts crossing lanes, narrow fenced paths, faster rows; monkeys that hunt your lane and fast dogs |
+| 2 · Dapur Laksa (medium) | traditional kitchen: wooden floor, walls with shelves, beams | 5 gebuk (15 laksa) | firewood, pots, baskets, hanging utensils, shelves, tables, big pots, sacks, rolling pots, cooks and a cat crossing lanes; rats scurrying at you |
+| 3 · Pasar Warisan (hard) | heritage market at sunset: stalls, lanterns, bunting, crowds | 7 gebuk (20 laksa) | fruit baskets, crates, banners, stalls, crowds, carts crossing lanes, narrow fenced paths, faster rows; monkeys that hunt your lane and fast dogs |
 
 The HUD follows the Kampung Laksa mockup. Top left: the small Laksa Gebok Run
 logo and a wooden plate with a map pin and the level's name. Under it the MISI
@@ -372,8 +372,8 @@ total. Each level's own score is also kept (`levelBest`).
 The three levels step up (`levels[]` in `config.js`): Kampung Laksa runs at
 12 → 20 with single rows, its first three rows a hurdle, a bar and a wall in
 the middle lane one at a time (`patterns.tutorial`), and the odd boar;
-Dapur Warisan runs about 20 % faster (14.4 → 24) with shorter gaps, rats that
-hunt your lane, cats and cooks pacing across the lanes; Jejak Warisan about
+Dapur Laksa runs about 20 % faster (14.4 → 24) with shorter gaps, rats that
+hunt your lane, cats and cooks pacing across the lanes; Pasar Warisan about
 40 % faster (17 → 28) with the shortest breathers, monkeys and dogs, and
 three-lane rows. Beyond the plain rows, each level draws from a set of harder
 patterns by the chances in `patterns` (`game.js` `SPECIAL`):
@@ -425,6 +425,23 @@ one hit), 🌶 cili boost (level 3 and free run, 5 s, smashes obstacles).
 
 The pause menu offers resume, restart level, main menu and sound.
 
+## Syarat Permainan and the Misi Level card
+
+CARA BERMAIN on the hub opens the same "Syarat Permainan" card the other
+games use (`#howto`: the Laksa Arcade logo, the red Laksa Gebok Run ribbon, the
+gold title pill and numbered parchment rows with an icon, the text and a chip
+or key caps on the right): running and the controls, touch gestures, the gebuk
+mission, laksa bowls, the 120-second clock, the three hearts, combos,
+power-ups and the score, with the player's best run on the last row; OK
+returns to the hub. Every level now opens with a "Misi Level n" card in the
+same design (`#mission`, state `brief`): the place and its tagline
+(`tagline` in `config.js`), the gebuk target and the laksa badge count, the
+time and hearts carried in, the level's enemies by name (from the obstacle
+catalogue's labels) and the control chips. The road stands still until OK
+(or Enter / Space) starts the 3-2-1 countdown and shows the controls hint;
+`gebokDebug.skipReady()` passes both. `showMission` / `missionOk` are on
+`gebokDebug` too.
+
 ## Main menu
 
 The menu sits on a painted kampung scene (gebok-scene.jpg: timber houses, a
@@ -434,8 +451,8 @@ title is an illustration (gebok-logo.png: LAKSA GEBOK RUN with the golden
 gebok and a laksa bowl, and the red "Lari, Kumpul & Terokai Kulinari Warisan
 Pahang" ribbon) and the runner (runner-menu.png) sprints in at the bottom
 left. In the middle is the CABARAN ANDA board (cabaran-panel.png) with three
-illustrated cards: Cabaran Kampung Laksa, Cabaran Dapur Warisan and Cabaran
-Jejak Warisan. Each card is a transparent button over the art: an unlocked
+illustrated cards: Cabaran Kampung Laksa, Cabaran Dapur Laksa and Cabaran
+Pasar Warisan. Each card is a transparent button over the art: an unlocked
 card can be selected as the run's starting level (the run still has one 120 s
 clock and 3 hearts) and glows gold when selected, a locked card is dimmed
 with a padlock badge. The right column holds the three buttons: yellow MULA

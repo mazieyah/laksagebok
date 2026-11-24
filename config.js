@@ -103,6 +103,7 @@ window.GebokConfig = {
   levels: [
     {
       name: 'KAMPUNG LAKSA', title: 'Kampung Laksa', en: 'Easy', theme: 'A traditional Pahang village', env: 'village',
+      tagline: 'Kumpul bahan laksa di kampung tradisi.',   // the line under the level's name on the Misi Level card
       need: 3, laksaTarget: 10, gebukEvery: [2, 3],          // need = gebuk to finish the level; laksaTarget = bowls for the Pengumpul laksa badge (collecting is unlimited); gebukEvery = rows between gebuk
       speed: { start: 12, max: 20, accel: 0.14 }, gap: { min: 11, seconds: 1.3 },
       twoLane: 0.25, movers: 0.15, narrow: 0, enemies: 0.25, enemyHunt: 0.5, place: 'easy', powerups: ['magnet'],   // movers: rooster rows; enemies: chance of a wild boar charging down an open lane; enemyHunt scales how often it hunts your lane
@@ -114,7 +115,8 @@ window.GebokConfig = {
       },
     },
     {
-      name: 'DAPUR WARISAN', title: 'Dapur Warisan', en: 'Medium', theme: 'A traditional laksa kitchen', env: 'kitchen',
+      name: 'DAPUR LAKSA', title: 'Dapur Laksa', en: 'Medium', theme: 'A traditional laksa kitchen', env: 'kitchen',
+      tagline: 'Kenali proses pembuatan laksa dengan gebok.',
       need: 5, laksaTarget: 15, gebukEvery: [2, 3],
       speed: { start: 14.4, max: 24, accel: 0.16 }, gap: { min: 10, seconds: 1.05 },   // about 20% faster than Kampung Laksa
       twoLane: 0.45, movers: 0.25, narrow: 0, enemies: 0.4, enemyHunt: 1, place: 'skill', powerups: ['magnet', 'shield'],   // enemies: rats scurrying at you; the cat paces the lanes with the cooks
@@ -124,21 +126,22 @@ window.GebokConfig = {
       patterns: { jumpSlide: 0.15, doubleSwitch: 0.13, threeLane: 0.12, enemyLaksa: 0.1, crossing: 0.1 },   // the other 40% are plain rows, with their rats
       desc: 'Pots, tables, firewood and hanging utensils, with cooks and a cat crossing the lanes and rats scurrying at you. Each gebuk floats above a hurdle or hides under a rack: jump or slide.',
       heritage: {
-        title: 'Dapur Warisan',
+        title: 'Dapur Laksa',
         text: 'The gebuk is the press that gives the dish its name. The dough goes into the brass or wooden cylinder, the plunger is screwed down, and the noodles are pressed straight into a pot of boiling water. The gravy is made from boiled, flaked fish simmered with spices.',
       },
     },
     {
-      name: 'JEJAK WARISAN', title: 'Jejak Warisan', en: 'Hard', theme: 'A heritage food market', env: 'market',
+      name: 'PASAR WARISAN', title: 'Pasar Warisan', en: 'Hard', theme: 'A heritage food market', env: 'market',
+      tagline: 'Terokai sejarah dan keunikan Laksa Pahang.',
       need: 7, laksaTarget: 20, gebukEvery: [2, 3],
       speed: { start: 17, max: 28, accel: 0.18 }, gap: { min: 8.5, seconds: 0.9 },   // about 40% faster than Kampung Laksa, shorter breathers
       twoLane: 0.6, movers: 0.3, narrow: 0.12, enemies: 0.5, enemyHunt: 1.2, place: 'trap', powerups: ['magnet', 'shield', 'boost'],   // enemies: monkeys that hunt your lane and fast dogs
-      // as Dapur Warisan, plus two chargers a second apart in different lanes, and sequences: a three-lane row, a jump-slide
+      // as Dapur Laksa, plus two chargers a second apart in different lanes, and sequences: a three-lane row, a jump-slide
       // and a double switch with only `combo.reaction` seconds of road between them
       patterns: { jumpSlide: 0.12, doubleSwitch: 0.1, threeLane: 0.13, enemyLaksa: 0.1, enemyPair: 0.1, sequence: 0.1 },   // the other 35% are plain rows, with monkeys that hunt
       desc: 'Stalls, crowds and moving carts, narrow fenced paths and faster rows, with monkeys and dogs charging down the open lanes. Traffic boxes you in, and the gebuk is on the hurdle in the only open lane.',
       heritage: {
-        title: 'Jejak Warisan',
+        title: 'Pasar Warisan',
         text: 'A bowl of laksa gebuk carries the taste of Pahang: soft hand-pressed noodles, grey fish gravy, daun kesum, bunga kantan, cucumber, bean sprouts, sambal and a squeeze of lime. A gebuk is displayed at Muzium Pahang as part of the state\'s food heritage.',
       },
     },

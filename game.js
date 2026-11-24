@@ -56,6 +56,7 @@
     'login-popup', 'login-popup-card', 'login-popup-title', 'login-popup-text', 'login-popup-bar', 'login-popup-fill', 'login-popup-ok',
     'hub', 'hub-player', 'hub-switch', 'hub-howto', 'hub-games', 'reset', 'games', 'games-sound', 'platform', 'crossword', 'wordsearch', 'lb-tabs',
     'howto', 'howto-back', 'best-start', 'story', 'story-cards', 'story-note', 'story-back',
+    'mission', 'mission-ok', 'mi-title', 'mi-place', 'mi-tagline', 'mi-gebuk', 'mi-laksa', 'mi-time', 'mi-lives', 'mi-enemies',   // mi-: the Misi Level card (m- is the HUD's mission panel)
     'leaderboard', 'lb-list', 'lb-status', 'lb-me', 'lb-back', 'lb-refresh', 'results', 'rs-player', 'rs-cards', 'rs-filters', 'rs-history', 'rs-back',
     'pause', 'resume', 'restart', 'pause-menu', 'pause-sound',
     'complete', 'complete-title', 'c-laksa', 'c-gebuk', 'c-score',
@@ -73,7 +74,7 @@
   }
   ui.hearts = Array.from(document.querySelectorAll('#hearts .heart'));
   ui.cards = Array.from(document.querySelectorAll('.level-card'));
-  const SCREENS = ['register', 'games', 'platform', 'crossword', 'wordsearch', 'hub', 'howto', 'story', 'leaderboard', 'results', 'pause', 'complete', 'incomplete', 'over', 'final', 'settings', 'achv'];
+  const SCREENS = ['register', 'games', 'platform', 'crossword', 'wordsearch', 'hub', 'howto', 'mission', 'story', 'leaderboard', 'results', 'pause', 'complete', 'incomplete', 'over', 'final', 'settings', 'achv'];
   let backTo = 'hub';                     // where KEMBALI goes from the shared screens: the runner hub or the games hub
   let renderPaused = false;               // the 3D loop idles while another mini-game owns the screen
 
@@ -988,7 +989,7 @@
       if (stageOn && state === 'menu') playAnim('idle') || playAnim('run', { timeScale: 0.9 });
       else if (state === 'hit' || state === 'dead') playAnim('fall', { once: true, timeScale: TRAVELER.fallSpeed, fade: 0.08 });
       else if (state === 'won' || state === 'incomplete') playAnim('idle') || playAnim('run', { timeScale: 0.9 });
-      else if (state === 'ready') playAnim('idle') || playAnim('run', { timeScale: 0.9 });
+      else if (state === 'ready' || state === 'brief') playAnim('idle') || playAnim('run', { timeScale: 0.9 });
       else if (P.rolling) playAnim('slide', { once: true, fade: 0.1 }) || playAnim('run');
       else if (P.jumping) playAnim('jump', { once: true, offset: TRAVELER.jumpOffset, timeScale: TRAVELER.jumpSpeed, fade: 0.1 }) || playAnim('run');
       else playAnim('run', { timeScale: THREE.MathUtils.clamp(speed * (boostT > 0 ? PW.boostMultiplier : 1) * 0.075 + 0.25, 0.9, 1.8) });
@@ -1687,19 +1688,16 @@
     applyEnv(curLevel().env);
     ui.mute.hidden = false;
     resetRun(typeof startLives === 'number' ? startLives : CFG.lives);
-    state = 'ready';
+    state = 'brief';                       // the Misi Level card first; OK starts the countdown
     readyT = CFG.readyCountdown;
     countdownShown = '';
     overShown = false;
     hideScreens();
     ui.hud.hidden = false;
     ui.banner.hidden = true;
-    ui.hint.textContent = coarse
-      ? 'Swipe ◂ ▸ to change lane · swipe ▴ or tap to jump · swipe ▾ to slide'
-      : '◂ ▸ change lane · ▴ or Space to jump · ▾ or Shift to slide · P to pause';
-    ui.hint.hidden = false;
+    ui.hint.hidden = true;
     clearTimeout(hintTimer);
-    hintTimer = setTimeout(() => { ui.hint.hidden = true; }, 6000);
+    showMission();
     sfx.unlock();
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     updateHearts();
@@ -1992,7 +1990,36 @@
     });
     ui.achv.hidden = false;
   }
-  function showHowto() { menuState(); ui.bestStart.textContent = best; ui.howto.hidden = false; }
+  function showHowto() { menuState(); ui.bestStart.textContent = best; ui.howto.hidden = false; ui.howto.scrollTop = 0; ui.howtoBack.focus({ preventScroll: true }); }
+  // The Misi Level card before each level: the place, the gebuk target, the time and hearts carried in, the enemies.
+  function showMission() {
+    const L = curLevel(), pools = POOLS[L.env];
+    const enemies = Array.from(new Set(pools.enemy.concat(pools.lateral.filter((k) => OB[k].enemy)).map((k) => OB[k].label)));
+    ui.miTitle.textContent = 'Misi Level ' + (level + 1);
+    ui.miPlace.textContent = L.title;
+    ui.miTagline.textContent = L.tagline || L.theme || '';
+    ui.miGebuk.textContent = L.need;
+    ui.miLaksa.textContent = L.laksaTarget;
+    ui.miTime.textContent = fmtClock(timeLeft());
+    ui.miLives.textContent = '♥'.repeat(lives) + '♡'.repeat(Math.max(0, CFG.lives - lives));
+    ui.miEnemies.textContent = enemies.join(', ');
+    ui.mission.hidden = false;
+    ui.mission.scrollTop = 0;
+    ui.missionOk.focus({ preventScroll: true });
+  }
+  function missionOk() {
+    if (state !== 'brief') return;
+    ui.mission.hidden = true;
+    state = 'ready';
+    readyT = CFG.readyCountdown;
+    countdownShown = '';
+    ui.hint.textContent = coarse
+      ? 'Swipe ◂ ▸ to change lane · swipe ▴ or tap to jump · swipe ▾ to slide'
+      : '◂ ▸ change lane · ▴ or Space to jump · ▾ or Shift to slide · P to pause';
+    ui.hint.hidden = false;
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => { ui.hint.hidden = true; }, 6000);
+  }
   function showStory() {
     menuState();
     ui.storyCards.replaceChildren();
@@ -2800,6 +2827,8 @@
     } else if (playing) {
       runTime += dt;
       speed = Math.min(L.speed.max, speed + L.speed.accel * dt);
+    } else if (state === 'brief') {
+      speed = 0;                                               // the Misi Level card is up: nothing moves yet
     } else if (state === 'menu') {
       speed = stageOn ? 0 : 7;                                 // the menu scene stands still; only clouds and characters move
     } else if (state === 'dead' || state === 'hit') {
@@ -2882,6 +2911,7 @@
       if (state === 'dead' && overShown) { startCampaign(); e.preventDefault(); return; }
       if (state === 'incomplete' && overShown) { startCampaign(); e.preventDefault(); return; }
       if (state === 'won' && overShown) { nextLevel(); e.preventDefault(); return; }
+      if (state === 'brief') { missionOk(); e.preventDefault(); return; }
     }
     if (state !== 'playing') return;
     switch (k) {
@@ -2928,6 +2958,7 @@
   ui.hubSwitch.addEventListener('click', showRegister);
   ui.hubHowto.addEventListener('click', showHowto);
   ui.howtoBack.addEventListener('click', showHub);
+  ui.missionOk.addEventListener('click', missionOk);
   ui.storyBack.addEventListener('click', showHub);
   ui.lbBack.addEventListener('click', goBack);
   ui.rsBack.addEventListener('click', goBack);
@@ -3074,7 +3105,8 @@
       level = Math.max(0, Math.min(FREE - 1, i)); renderLevelSelect(); updateMissionHud();
     },
     startCampaign, selectLevel, showSettings, showAchievements, setStage, elder,
-    skipReady() { if (state === 'ready') { readyT = 0; update(0); } },
+    skipReady() { if (state === 'brief') missionOk(); if (state === 'ready') { readyT = 0; update(0); } },
+    showMission, missionOk,
     move, jump, roll, start: (l) => startGame(typeof l === 'number' ? l : undefined), nextLevel, showHub, showRegister, showLeaderboard, showStory, showFinal, showComplete, showGameOver, showIncomplete,
     register: (u, e) => GebokStore.register(u, e).then((p) => { useProfile(p); return p; }),
     store: window.GebokStore, player, sfx, applyPowerup,
