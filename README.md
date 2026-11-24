@@ -305,12 +305,20 @@ The pause menu offers resume, restart level, main menu and sound.
 The menu is drawn over the live 3D scene: the village at golden hour with both
 characters from the animation standing on the left (the Traveller and Lelaki
 Misteri, the hooded elder with the glowing stone, both procedural models).
-Centre: MULA LARIAN, CARA BERMAIN, KISAH WARISAN, PAPAN KEDUDUKAN. Right: the
-PILIH LEVEL parchment with three thumbnail cards; an unlocked card can be
-selected as the run's starting level (the run still has one 120 s clock and 3
-hearts), locked cards stay locked, completed cards show stars from their badges.
-Top right: achievements, settings (sound, switch player, reset, admin link) and
-sound. On phones the menu stacks vertically.
+The layout follows the user's mockup: the title (LAKSA over a wooden GEBOK RUN
+board, the golden gebok and a laksa bowl either side, leaves behind) with the
+red "Run, Collect & Discover Pahang Heritage!" ribbon under it; the big yellow
+MULA LARIAN pill with a red play disc in the middle, three small wooden chips
+under it (CARA BERMAIN, KISAH WARISAN, PENCAPAIAN); the PILIH LEVEL wooden
+frame on the right with three thumbnail cards: an unlocked card can be selected
+as the run's starting level (the run still has one 120 s clock and 3 hearts),
+locked cards turn grey with a padlock pill, open cards show a green pill with
+three stars lit by the badges earned there. Top right: the wooden icon buttons
+from the games hub (trophy = papan kedudukan, gear = tetapan, speaker = bunyi,
+with a red slash while muted). A blue batik band with gold motifs runs along
+the bottom and the purple PERMAINAN button (back to the games hub) sits on it
+at the right. On phones the menu stacks vertically and the level cards become
+rows.
 
 ## Menu music
 

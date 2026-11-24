@@ -755,7 +755,7 @@
     const tanHalf = Math.tan((camera.fov * Math.PI / 180) / 2) * camera.aspect;
     const ez = portrait ? 2.0 : 3.2, tz = portrait ? 2.6 : 3.8;
     const eHalf = (cam.pos[2] - ez) * tanHalf, tHalf = (cam.pos[2] - tz) * tanHalf;
-    return { elder: [-eHalf * (portrait ? 0.6 : 0.66), 0, ez], traveller: [-tHalf * (portrait ? 0.28 : 0.42), 0, tz], cam };
+    return { elder: [-eHalf * (portrait ? 0.6 : 0.74), 0, ez], traveller: [-tHalf * (portrait ? 0.28 : 0.52), 0, tz], cam };   // landscape: clear of the MULA LARIAN column
   }
   function setStage(on) {
     const was = stageOn;
@@ -1084,7 +1084,8 @@
     const off = sfx.allOff;                     // the quick buttons speak for both switches
     ui.mute.textContent = off ? '🔇' : '🔊';
     ui.mute.setAttribute('aria-pressed', off ? 'true' : 'false');
-    ui.hubSound.textContent = off ? '🔇' : '🔊';
+    ui.hubSound.classList.toggle('is-muted', off);
+    ui.hubSound.setAttribute('aria-pressed', off ? 'true' : 'false');
     ui.gamesSound.classList.toggle('is-muted', off);
     ui.gamesSound.setAttribute('aria-pressed', off ? 'true' : 'false');
     ui.pauseSound.textContent = 'BUNYI: ' + (off ? 'MATI' : 'HIDUP');
@@ -1606,6 +1607,16 @@
     ui.storyNote.textContent = CFG.heritageNote;
     ui.story.hidden = false;
   }
+  // The level card's pill: three stars (lit by the achievements earned there), or a padlock while the level is closed.
+  function statusStars(st, lit) {
+    st.replaceChildren(...[0, 1, 2].map((k) => { const s = document.createElement('i'); s.className = 'lv-star' + (k < lit ? ' lit' : ''); s.textContent = '★'; return s; }));
+  }
+  function statusLock(st) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('class', 'lv-lock');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M7 10V8a5 5 0 0 1 10 0v2h1.5A1.5 1.5 0 0 1 20 11.5v8a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19.5v-8A1.5 1.5 0 0 1 5.5 10zm2 0h6V8a3 3 0 0 0-6 0zm3 4a1.5 1.5 0 0 0-.75 2.8V18h1.5v-1.2A1.5 1.5 0 0 0 12 14z');
+    svg.append(path); st.replaceChildren(svg);
+  }
   function renderLevelSelect() {
     const got = ((GebokStore.current() || {}).achievements) || {};
     ui.cards.forEach((b) => {
@@ -1618,9 +1629,8 @@
       b.classList.toggle('selected', i === selectedLevel && !locked);
       b.setAttribute('aria-pressed', i === selectedLevel ? 'true' : 'false');
       st.classList.toggle('lock', locked);
-      if (locked) st.textContent = '🔒';
-      else if (done) { const n = (got[String(i + 1)] || []).length; st.textContent = n >= ACH.length ? '★★★' : n >= 3 ? '★★☆' : '★☆☆'; }
-      else st.textContent = '▶ Sedia';
+      if (locked) statusLock(st);
+      else { const n = done ? (got[String(i + 1)] || []).length : 0; statusStars(st, !done ? 0 : n >= ACH.length ? 3 : n >= 3 ? 2 : 1); }
       b.title = locked ? 'Selesaikan level ' + i + ' dahulu' : LEVELS[i].need + ' gebuk · ' + LEVELS[i].laksaTarget + ' laksa · ' + LEVELS[i].theme;
     });
     const L = LEVELS[selectedLevel];

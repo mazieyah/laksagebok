@@ -8,7 +8,7 @@
 <meta name="description" content="A 3D runner through Pahang's laksa gebuk heritage: three levels, laksa bowls, gebuk missions and three hearts.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@600;800&display=swap">
-<link rel="stylesheet" href="style.css?v=58">
+<link rel="stylesheet" href="style.css?v=59">
 </head>
 <body>
 <canvas id="game" aria-label="Laksa Gebok Run game view"></canvas>
@@ -25,6 +25,10 @@
       <rect x="16" y="61" width="32" height="32" rx="4"/>
       <rect x="16" y="66" width="32" height="3" fill="#8c7336" stroke="none"/>
     </g>
+  </symbol>
+  <symbol id="batik-motif" viewBox="0 0 24 24">
+    <g fill="currentColor"><ellipse cx="12" cy="5" rx="3" ry="5"/><ellipse cx="12" cy="19" rx="3" ry="5"/><ellipse cx="5" cy="12" rx="5" ry="3"/><ellipse cx="19" cy="12" rx="5" ry="3"/></g>
+    <circle cx="12" cy="12" r="2.4" fill="currentColor" opacity=".45"/>
   </symbol>
 </svg>
 
@@ -551,62 +555,82 @@
 
 <div id="hub" class="screen hub" hidden>
   <div class="hub-top">
-    <div class="logo" aria-label="Laksa Gebok Run">
-      <span class="logo-deco left" aria-hidden="true"><svg class="gebuk-icon" aria-hidden="true"><use href="#gebuk-svg"/></svg></span>
-      <h1 class="logo-title"><span class="l1">LAKSA</span><span class="l2">GEBOK RUN</span></h1>
-      <span class="logo-deco right" aria-hidden="true">🍜</span>
-      <div class="ribbon"><span>Run, Collect &amp; Discover Pahang Heritage!</span></div>
+    <div class="run-logo" aria-label="Laksa Gebok Run">
+      <svg class="logo-leaf l" viewBox="0 0 60 40" aria-hidden="true"><path d="M2 36C10 10 40 2 58 4 50 24 28 38 2 36z" fill="#3f9a3a"/><path d="M4 35C20 24 36 14 56 5" stroke="#2c6e2a" stroke-width="2" fill="none"/></svg>
+      <svg class="logo-leaf r" viewBox="0 0 60 40" aria-hidden="true"><path d="M58 36C50 10 20 2 2 4 10 24 32 38 58 36z" fill="#3f9a3a"/><path d="M56 35C40 24 24 14 4 5" stroke="#2c6e2a" stroke-width="2" fill="none"/></svg>
+      <img class="logo-gebok" src="golden-gebok.png" alt="">
+      <h1 class="run-title"><span class="l1">LAKSA</span><span class="l2">GEBOK RUN</span></h1>
+      <img class="logo-bowl" src="laksa-bowl.png" alt="">
+      <div class="run-ribbon-wrap"><div class="run-ribbon"><svg class="motif" aria-hidden="true"><use href="#batik-motif"/></svg><span>Run, Collect &amp; Discover Pahang Heritage!</span><svg class="motif" aria-hidden="true"><use href="#batik-motif"/></svg></div></div>
     </div>
-    <button id="hub-games" class="back-btn" type="button">← PERMAINAN</button>
-    <div class="top-nav">
-      <button id="hub-achv" class="round-btn" type="button" aria-label="Achievements" title="Pencapaian">🏆</button>
-      <button id="hub-settings" class="round-btn" type="button" aria-label="Settings" title="Tetapan">⚙️</button>
-      <button id="hub-sound" class="round-btn" type="button" aria-label="Toggle sound" title="Bunyi">🔊</button>
-    </div>
+    <nav class="run-nav" aria-label="Menu">
+      <button id="hub-lb" class="round-btn" type="button" aria-label="Papan kedudukan" title="Papan kedudukan"><img src="nav-trophy.png" alt=""></button>
+      <button id="hub-settings" class="round-btn" type="button" aria-label="Tetapan" title="Tetapan"><img src="nav-gear.png" alt=""></button>
+      <button id="hub-sound" class="round-btn" type="button" aria-label="Bunyi" title="Bunyi" aria-pressed="false"><img src="nav-sound.png" alt=""></button>
+    </nav>
   </div>
   <div class="hub-body">
-    <div class="hub-left">
-      <div class="player-chip">Pemain: <strong id="hub-player"></strong> <button id="hub-switch" class="chip-link" type="button">Log Keluar</button></div>
-    </div>
+    <div class="hub-left" aria-hidden="true"></div>
     <nav class="hub-nav" aria-label="Main menu">
-      <button id="hub-start" class="play-btn" type="button"><span class="play-icon" aria-hidden="true">▶</span><span class="play-text">MULA LARIAN</span></button>
-      <button id="hub-howto" class="wood-btn" type="button"><span class="wood-icon" aria-hidden="true">🎮</span><span>CARA BERMAIN</span></button>
-      <button id="hub-story" class="wood-btn" type="button"><span class="wood-icon" aria-hidden="true">📖</span><span>KISAH WARISAN</span></button>
-      <button id="hub-lb" class="wood-btn" type="button"><span class="wood-icon" aria-hidden="true">🏅</span><span>PAPAN KEDUDUKAN</span></button>
+      <button id="hub-start" class="mula-btn" type="button">
+        <svg class="motif dim" aria-hidden="true"><use href="#batik-motif"/></svg>
+        <span class="mula-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15L20 12z"/></svg></span>
+        <span class="mula-text"><span>MULA</span><span>LARIAN</span></span>
+        <svg class="motif dim" aria-hidden="true"><use href="#batik-motif"/></svg>
+      </button>
+      <div class="hub-chips">
+        <button id="hub-howto" class="chip-btn" type="button"><span aria-hidden="true">🎮</span>CARA BERMAIN</button>
+        <button id="hub-story" class="chip-btn" type="button"><span aria-hidden="true">📖</span>KISAH WARISAN</button>
+        <button id="hub-achv" class="chip-btn" type="button"><span aria-hidden="true">🏅</span>PENCAPAIAN</button>
+      </div>
+      <div class="player-chip" hidden>Pemain: <strong id="hub-player"></strong> <button id="hub-switch" class="chip-link" type="button">Log Keluar</button></div>
     </nav>
     <aside class="level-panel">
-      <div class="panel-title"><span>✦</span> PILIH LEVEL <span>✦</span></div>
+      <div class="panel-title"><svg class="motif" aria-hidden="true"><use href="#batik-motif"/></svg><span>PILIH LEVEL</span><svg class="motif" aria-hidden="true"><use href="#batik-motif"/></svg></div>
       <div class="level-list" role="list">
         <button class="level-card" data-level="0" type="button" role="listitem">
           <span class="lv-head lv1">LEVEL 1</span>
           <span class="thumb" aria-hidden="true">
-            <svg viewBox="0 0 100 64" preserveAspectRatio="none"><rect width="100" height="64" fill="#8fd3f4"/><polygon points="0,40 22,18 44,40" fill="#6fa39b"/><polygon points="30,42 60,14 92,42" fill="#5c8f88"/><rect y="40" width="100" height="24" fill="#6fa84f"/><rect x="46" y="30" width="30" height="16" fill="#f2e2c4"/><polygon points="43,30 61,18 79,30" fill="#b5432e"/><rect x="56" y="36" width="6" height="10" fill="#5a3a22"/><rect x="14" y="26" width="3" height="22" fill="#8d6a46"/><ellipse cx="15" cy="24" rx="10" ry="4" fill="#3d8c38"/><rect x="86" y="30" width="3" height="18" fill="#8d6a46"/><ellipse cx="87" cy="28" rx="9" ry="4" fill="#4ea845"/><rect y="56" width="100" height="8" fill="#50545c"/></svg>
+            <svg viewBox="0 0 100 64" preserveAspectRatio="none"><defs><linearGradient id="t1s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6cc0f0"/><stop offset="1" stop-color="#d8f3ff"/></linearGradient></defs><rect width="100" height="64" fill="url(#t1s)"/><ellipse cx="18" cy="12" rx="9" ry="4" fill="#fff" opacity=".85"/><ellipse cx="70" cy="9" rx="11" ry="4.5" fill="#fff" opacity=".85"/><polygon points="0,38 20,20 42,38" fill="#5c9e8c"/><polygon points="28,40 58,16 92,40" fill="#4f8d7f"/><polygon points="70,40 100,24 100,40" fill="#5c9e8c"/><rect y="38" width="100" height="26" fill="#6cae45"/><rect x="40" y="34" width="34" height="14" fill="#b8793b"/><rect x="44" y="48" width="3" height="8" fill="#6b4a2e"/><rect x="55" y="48" width="3" height="8" fill="#6b4a2e"/><rect x="67" y="48" width="3" height="8" fill="#6b4a2e"/><polygon points="36,34 57,20 78,34" fill="#c7402c"/><polygon points="40,34 57,23 74,34" fill="#e05a3a"/><rect x="46" y="38" width="6" height="6" fill="#f6e7c8"/><rect x="62" y="38" width="6" height="6" fill="#f6e7c8"/><rect x="54" y="40" width="6" height="8" fill="#5a3a22"/><path d="M14 54q2-16 4-26" stroke="#8d6a46" stroke-width="2.5" fill="none"/><ellipse cx="18" cy="26" rx="11" ry="4" fill="#2f8f3f" transform="rotate(-20 18 26)"/><ellipse cx="18" cy="26" rx="11" ry="4" fill="#3fa84a" transform="rotate(30 18 26)"/><path d="M88 54q-1-14-2-24" stroke="#8d6a46" stroke-width="2.5" fill="none"/><ellipse cx="86" cy="28" rx="10" ry="3.6" fill="#2f8f3f" transform="rotate(20 86 28)"/><ellipse cx="86" cy="28" rx="10" ry="3.6" fill="#3fa84a" transform="rotate(-30 86 28)"/><rect y="56" width="100" height="8" fill="#5b5f66"/><path d="M6 60h10M26 60h10M46 60h10M66 60h10M86 60h10" stroke="#f2d94e" stroke-width="1.4"/></svg>
           </span>
           <span class="lv-name">Kampung Laksa</span>
-          <span class="diff d1">Mudah</span>
           <span class="lv-status"></span>
         </button>
         <button class="level-card" data-level="1" type="button" role="listitem">
           <span class="lv-head lv2">LEVEL 2</span>
           <span class="thumb" aria-hidden="true">
-            <svg viewBox="0 0 100 64" preserveAspectRatio="none"><rect width="100" height="64" fill="#6b4a2e"/><rect y="44" width="100" height="20" fill="#b07a3a"/><rect x="8" y="12" width="26" height="4" fill="#8a5a2b"/><rect x="10" y="4" width="6" height="8" fill="#d9c7a0"/><rect x="20" y="3" width="6" height="9" fill="#c8b394"/><rect x="34" y="40" width="34" height="10" fill="#8a4b2b"/><ellipse cx="51" cy="38" rx="16" ry="6" fill="#222"/><rect x="35" y="30" width="32" height="8" fill="#2a2a2a"/><rect x="46" y="44" width="10" height="4" fill="#f28c28"/><path d="M48 28 q4 -8 0 -16" stroke="#f4f4f4" stroke-width="3" fill="none" opacity=".8"/><path d="M56 26 q4 -8 0 -14" stroke="#f4f4f4" stroke-width="3" fill="none" opacity=".6"/><rect x="78" y="8" width="3" height="20" fill="#333"/><ellipse cx="79" cy="31" rx="7" ry="4" fill="#2a2a2a"/></svg>
+            <svg viewBox="0 0 100 64" preserveAspectRatio="none"><defs><linearGradient id="t2w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a35"/><stop offset="1" stop-color="#5e3a22"/></linearGradient></defs><rect width="100" height="64" fill="url(#t2w)"/><rect y="46" width="100" height="18" fill="#b07a3a"/><rect y="46" width="100" height="2" fill="#d9a35c"/><rect x="66" y="8" width="24" height="18" fill="#9fd8f5" stroke="#3b2414" stroke-width="2"/><path d="M78 8v18M66 17h24" stroke="#3b2414" stroke-width="1.5"/><rect x="8" y="16" width="34" height="3" fill="#3b2414"/><rect x="11" y="6" width="6" height="10" rx="1.5" fill="#d9c7a0"/><rect x="20" y="8" width="6" height="8" rx="1.5" fill="#c8b394"/><rect x="29" y="5" width="7" height="11" rx="1.5" fill="#e0a24a"/><rect x="30" y="40" width="40" height="10" rx="2" fill="#4a3220"/><rect x="34" y="47" width="8" height="4" fill="#f28c28"/><rect x="58" y="47" width="8" height="4" fill="#f28c28"/><rect x="34" y="28" width="32" height="13" rx="3" fill="#2a2a2a"/><ellipse cx="50" cy="28" rx="16" ry="4" fill="#3d3d3d"/><rect x="30" y="31" width="5" height="3" fill="#555"/><rect x="65" y="31" width="5" height="3" fill="#555"/><path d="M44 24q4-6 0-12" stroke="#fff" stroke-width="2.5" fill="none" opacity=".75"/><path d="M52 23q4-6 0-11" stroke="#fff" stroke-width="2.5" fill="none" opacity=".6"/><path d="M59 25q3-5 0-9" stroke="#fff" stroke-width="2" fill="none" opacity=".5"/><rect x="80" y="30" width="2.5" height="16" fill="#3b2414"/><ellipse cx="81" cy="48" rx="5" ry="3" fill="#2a2a2a"/></svg>
           </span>
           <span class="lv-name">Dapur Warisan</span>
-          <span class="diff d2">Sederhana</span>
           <span class="lv-status"></span>
         </button>
         <button class="level-card" data-level="2" type="button" role="listitem">
           <span class="lv-head lv3">LEVEL 3</span>
           <span class="thumb" aria-hidden="true">
-            <svg viewBox="0 0 100 64" preserveAspectRatio="none"><rect width="100" height="64" fill="#f6b26b"/><rect y="46" width="100" height="18" fill="#b8a37e"/><polygon points="8,26 50,10 92,26" fill="#d62828"/><polygon points="16,26 50,13 84,26" fill="#f4f4f4"/><polygon points="24,26 50,16 76,26" fill="#2e63b8"/><rect x="14" y="26" width="72" height="4" fill="#8a5a2b"/><rect x="18" y="30" width="4" height="18" fill="#6b4a2e"/><rect x="78" y="30" width="4" height="18" fill="#6b4a2e"/><rect x="24" y="36" width="52" height="12" fill="#a8763d"/><circle cx="34" cy="34" r="4" fill="#f28c28"/><circle cx="46" cy="34" r="4" fill="#3f8f3d"/><circle cx="58" cy="34" r="4" fill="#f2d94e"/><circle cx="68" cy="34" r="4" fill="#d62828"/><ellipse cx="92" cy="20" rx="5" ry="7" fill="#d62828"/><rect x="90" y="12" width="4" height="3" fill="#f2b63c"/></svg>
+            <svg viewBox="0 0 100 64" preserveAspectRatio="none"><defs><linearGradient id="t3s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6b26b"/><stop offset="1" stop-color="#ffe3b3"/></linearGradient></defs><rect width="100" height="64" fill="url(#t3s)"/><rect y="50" width="100" height="14" fill="#b8a37e"/><rect x="14" y="30" width="72" height="20" fill="#e9dcc0"/><polygon points="8,30 50,12 92,30" fill="#a7121c"/><polygon points="14,29 50,15 86,29" fill="#f2d7a7"/><rect x="12" y="29" width="76" height="3" fill="#8a6a46"/><rect x="20" y="33" width="5" height="17" fill="#fff6e4"/><rect x="34" y="33" width="5" height="17" fill="#fff6e4"/><rect x="61" y="33" width="5" height="17" fill="#fff6e4"/><rect x="75" y="33" width="5" height="17" fill="#fff6e4"/><rect x="43" y="38" width="14" height="12" fill="#5a3a22"/><rect x="36" y="19" width="28" height="6" rx="1" fill="#4a2c14"/><text x="50" y="23.8" font-size="4.6" font-family="Arial, sans-serif" font-weight="700" fill="#ffd54a" text-anchor="middle">MUZIUM</text><rect x="10" y="50" width="80" height="3" fill="#cdbb95"/><rect x="6" y="53" width="88" height="3" fill="#bfab85"/><rect x="90" y="14" width="2" height="36" fill="#6b4a2e"/><rect x="92" y="14" width="6" height="4" fill="#fff"/><rect x="92" y="18" width="6" height="4" fill="#222"/></svg>
           </span>
           <span class="lv-name">Jejak Warisan</span>
-          <span class="diff d3">Sukar</span>
           <span class="lv-status"></span>
         </button>
       </div>
       <p id="hub-note" class="panel-note"></p>
     </aside>
+  </div>
+  <div class="hub-foot">
+    <svg class="batik-band" viewBox="0 0 1600 120" preserveAspectRatio="xMinYMax slice" aria-hidden="true">
+      <defs>
+        <pattern id="batik-pat" width="64" height="64" patternUnits="userSpaceOnUse">
+          <use href="#batik-motif" x="6" y="8" width="24" height="24" color="#ffd54a"/>
+          <use href="#batik-motif" x="38" y="38" width="20" height="20" color="#ffd54a"/>
+          <circle cx="46" cy="14" r="2.2" fill="#ffd54a"/><circle cx="14" cy="48" r="2.2" fill="#ffd54a"/>
+        </pattern>
+      </defs>
+      <path d="M0 38C140 8 260 70 400 44S640 10 780 50 1040 96 1200 70 1480 50 1600 72V120H0z" fill="#1d3f8f"/>
+      <path d="M0 38C140 8 260 70 400 44S640 10 780 50 1040 96 1200 70 1480 50 1600 72V120H0z" fill="url(#batik-pat)" opacity=".85"/>
+      <path d="M0 38C140 8 260 70 400 44S640 10 780 50 1040 96 1200 70 1480 50 1600 72" fill="none" stroke="#ffd54a" stroke-width="5"/>
+      <path d="M0 50C140 20 260 82 400 56S640 22 780 62 1040 108 1200 82 1480 62 1600 84" fill="none" stroke="#ffd54a" stroke-width="1.6" opacity=".75"/>
+    </svg>
+    <button id="hub-games" class="games-btn" type="button"><svg viewBox="0 0 32 22" aria-hidden="true"><path d="M8 1h16a7 7 0 0 1 7 7v5a7 7 0 0 1-12.4 4.4L17.4 16h-2.8l-1.2 1.4A7 7 0 0 1 1 13V8a7 7 0 0 1 7-7z" fill="#fff"/><path d="M6.8 6.2h2.4v2.4h2.4V11h-2.4v2.4H6.8V11H4.4V8.6h2.4zM22 6.6a1.7 1.7 0 1 1 0 3.4 1.7 1.7 0 0 1 0-3.4zm3.8 3.6a1.7 1.7 0 1 1 0 3.4 1.7 1.7 0 0 1 0-3.4z" fill="#6a1fb0"/></svg><span>PERMAINAN</span></button>
   </div>
 </div>
 
@@ -906,6 +930,6 @@
 <script src="platformer.js?v=23"></script>
 <script src="crossword.js?v=4"></script>
 <script src="wordsearch.js?v=6"></script>
-<script src="game.js?v=37"></script>
+<script src="game.js?v=38"></script>
 </body>
 </html>
