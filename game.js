@@ -59,7 +59,7 @@
     'pause', 'resume', 'restart', 'pause-menu', 'pause-sound',
     'complete', 'complete-title', 'c-laksa', 'c-gebuk', 'c-score',
     'complete-rank', 'next', 'next-text',
-    'incomplete', 'i-gebuk', 'i-need', 'i-laksa', 'i-score', 'i-lives', 'retry-inc', 'inc-menu',
+    'incomplete', 'i-note', 'i-gebuk', 'i-need', 'i-laksa', 'i-score', 'i-lives', 'retry-inc', 'inc-menu',
     'over', 'new-best', 'final-score', 'final-laksa', 'final-gebuk', 'final-dist', 'final-rank', 'again',
     'final', 'f-score', 'f-laksa', 'f-gebuk', 'final-replay', 'final-story',
     'timer', 'hub-start', 'c-timeleft', 'c-total', 'i-level', 'f-time',
@@ -1780,12 +1780,13 @@
   function showIncomplete() {
     overShown = true;
     ui.hud.hidden = true;
-    ui.iLevel.textContent = 'The ' + CFG.timeLimit + ' seconds ran out during level ' + (level + 1) + ' · ' + curLevel().title + '. Start the run again from level 1.';
+    ui.iLevel.textContent = 'LEVEL ' + (level + 1) + ' · ' + curLevel().title.toUpperCase();
+    ui.iNote.textContent = CFG.timeLimit + ' saat larian habis. Mula semula dari Level 1' + (CFG.livesCarryOver ? ', nyawa dikekalkan.' : '.');
     ui.iGebuk.textContent = Math.min(levelCount, curLevel().need);
     ui.iNeed.textContent = curLevel().need;
     ui.iLaksa.textContent = laksaCount;
     ui.iScore.textContent = fmt(runTotal());
-    ui.iLives.textContent = '♥'.repeat(lives) + '♡'.repeat(CFG.lives - lives) + (CFG.livesCarryOver ? ' (kept for the retry)' : '');
+    ui.iLives.textContent = '♥'.repeat(lives) + '♡'.repeat(CFG.lives - lives);
     ui.incomplete.hidden = false;
   }
   function showGameOver() {
@@ -2939,7 +2940,7 @@
     },
     startCampaign, selectLevel, showSettings, showAchievements, setStage, elder,
     skipReady() { if (state === 'ready') { readyT = 0; update(0); } },
-    move, jump, roll, start: (l) => startGame(typeof l === 'number' ? l : undefined), nextLevel, showHub, showRegister, showLeaderboard, showStory, showFinal, showComplete, showGameOver,
+    move, jump, roll, start: (l) => startGame(typeof l === 'number' ? l : undefined), nextLevel, showHub, showRegister, showLeaderboard, showStory, showFinal, showComplete, showGameOver, showIncomplete,
     register: (u, e) => GebokStore.register(u, e).then((p) => { useProfile(p); return p; }),
     store: window.GebokStore, player, sfx, applyPowerup,
     showGames: () => window.LaksaArcade.showGames(), setLbTab, goBack, intro, showResults,

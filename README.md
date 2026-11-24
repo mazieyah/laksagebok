@@ -254,8 +254,9 @@ One run is the three levels in a row on a single clock: **120 seconds and 3
 hearts for all of them** (`timeLimit`, `lives` in `config.js`). Each level ends
 the moment its gebuk mission is done (laksa bowls are unlimited), and the time left, the hearts left and
 the score carry into the next level. The clock running out, at any level, shows
-Masa Tamat; losing the third heart shows the ALAMAK! card; both restart the run
-from level 1. Finishing level 3 shows the TAHNIAH! Heritage Master card with the run total.
+the MASA TAMAT! card (blue ribbon; level, gebuk, laksa, hearts and the run
+total, MULA SEMULA / PILIH LEVEL); losing the third heart shows the ALAMAK! card; both restart the run
+from level 1. The three cards share the MISI SELESAI parchment design. Finishing level 3 shows the TAHNIAH! Heritage Master card with the run total.
 
 | Level | Place | Mission (badge) | Obstacles and enemies |
 |---|---|---|---|
