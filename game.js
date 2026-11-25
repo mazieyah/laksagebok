@@ -62,7 +62,7 @@
     'complete', 'complete-title', 'c-laksa', 'c-gebuk', 'c-score',
     'complete-rank', 'next', 'next-text',
     'incomplete', 'i-note', 'i-gebuk', 'i-need', 'i-laksa', 'i-score', 'i-lives', 'retry-inc', 'inc-menu',
-    'over', 'new-best', 'final-score', 'final-laksa', 'final-gebuk', 'final-dist', 'final-rank', 'again',
+    'over', 'over-menu', 'complete-menu', 'final-menu', 'new-best', 'final-score', 'final-laksa', 'final-gebuk', 'final-dist', 'final-rank', 'again',
     'final', 'f-score', 'f-laksa', 'f-gebuk', 'final-replay', 'final-story',
     'timer', 'hub-start', 'c-timeleft', 'c-total', 'i-level', 'f-time',
     'hub-settings', 'hub-sound', 'hub-note', 'settings', 'settings-music', 'settings-sfx', 'st-tabs', 'settings-switch', 'settings-back', 'settings-player', 'about-studio', 'about-text', 'about-credits', 'about-version', 'achv', 'achv-list', 'achv-back',
@@ -2986,7 +2986,10 @@
   ui.retryInc.addEventListener('click', startCampaign);
   ui.incMenu.addEventListener('click', showHub);
   ui.again.addEventListener('click', startCampaign);
-  ui.finalReplay.addEventListener('click', showHub);
+  ui.overMenu.addEventListener('click', showHub);   // ALAMAK!: back to the Gebok Run menu (level select)
+  ui.finalReplay.addEventListener('click', startCampaign);   // TAHNIAH!: MAIN SEMULA plays the three levels again from level 1
+  ui.finalMenu.addEventListener('click', showHub);
+  ui.completeMenu.addEventListener('click', showHub);        // MISI SELESAI: leave the run for the level select (the level is already banked)
   ui.finalStory.addEventListener('click', showStory);
   let resetArmed = 0;
   ui.reset.addEventListener('click', () => {

@@ -2265,7 +2265,7 @@ td.empty { color: var(--muted); text-align: center; padding: 20px; }
 .mc-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 .mc-btns .mc-next { font-size: clamp(17px, 1.9vw, 22px); padding: 7px 26px 9px 10px; gap: 10px; }
 .mc-btns .mc-next-ico { width: clamp(30px, 3vw, 38px); height: clamp(30px, 3vw, 38px); }
-#final .mc-boy, #incomplete .mc-boy { left: -22%; }   /* two buttons: keep the traveller clear of the left one */
+#final .mc-boy, #incomplete .mc-boy, #over .mc-boy, #complete .mc-boy { left: -22%; }   /* two buttons: keep the traveller clear of the left one */
 .mc-next.alt { background: linear-gradient(#a24ddc, #6a1fb0 55%, #4d157f); box-shadow: inset 0 3px 0 rgba(255,255,255,.3), inset 0 0 0 2px #3a0f60, 0 6px 0 #2a0b48, 0 12px 22px rgba(0,0,0,.35); text-shadow: 0 2px 0 #2a0b48; }
 .mc-next.alt:active { box-shadow: inset 0 3px 0 rgba(255,255,255,.3), inset 0 0 0 2px #3a0f60, 0 2px 0 #2a0b48; }
 .mc-next.alt .mc-next-ico svg { fill: #6a1fb0; }
